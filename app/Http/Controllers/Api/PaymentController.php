@@ -152,33 +152,69 @@ class PaymentController extends Controller
         $eventType  = $webhookData["event_type"];
         $sid         = $webhookData['resource']['id'];
 
-       
+        $subscription = PaypalSubscription::query()->where('subscription_id', $sid)->first();
+
     if ($eventType == WebPaymentHelper::BILLING_EVENT_ACTIVATED) {
-        PaypalSubscription::query()->where('subscription_id', $sid)->update([
-            'status' => 'Approved'
-        ]); 
-    } else {
-        if (WebPaymentHelper::BILLING_EVENT_CANCELLED) {
-            PaypalSubscription::query()->where('subscription_id', $sid)->update([
-                'status' => 'Cancelled'
-            ]);
-        } elseif (WebPaymentHelper::BILLING_EVENT_PAYMENT_FAILED) {
-            PaypalSubscription::query()->where('subscription_id', $sid)->update([
-                'status' => 'Failed'
-            ]);
-        } elseif (WebPaymentHelper::BILLING_EVENT_SUSPENDED) {
-            PaypalSubscription::query()->where('subscription_id', $sid)->update([
-                'status' => 'Suspended'
-            ]);
-        } else if (WebPaymentHelper::BILLING_EVENT_RE_ACTIVATED) {
-            PaypalSubscription::query()->where('subscription_id', $sid)->update([
-                'status' => 'Re-Activated'
+        if($subscription){
+            $subscription->update([
+                'status' => 'Approved'
             ]);
 
-        } elseif (WebPaymentHelper::BILLING_EVENT_RENEWED) {
-            PaypalSubscription::query()->where('subscription_id', $sid)->update([
-                'status' => 'Renewed'
+            User::where('id',$subscription->user_id)->update([
+                'subscription' => '1'
             ]);
+        }   
+    } else {
+        if (WebPaymentHelper::BILLING_EVENT_CANCELLED) {
+            if($subscription){
+                $subscription->update([
+                    'status' => 'Cancelled'
+                ]);
+    
+                User::where('id',$subscription->user_id)->update([
+                    'subscription' => '0'
+                ]);
+            } 
+        } elseif (WebPaymentHelper::BILLING_EVENT_PAYMENT_FAILED) {
+            if($subscription){
+                $subscription->update([
+                    'status' => 'Failed'
+                ]);
+    
+                User::where('id',$subscription->user_id)->update([
+                    'subscription' => '0'
+                ]);
+            } 
+        } elseif (WebPaymentHelper::BILLING_EVENT_SUSPENDED) {
+            if($subscription){
+                $subscription->update([
+                    'status' => 'Suspended'
+                ]);
+    
+                User::where('id',$subscription->user_id)->update([
+                    'subscription' => '0'
+                ]);
+            } 
+        } else if (WebPaymentHelper::BILLING_EVENT_RE_ACTIVATED) {
+            if($subscription){
+                $subscription->update([
+                    'status' => 'Re-Activated'
+                ]);
+    
+                User::where('id',$subscription->user_id)->update([
+                    'subscription' => '1'
+                ]);
+            } 
+        } elseif (WebPaymentHelper::BILLING_EVENT_RENEWED) {
+            if($subscription){
+                $subscription->update([
+                    'status' => 'Renewed'
+                ]);
+    
+                User::where('id',$subscription->user_id)->update([
+                    'subscription' => '1'
+                ]);
+            } 
         }
     }
     }
