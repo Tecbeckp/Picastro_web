@@ -9,7 +9,7 @@
                     </div>
                 </div>
                 <div class="p-3">
-                    <h5 class="fs-14 mb-3"><a href="#" class="text-body">{{ $post->object_name }}</a></h5>
+                    <h5 class="fs-14 mb-3"><a href="{{route('posts.show', encrypt($post->id))}}" class="text-body">{{ $post->catalogue_number ?? $post->post_image_title }}</a></h5>
                     <div class="row gy-3">
                         <div class="col-6">
                             <div>

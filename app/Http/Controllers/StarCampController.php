@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Yajra\DataTables\Facades\DataTables;
 
-class StarcampController extends Controller
+class StarCampController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -57,7 +57,7 @@ class StarcampController extends Controller
                 $ID  = Crypt::encrypt($row->id);
                 $btn = '<ul class="list-inline hstack gap-2 mb-0">
                                                 <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="View">
-                                                    <a href="starcamps/' . $ID . '/edit" class="text-primary d-inline-block edit-item-btn">
+                                                    <a href="starcamps/' . $ID .'" class="text-primary d-inline-block edit-item-btn">
                                                         <i class="ri-eye-fill fs-16"></i>
                                                     </a>
                                                 </li>
@@ -93,7 +93,10 @@ class StarcampController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $starcamp_id = decrypt($id);
+        $starcamp = StarCamp::with('user','starcampMember.user.userProfile','starcampMember.Post','starcampMember.memberStarcamp')->where('id',$starcamp_id)->first();
+        return view('admin.starcamp.detail', compact('starcamp'));
+
     }
 
     /**

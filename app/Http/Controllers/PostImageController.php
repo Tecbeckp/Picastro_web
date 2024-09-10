@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PostComment;
 use App\Models\PostImage;
+use App\Models\Report;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 class PostImageController extends Controller
@@ -41,7 +43,7 @@ class PostImageController extends Controller
                     break;
             }
             if($search){
-                $posts->whereAny(['object_name','description'],'LIKE', '%' .$search. '%');
+                $posts->whereAny(['object_name','catalogue_number','post_image_title','description'],'LIKE', '%' .$search. '%');
             }
             $posts = $posts->latest()->paginate(10);
             return view('admin.post.posts', compact('posts'))->render();
@@ -71,7 +73,12 @@ class PostImageController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $post_id = decrypt($id);
+
+        $post =  PostImage::with('user','Follower.follower.userProfile')->where('id',$post_id)->first();
+        $post_comments = PostComment::with('user.userprofile','ReplyComment.user.userprofile')->whereNull('post_comment_id')->where('post_image_id',$post_id)->latest()->get();
+        $reports = Report::with('user')->where('post_image_id',$post_id)->get();
+        return view('admin.post.detail', compact('post','post_comments','reports'));
     }
 
     /**

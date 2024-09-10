@@ -19,4 +19,13 @@ class StarCampMember extends Model
         return $this->belongsTo(StarCamp::class, 'star_camp_id');
     }
 
+    public function memberStarcamp(){
+        return $this->hasMany(StarCamp::class, 'created_by', 'member_id');
+    }
+
+    public function Post(){
+        return $this->hasMany(PostImage::class, 'user_id', 'member_id');
+    }
+
+
 }

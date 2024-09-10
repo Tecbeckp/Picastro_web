@@ -58,6 +58,10 @@ class PostImage extends Model
         return $this->hasOne(FollowerList::class, 'user_id', 'user_id')->where('follower_id', auth()->id());
     }
 
+    public function Follower()
+    {
+        return $this->hasMany(FollowerList::class, 'user_id', 'user_id');
+    }
     public function blockToUser(){
         return $this->hasOne(BlockToUser::class, 'block_user_id', 'user_id')->where('user_id',auth()->id());
     }

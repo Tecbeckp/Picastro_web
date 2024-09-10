@@ -14,4 +14,9 @@ class StarCamp extends Model
     public function starcampMember(){
         return $this->hasMany(StarCampMember::class);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'created_by', 'id');
+    }
 }
