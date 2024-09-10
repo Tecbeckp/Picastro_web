@@ -1,0 +1,20 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+name: Picastro - Main Domain (web) cPanel FTP
+on:
+  push:
+    branches: [ "main" ]
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v2
+      - name: 📂 Sync files
+        uses: SamKirkland/FTP-Deploy-Action@4.3.2
+        with:
+          server: picastro.beckapps.co
+          username: danyal@picastro.beckapps.co
+          password: P6zdzy7#++g!
+          timeout: 999999
