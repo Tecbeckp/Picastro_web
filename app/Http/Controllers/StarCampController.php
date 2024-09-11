@@ -61,6 +61,7 @@ class StarCampController extends Controller
                                                         <i class="ri-eye-fill fs-16"></i>
                                                     </a>
                                                 </li>
+                                                
                                                 <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Remove">
                                                     <a class="text-danger d-inline-block remove-item-btn" data-bs-toggle="modal" data-id="' . $ID . '" data-action="users/' . $row->id . '" href="#deleteCamp">
                                                         <i class="ri-delete-bin-5-fill fs-16"></i>
