@@ -896,7 +896,7 @@
                                                                 <div class="d-flex">
                                                                     <div class="flex-grow-1 text-muted overflow-hidden">
                                                                         <h5 class="fs-14 text-truncate mb-1">
-                                                                            <a href="post-detail.php" class="text-body">ABC Project Customization</a>
+                                                                            <a href="{{route('posts.show', encrypt($post->id))}}" class="text-body">ABC Project Customization</a>
                                                                         </h5>
                                                                         <p class="text-muted text-truncate mb-0"> Last Update : <span class="fw-semibold text-body">4 hr Ago</span></p>
                                                                     </div>
