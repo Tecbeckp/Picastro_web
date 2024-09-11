@@ -12,7 +12,7 @@
         <div class="pt-4 mb-4 mb-lg-3 pb-lg-4 profile-wrapper">
             <div class="row g-4">
                 <div class="col-auto">
-                    <div class="avatar-lg">
+                    <div class="avatar avatar-lg">
                         <img src="{{$data['user']->userprofile->profile_image}}" alt="user-img" class="img-thumbnail rounded-circle" />
                     </div>
                 </div>
