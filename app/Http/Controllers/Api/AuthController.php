@@ -8,6 +8,7 @@ use App\Models\Otp;
 use App\Models\Trophy;
 use App\Models\User;
 use App\Models\VoteImage;
+use App\Services\MailerSendService;
 use App\Traits\ApiResponseTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -20,6 +21,12 @@ use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 class AuthController extends Controller
 {
     use ApiResponseTrait;
+    protected $mailerSendService;
+
+    public function __construct(MailerSendService $mailerSendService)
+    {
+        $this->mailerSendService = $mailerSendService;
+    }
 
     public function login(Request $request)
     {
@@ -113,6 +120,14 @@ class AuthController extends Controller
                 'body' => $otp
             ];
             
+            $to = $request->email;
+            $subject = 'Forgot password';
+            $htmlContent = 'teststdhw cwgduyqw';
+            $fromEmail = 'support@picastroapp.com'; // Replace with your sender email
+            $fromName = 'Picastro'; // Replace with your sender name
+    
+            $this->mailerSendService->sendEmail($to, $subject, $htmlContent, $fromEmail, $fromName);
+    
             // Mail::to('danyalhassan651@gmail.com')->send(new ForgotPasswordMail($details));
             // $sendOTP = Mail::to($request->email)->send(new ForgotPasswordMail($details));
 
