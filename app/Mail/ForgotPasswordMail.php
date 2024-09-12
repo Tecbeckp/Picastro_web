@@ -2,23 +2,28 @@
 
 namespace App\Mail;
 
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Arr;
+use MailerSend\Helpers\Builder\Personalization;
+use MailerSend\Helpers\Builder\Variable;
+use MailerSend\LaravelDriver\MailerSendTrait;
 
 class ForgotPasswordMail extends Mailable
 {
-    use Queueable, SerializesModels;
-    public $details;
+    use Queueable, SerializesModels, MailerSendTrait;
+
     /**
      * Create a new message instance.
      */
-    public function __construct($details)
+    public function __construct()
     {
-        $this->details = $details;
+        //
     }
 
     /**
@@ -27,7 +32,7 @@ class ForgotPasswordMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Forgot Password Mail'
+            subject: 'Forgot Password Mail',
         );
     }
 
@@ -36,6 +41,33 @@ class ForgotPasswordMail extends Mailable
      */
     public function content(): Content
     {
+        $to = Arr::get($this->to, '0.address');
+
+        // Additional options for MailerSend API features
+        $this->mailersend(
+            template_id: null,
+            tags: ['tag'],
+            personalization: [
+                new Personalization($to, [
+                    'var' => 'variable',
+                    'number' => 123,
+                    'object' => [
+                        'key' => 'object-value'
+                    ],
+                    'objectCollection' => [
+                        [
+                            'name' => 'John'
+                        ],
+                        [
+                            'name' => 'Patrick'
+                        ]
+                    ],
+                ])
+            ],
+            precedenceBulkHeader: true,
+            sendAt: now(),
+        );
+
         return new Content(
             view: 'emails.forgot-password',
         );

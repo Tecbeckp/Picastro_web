@@ -64,7 +64,7 @@
                     OTP
                 </th>
                 <td sty>
-                    {{ $details['body'] }}
+                   1234
                 </td>
             </tr>
             </tbody>
