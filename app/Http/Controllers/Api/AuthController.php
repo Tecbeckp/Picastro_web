@@ -35,7 +35,7 @@ class AuthController extends Controller
             'password'          => 'required|min:8'
         ];
 
-        $validator = Validator::make($request->all(), $rules,[
+        $validator = Validator::make($request->all(), $rules, [
             'email.required'     => 'Email Address is required.',
             'email.email'        => 'Please enter a valid email address.',
             'password.required'  => 'Password is required.',
@@ -49,21 +49,21 @@ class AuthController extends Controller
 
         $auth = Auth::attempt(['email' => $request->email, 'password' => $request->password]);
         if ($auth) {
-            if($request->fcm_token){
-                user::where('id',Auth::id())->update([
+            if ($request->fcm_token) {
+                user::where('id', Auth::id())->update([
                     'fcm_token'     => $request->fcm_token
-                    ]);
+                ]);
             }
-            
+
             $user = User::with('userprofile')->withCount('TotalStar')->where('id', Auth::id())->first();
             $token = $user->createToken('Picastro')->plainTextToken;
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $vote = [];
-            
-            foreach($trophies as $trophy) {
+
+            foreach ($trophies as $trophy) {
                 $vote[$trophy->id] = VoteImage::where('trophy_id', $trophy->id)
-                                               ->where('post_user_id', auth()->id())
-                                               ->count();
+                    ->where('post_user_id', auth()->id())
+                    ->count();
             }
             $data = [
                 'token' => [
@@ -72,18 +72,18 @@ class AuthController extends Controller
                 ],
                 'user' => $user,
                 'trophies' => $trophies->map(function ($trophy) use ($vote) {
-                return [
-                    'id' => $trophy->id,
-                    'name' => $trophy->name,
-                    'icon' => $trophy->icon,
-                    'total_trophy' => $vote[$trophy->id] ?? 0
-                ];
-            })
+                    return [
+                        'id' => $trophy->id,
+                        'name' => $trophy->name,
+                        'icon' => $trophy->icon,
+                        'total_trophy' => $vote[$trophy->id] ?? 0
+                    ];
+                })
             ];
 
             if ($user->status == 1) {
-                return $this->success(['Login Successfully'],$data);
-            }else{
+                return $this->success(['Login Successfully'], $data);
+            } else {
                 Auth::logout();
                 return $this->error(['We regret to inform you that your account privileges have been terminated for violating the terms and conditions.']);
             }
@@ -97,7 +97,7 @@ class AuthController extends Controller
         $rules = [
             'email'             => 'required|email',
         ];
-        $validator = Validator::make($request->all(), $rules,[
+        $validator = Validator::make($request->all(), $rules, [
             'email.required'  => 'Email Address is required.',
             'email.email'     => 'Please enter a valid email address.'
         ]);
@@ -107,37 +107,38 @@ class AuthController extends Controller
 
         // $user = User::where('email',$request->email)->first();
         // if($user){
-            $otp = rand(1000,9999);
-            Otp::updateOrCreate(
-                [
-                    'email' => $request->email
-                ],
-                [
-                    'otp'   => $otp
-                ]
-            );
-            
+        $otp = rand(1000, 9999);
+        Otp::updateOrCreate(
+            [
+                'email' => $request->email
+            ],
+            [
+                'otp'   => $otp
+            ]
+        );
+
         $html = view('emails.forgot-password', ['otp' => $otp])->render();
         $data['from'] = 'support@picastroapp.com';
         $data['to'] = $request->email;
         $data['subject'] = 'Forgot Password';
         $data['html'] = $html;
         $this->sendMail($data);
-        
-            return $this->success(['OTP Send Successfully on your email address.'],1234);
+
+        return $this->success(['OTP Send Successfully on your email address.'], 1234);
 
         // }else{
         //     return $this->error(['The provided email does not match our records. Please check your email address and try again.']);
         // }
-       
+
     }
 
-    function VerifyOTP(Request $request){
+    function VerifyOTP(Request $request)
+    {
         $rules = [
             'email'           => 'required|email',
             'otp'             => 'required|max:4'
         ];
-        $validator = Validator::make($request->all(), $rules,[
+        $validator = Validator::make($request->all(), $rules, [
             'otp.required'    => 'OTP is required.',
             'email.required'  => 'Email Address is required.',
             'email.email'     => 'Please enter a valid email address.'
@@ -146,30 +147,30 @@ class AuthController extends Controller
             return $this->error($validator->errors()->all());
         }
         $otp = Otp::where('email', $request->email)->latest()->first();
-        if($otp){
+        if ($otp) {
             $expirationTime = $otp->updated_at->addSeconds(5 * 60);
             $currentDateTime = Carbon::now();
-            if($currentDateTime->isAfter($expirationTime)){
+            if ($currentDateTime->isAfter($expirationTime)) {
                 return $this->error(['OTP has been expired']);
-            }elseif (1234 == $request->otp){
+            } elseif (1234 == $request->otp) {
                 return $this->success(['OTP Verified Successfully'], []);
-            }else{
+            } else {
                 return $this->error(['The OTP you entered does not match. Please try again.']);
             }
-        }else{
+        } else {
             return $this->error(['The provided email does not match our records. Please check your email address and try again.']);
         }
-        
     }
 
-    public function ResetPassword(Request $request) {
+    public function ResetPassword(Request $request)
+    {
         $rules = [
             'email'             => 'required|email',
             'password'          => 'required|min:8',
             'confirm_password'  => 'required|same:password'
         ];
-        
-        $validator = Validator::make($request->all(), $rules,[
+
+        $validator = Validator::make($request->all(), $rules, [
             'email.required'             => 'Email Address is required.',
             'email.email'                => 'Please enter a valid email address.',
             'password.required'          => 'Password is required.',
@@ -193,18 +194,18 @@ class AuthController extends Controller
         }
     }
 
-    public function logout(Request $request){
+    public function logout(Request $request)
+    {
 
         if (Auth::check()) {
-             if($request->user()->fcm_token){
-                user::where('id',Auth::id())->update([
+            if ($request->user()->fcm_token) {
+                user::where('id', Auth::id())->update([
                     'fcm_token'     => null
                 ]);
             }
             $request->user()->currentAccessToken()->delete();
             return $this->success(['Successfully logged out'], []);
-        }
-        else{
+        } else {
             return $this->error(['Already logout']);
         }
     }
