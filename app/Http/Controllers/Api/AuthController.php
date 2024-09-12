@@ -98,8 +98,8 @@ class AuthController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $user = User::where('email',$request->email)->first();
-        if($user){
+        // $user = User::where('email',$request->email)->first();
+        // if($user){
             $otp = rand(1000,9999);
             Otp::updateOrCreate(
                 [
@@ -119,9 +119,9 @@ class AuthController extends Controller
 
             return $this->success(['OTP Send Successfully on your email address.'],1234);
 
-        }else{
-            return $this->error(['The provided email does not match our records. Please check your email address and try again.']);
-        }
+        // }else{
+        //     return $this->error(['The provided email does not match our records. Please check your email address and try again.']);
+        // }
        
     }
 
