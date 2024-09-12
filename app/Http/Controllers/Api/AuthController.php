@@ -117,7 +117,7 @@ class AuthController extends Controller
             // $sendOTP = Mail::to($request->email)->send(new ForgotPasswordMail($details));
 
 
-            return $this->success(['OTP Send Successfully on your email address.'],[]);
+            return $this->success(['OTP Send Successfully on your email address.'],$otp);
 
         }else{
             return $this->error(['The provided email does not match our records. Please check your email address and try again.']);

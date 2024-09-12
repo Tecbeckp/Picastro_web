@@ -37,8 +37,9 @@ Route::get('/paypal-subscribed/{id}', [PaymentController::class, 'paypalSubscrib
 Route::get('/paypal-subscription-cancel/{id}', [PaymentController::class, 'paypalsubscriptionCancel']);
 Route::get('/create-web-hook', [PaymentController::class, 'createWebHook']);
 Route::get('/create-plan', [PaymentController::class, 'createPlan']);
+Route::get('/create-product', [PaymentController::class, 'createProduct']);
 Route::post('stripe/webhook', '\Laravel\Cashier\Http\Controllers\WebhookController@handleWebhook');
-Route::post('/paypal/webhook', [PaymentController::class, 'paypalWebhook']);
+Route::post('/paypal/webhook', [PaymentController::class, 'paypalWebhook'])->name('paypal.subscription.webhook');
 Route::post('login', [LoginController::class, 'login'])->name('login');
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');

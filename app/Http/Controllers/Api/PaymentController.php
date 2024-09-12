@@ -23,8 +23,13 @@ class PaymentController extends Controller
         $this->provider->setApiCredentials(config('paypal'));
     }
 
+public function createProduct(){
+     $data = $this->paymentHelper->createProduct('picastro');
+     dd($data);
+}
+
  public function createPlan(){
-       $data = $this->paymentHelper->createPlan('PROD-33S42520L4393703N','picastro','48');
+       $data = $this->paymentHelper->createPlan('PROD-75576855AV455634B','picastro','48');
        dd($data);
     }
     
@@ -33,7 +38,7 @@ class PaymentController extends Controller
        $data = $this->paymentHelper->createWebHook();
        dd($data);
     }
-    public function create(Request $request, string $plan_id = 'P-49K01042X4110980HM3GW7XQ')
+    public function create(Request $request, string $plan_id = 'P-1075760685626815NM3RO7BI')
     {
         // P-44X84743BV816410HM3GGGUQ
         $id = $request->user_id;
@@ -80,14 +85,14 @@ class PaymentController extends Controller
 
     }
     
-    public function storeSubscription(Request $request, $plan = 'price_1PlAVhICvNFT82L6KBqjG1Pz')
+    public function storeSubscription(Request $request, $plan = 'price_1PyCs1ICvNFT82L6mq4xFwRk')
     {
 
         $user = User::where('id',$request->user_id)->first();
         // $pll = ''; prod_QjWAuSh9HNzXEc
         // $pll = 'price_1Ps38NICvNFT82L6uSUKhcI4';
         if($user){
-            return $user->newSubscription('prod_QjpxsciYeXTlOJ','price_1PsMHaICvNFT82L64WkylNIV')
+            return $user->newSubscription('prod_QpsdEeUzwiQZeL','price_1PyCs1ICvNFT82L6mq4xFwRk')
         ->checkout([
             'success_url' => url('subscribed/'.$user->id),
             'cancel_url' => url('subscription-cancel/'.$user->id)
@@ -133,7 +138,7 @@ class PaymentController extends Controller
     }else{
          $user = User::where('id',$id)->first();
 
-    $subscription = $user->subscription('prod_QjpxsciYeXTlOJ'); // Use the same name as when creating the subscription
+    $subscription = $user->subscription('prod_QpsdEeUzwiQZeL'); // Use the same name as when creating the subscription
 
     if ($subscription) {
         $subscription->cancelNow();
