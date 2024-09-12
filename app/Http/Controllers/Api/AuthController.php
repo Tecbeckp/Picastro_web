@@ -116,22 +116,14 @@ class AuthController extends Controller
                     'otp'   => $otp
                 ]
             );
-            $details = [
-                'body' => $otp
-            ];
             
-            $to = $request->email;
-            $subject = 'Forgot password';
-            $htmlContent = 'teststdhw cwgduyqw';
-            $fromEmail = 'support@picastroapp.com'; // Replace with your sender email
-            $fromName = 'Picastro'; // Replace with your sender name
-    
-            $this->mailerSendService->sendEmail($to, $subject, $htmlContent, $fromEmail, $fromName);
-    
-            // Mail::to('danyalhassan651@gmail.com')->send(new ForgotPasswordMail($details));
-            // $sendOTP = Mail::to($request->email)->send(new ForgotPasswordMail($details));
-
-
+        $html = view('emails.forgot-password', ['otp' => $otp])->render();
+        $data['from'] = 'support@picastroapp.com';
+        $data['to'] = $request->email;
+        $data['subject'] = 'Forgot Password';
+        $data['html'] = $html;
+        $this->sendMail($data);
+        
             return $this->success(['OTP Send Successfully on your email address.'],1234);
 
         // }else{

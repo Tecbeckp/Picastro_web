@@ -64,7 +64,7 @@
                     OTP
                 </th>
                 <td sty>
-                   1234
+                   {{$otp}}
                 </td>
             </tr>
             </tbody>
