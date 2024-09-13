@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\IsRegistration;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserProfile;
@@ -38,8 +39,10 @@ class RegisterController extends Controller
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-
-        return $this->error(['We are not accepting registrations at the moment.']);
+            $is_register = IsRegistration::where('id',1)->first();
+            if(isset($is_register) && $is_register->is_register == '1'){
+                return $this->error(['We are not accepting registrations at the moment.']);
+            }
         $user = User::create([
             'first_name'    => $request->first_name,
             'last_name'     => $request->last_name,
