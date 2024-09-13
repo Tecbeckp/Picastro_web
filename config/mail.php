@@ -133,4 +133,5 @@ return [
             resource_path('views/vendor/mail'),
         ],
     ],
+    'sendgrid_key' => env('MAILERSEND_API_KEY'),
 ];
