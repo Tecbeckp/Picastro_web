@@ -133,4 +133,5 @@ return [
             resource_path('views/vendor/mail'),
         ],
     ],
+    'sendgrid_key' =>  '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',
 ];
