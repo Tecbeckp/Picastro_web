@@ -112,7 +112,7 @@ class AuthController extends Controller
             );
             $details = [
                 'otp'   => $otp,
-                'name'  => $user ? $user->username : null,
+                'name'  => $user ? $user->email : null,
                 'email' => $request->email
             ];
             
@@ -123,7 +123,7 @@ class AuthController extends Controller
             $data['html'] = $html;
             $this->sendMail($data);
 
-            return $this->success(['OTP Send Successfully on your email address.'],1234);
+            return $this->success(['OTP Send Successfully on your email address.'],$otp);
 
         // }else{
         //     return $this->error(['The provided email does not match our records. Please check your email address and try again.']);
@@ -151,7 +151,7 @@ class AuthController extends Controller
             $currentDateTime = Carbon::now();
             if ($currentDateTime->isAfter($expirationTime)) {
                 return $this->error(['OTP has been expired']);
-            } elseif (1234 == $request->otp) {
+            } elseif ($otp->otp == $request->otp) {
                 return $this->success(['OTP Verified Successfully'], []);
             } else {
                 return $this->error(['The OTP you entered does not match. Please try again.']);
