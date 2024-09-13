@@ -3,10 +3,10 @@
 namespace App\Traits;
 
 use Illuminate\Support\Facades\Storage;
-
+use Intervention\Image\Laravel\Facades\Image;
 trait  UploadImageTrait
 {
-    public function imageUpload($file, $destinationFolder)
+    public function originalImageUpload($file, $destinationFolder)
     {
         if (!$file) {
             return null;
@@ -22,6 +22,21 @@ trait  UploadImageTrait
          $fileUrl = Storage::disk('s3')->url($filePath);
 
         return $fileUrl;
+    }
+
+    public function imageUpload($file, $destinationFolder)
+    {
+        if (!$file) {
+            return null;
+        }
+        
+        $random = rand(1000,9999);
+        $filename = time() . $random . '.' . $file->getClientOriginalExtension();
+        $image = Image::read($file);
+        // Resize image
+        $image->resize(800, 800)->save(public_path($destinationFolder . $filename));
+        $file_path = $destinationFolder . $filename;
+        return $file_path;
     }
 }
 

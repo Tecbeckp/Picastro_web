@@ -350,10 +350,12 @@ class PostImageController extends Controller
         }
 
         try {
-            $imageName =  $this->imageUpload($request->file('image'), 'images/');
+            $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/');
+            $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/');
 
             $postImage                        = new PostImage();
             $postImage->user_id               = auth()->id();
+            $postImage->original_image        = $originalImageName;
             $postImage->image                 = $imageName;
             $postImage->description           = $request->description;
         if($request->only_image_and_description == 'false'){
@@ -640,9 +642,10 @@ class PostImageController extends Controller
 
         if($post){
             if($request->file('image')){
-                $imageName =  $this->imageUpload($request->file('image'), 'images/');
+                $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/');
+                $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/');
             }
-
+           
             $data = [
                 'object_type_id'        => $request->object_type,
                 'bortle_id'             => $request->bortle_number,
@@ -653,7 +656,8 @@ class PostImageController extends Controller
 
             ];
             if($request->file('image')){
-                $data['image']                 = $imageName;
+                $data['image']              = $imageName;
+                $data['original_image']     = $originalImageName;
             }
 
         if($request->only_image_and_description == 'false'){
