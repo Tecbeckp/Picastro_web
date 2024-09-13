@@ -614,7 +614,7 @@ if ($data->isNotEmpty()) {
     
     public function readNotification(Request $request){
         $rules = [
-            'notification_id'   => 'required|numeric|exists:notifications,id'
+            'notification_id'   => 'nullable|numeric|exists:notifications,id'
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -622,11 +622,15 @@ if ($data->isNotEmpty()) {
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-
-        Notification::where('user_id',auth()->id())->where('id',$request->notification_id)->update([
-            'is_read' => '1'
-        ]);
-
+        if(isset($request->notification_id)){
+            Notification::where('user_id',auth()->id())->where('id',$request->notification_id)->update([
+                'is_read' => '1'
+            ]);
+        }else{
+            Notification::where('user_id',auth()->id())->update([
+                'is_read' => '1'
+            ]);
+        }
         return $this->success(['Notification read Successfully'],[]);
 
     }
