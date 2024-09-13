@@ -141,7 +141,7 @@ class PostImageController extends Controller
             $posts->where('object_type_id',$randomizer)->inRandomOrder();
         }
         if($most_recent){
-            $posts->where('observer_location_id',$most_recent);
+            $posts->where('object_type_id',$most_recent);
         }
        $posts = $posts->latest()->paginate(10);
         $trophies = Trophy::select('id','name','icon')->get();
