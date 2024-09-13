@@ -116,7 +116,7 @@ class AuthController extends Controller
                 'email' => $request->email
             ];
             
-            $html = view('emails.forgot-password', [$details])->render();
+            $html = view('emails.forgot-password', ['details' => $details])->render();
             $data['from'] = 'support@picastroapp.com';
             $data['to'] = $request->email;
             $data['subject'] = 'Forgot Password';
