@@ -8,8 +8,8 @@ use App\Models\Otp;
 use App\Models\Trophy;
 use App\Models\User;
 use App\Models\VoteImage;
-use App\Services\MailerSendService;
 use App\Traits\ApiResponseTrait;
+use App\Traits\MailTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,13 +21,7 @@ use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 class AuthController extends Controller
 {
     use ApiResponseTrait;
-    protected $mailerSendService;
-
-    public function __construct(MailerSendService $mailerSendService)
-    {
-        $this->mailerSendService = $mailerSendService;
-    }
-
+    use MailTrait;
     public function login(Request $request)
     {
         $rules = [
@@ -105,26 +99,31 @@ class AuthController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        // $user = User::where('email',$request->email)->first();
+        $user = User::where('email',$request->email)->first();
         // if($user){
-        $otp = rand(1000, 9999);
-        Otp::updateOrCreate(
-            [
+            $otp = rand(1000,9999);
+            Otp::updateOrCreate(
+                [
+                    'email' => $request->email
+                ],
+                [
+                    'otp'   => $otp
+                ]
+            );
+            $details = [
+                'otp'   => $otp,
+                'name'  => $user ? $user->username : null,
                 'email' => $request->email
-            ],
-            [
-                'otp'   => $otp
-            ]
-        );
+            ];
+            
+            $html = view('emails.forgot-password', [$details])->render();
+            $data['from'] = 'support@picastroapp.com';
+            $data['to'] = $request->email;
+            $data['subject'] = 'Forgot Password';
+            $data['html'] = $html;
+            $this->sendMail($data);
 
-        $html = view('emails.forgot-password', ['otp' => $otp])->render();
-        $data['from'] = 'support@picastroapp.com';
-        $data['to'] = $request->email;
-        $data['subject'] = 'Forgot Password';
-        $data['html'] = $html;
-        $this->sendMail($data);
-
-        return $this->success(['OTP Send Successfully on your email address.'], 1234);
+            return $this->success(['OTP Send Successfully on your email address.'],1234);
 
         // }else{
         //     return $this->error(['The provided email does not match our records. Please check your email address and try again.']);
