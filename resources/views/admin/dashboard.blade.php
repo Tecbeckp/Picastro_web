@@ -22,6 +22,26 @@
         </div>
         <!-- end page title -->
 
+        <!-- start page title -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
+                    <h4 class="mb-sm-0">Allow Registration</h4>
+
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><div class="form-check form-switch form-switch-right form-switch-md">
+                                <input class="form-check-input" @if($data['is_registration'] == '1') checked @endif type="checkbox" id="registration">
+                            </div></li>
+                            
+                        </ol>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- end page title -->
+
         <div class="row project-wrapper">
             <div class="col-xxl-8">
                 <div class="row">
@@ -398,4 +418,33 @@
 @endsection
 
 @push('script')
+
+<script>
+    $('#registration').change(function(){
+        
+        if ($(this).is(':checked')) {
+           var status = true;
+        } else {
+            var status = false;
+        }
+        $.ajax({
+                    type: "POST",
+                    url: "{{ route('allowRegistration') }}",
+                    dataType: 'json',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        status: status,
+                    },
+                    beforeSend: function () {
+                    },
+                    success: function (res) {
+                        if (res.success === true) {
+                           
+                        }
+                    },
+                    error: function (e) {
+                    }
+                });
+    })
+</script>
 @endpush

@@ -26,7 +26,9 @@ Route::get('/', [LoginController::class, 'showLoginForm'])->middleware('guest')-
         'message' => 'Download Picastro app to see this post'
     ]);
 })->name('post');
-
+Route::get('/otp', function () {
+    return view('otp');
+})->name('otp');
 Route::get('/privacy-and-policy', [HomeController::class, 'viewPrivacy'])->name('privacy-and-policy');
 Route::get('/terms-and-conditions', [HomeController::class, 'viewTerms'])->name('terms-and-conditions');
 Route::get('/subscription', [PaymentController::class, 'storeSubscription']);
@@ -53,6 +55,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('/faq-destroy/{id}', [HomeController::class, 'faqDelete'])->name('faq.destroy');
     Route::post('/faq-edit', [HomeController::class, 'faqUpdate'])->name('faq.edit');
     Route::post('/store-faq-content', [HomeController::class, 'StoreFaqContent'])->name('StoreFaqContent');
+    Route::post('/allow-registration', [HomeController::class, 'allowRegistration'])->name('allowRegistration');
     
     
     Route::get('/get-all-user', [UserController::class, 'getAllUser'])->name('getAllUser');

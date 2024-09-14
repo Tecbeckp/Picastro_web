@@ -4,15 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Content;
 use App\Models\Faq;
+use App\Models\IsRegistration;
 use App\Models\PostImage;
 use App\Models\Report;
 use App\Models\StarCamp;
 use App\Models\User;
+use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
 class HomeController extends Controller
 {
+    use ApiResponseTrait;
     /**
      * Create a new controller instance.
      *
@@ -34,7 +37,7 @@ class HomeController extends Controller
         $data['total_post']  = PostImage::count();
         $data['total_starcamp']  = StarCamp::count();
         $data['total_report']  = Report::count();
-        
+        $data['is_registration'] = IsRegistration::where('id','1')->first()->is_registration;
         return view('admin.dashboard',compact('data'));
     }
 
@@ -149,6 +152,17 @@ class HomeController extends Controller
         return redirect()->back()->with('success', 'Create successfully.');
     }
 
+    public function allowRegistration(Request $request){
+        if($request->status == 'true'){
+            $status = '1';
+        }else{
+            $status = '0';        }
+        IsRegistration::where('id','1')->update([
+            'is_registration' => $status
+        ]);
+        
+        return $this->success(['Successfully'],[]);
+    }
     public function viewTerms(){
         $terms = Content::where('name','Terms and Conditions')->first();
         return view('terms-and-conditions', compact('terms'));
