@@ -439,7 +439,15 @@
                     },
                     success: function (res) {
                         if (res.success === true) {
-                           
+                            if(res.data == 1){
+                                var message = 'Enabled Successfuly';
+                            }else{
+                                var message = 'Disabled Successfuly';
+                            }
+                            Toast.fire({
+                                icon: 'success',
+                                title: message,
+                            })
                         }
                     },
                     error: function (e) {

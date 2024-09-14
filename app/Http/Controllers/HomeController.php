@@ -161,7 +161,7 @@ class HomeController extends Controller
             'is_registration' => $status
         ]);
         
-        return $this->success(['Successfully'],[]);
+        return $this->success(['Successfully'],$status);
     }
     public function viewTerms(){
         $terms = Content::where('name','Terms and Conditions')->first();
