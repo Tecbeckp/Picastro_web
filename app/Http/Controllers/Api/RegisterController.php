@@ -40,7 +40,7 @@ class RegisterController extends Controller
             return $this->error($validator->errors()->all());
         }
             $is_register = IsRegistration::where('id',1)->first();
-            if(isset($is_register) && $is_register->is_registration == '1'){
+            if(isset($is_register) && $is_register->is_registration == '0'){
                 return $this->error(['We are not accepting registrations at the moment.']);
             }
         $user = User::create([
