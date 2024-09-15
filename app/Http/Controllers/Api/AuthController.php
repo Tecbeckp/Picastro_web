@@ -115,11 +115,18 @@ class AuthController extends Controller
                 'name'  => $user ? $user->email : null,
                 'email' => $request->email
             ];
+
+            if((isset($request->is_from_register) && $request->is_from_register == 'true')){
+                $subject = 'Picastro Email Varification';
+
+            }else{
+                $subject = 'Forgot Password';
+            }
             
             $html = view('emails.forgot-password', ['details' => $details])->render();
             $data['from'] = 'support@picastroapp.com';
             $data['to'] = $request->email;
-            $data['subject'] = 'Forgot Password';
+            $data['subject'] = $subject;
             $data['html'] = $html;
             $this->sendMail($data);
 
