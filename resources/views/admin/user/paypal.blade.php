@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','Users | Picastro')
+@section('title','Paypal Subscriptions | Picastro')
 @section('content')
 <div class="page-content">
     <div class="container-fluid">
