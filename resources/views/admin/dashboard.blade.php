@@ -161,21 +161,21 @@
                                 <div class="row g-0 text-center">
                                     <div class="col-6 col-sm-4">
                                         <div class="p-3 border border-dashed border-start-0">
-                                            <h5 class="mb-1"><span class="counter-value" data-target="9851">0</span></h5>
+                                            <h5 class="mb-1"><span class="counter-value" data-target="0">0</span></h5>
                                             <p class="text-muted mb-0">Total Subscriptions</p>
                                         </div>
                                     </div>
                                     <!--end col-->
                                     <div class="col-6 col-sm-4">
                                         <div class="p-3 border border-dashed border-start-0">
-                                            <h5 class="mb-1"><span class="counter-value" data-target="1026">0</span></h5>
+                                            <h5 class="mb-1"><span class="counter-value" data-target="0">0</span></h5>
                                             <p class="text-muted mb-0">Ongoing Subscriptions</p>
                                         </div>
                                     </div>
                                     <!--end col-->
                                     <div class="col-6 col-sm-4">
                                         <div class="p-3 border border-dashed border-start-0">
-                                            <h5 class="mb-1"><span class="counter-value" data-target="228.89">0</span>k</h5>
+                                            <h5 class="mb-1"><span class="counter-value" data-target="0">0</span></h5>
                                             <p class="text-muted mb-0">Cancelled Subscriptions</p>
                                         </div>
                                     </div>
@@ -369,7 +369,7 @@
                         <div id="prjects-status" data-colors='["--vz-success", "--vz-primary", "--vz-warning", "--vz-danger"]' data-colors-minimal='["--vz-primary", "--vz-primary-rgb, 0.85", "--vz-primary-rgb, 0.70", "--vz-primary-rgb, 0.50"]' data-colors-galaxy='["--vz-primary", "--vz-primary-rgb, 0.85", "--vz-primary-rgb, 0.70", "--vz-primary-rgb, 0.50"]' class="apex-charts" dir="ltr"></div>
                         <div class="mt-3">
                             <div class="d-flex justify-content-center align-items-center mb-4">
-                                <h2 class="me-3 ff-secondary mb-0">258</h2>
+                                <h2 class="me-3 ff-secondary mb-0">0</h2>
                                 <div>
                                     <p class="text-muted mb-0">Transactions Invoices</p>
                                     <p class="text-success fw-medium mb-0">
@@ -381,28 +381,28 @@
                             <div class="d-flex justify-content-between border-bottom border-bottom-dashed py-2">
                                 <p class="fw-medium mb-0"><i class="ri-checkbox-blank-circle-fill text-success align-middle me-2"></i> Transactions Sent</p>
                                 <div>
-                                    <span class="text-muted pe-5">125</span>
+                                    <span class="text-muted pe-5">0</span>
                                     
                                 </div>
                             </div><!-- end -->
                             <div class="d-flex justify-content-between border-bottom border-bottom-dashed py-2">
                                 <p class="fw-medium mb-0"><i class="ri-checkbox-blank-circle-fill text-primary align-middle me-2"></i> Paid Transactions</p>
                                 <div>
-                                    <span class="text-muted pe-5">42</span>
+                                    <span class="text-muted pe-5">0</span>
                                     
                                 </div>
                             </div><!-- end -->
                             <div class="d-flex justify-content-between border-bottom border-bottom-dashed py-2">
                                 <p class="fw-medium mb-0"><i class="ri-checkbox-blank-circle-fill text-warning align-middle me-2"></i> Unpaid Transactions</p>
                                 <div>
-                                    <span class="text-muted pe-5">58</span>
+                                    <span class="text-muted pe-5">0</span>
                                    
                                 </div>
                             </div><!-- end -->
                             <div class="d-flex justify-content-between py-2">
                                 <p class="fw-medium mb-0"><i class="ri-checkbox-blank-circle-fill text-danger align-middle me-2"></i> Cancelled Transactions</p>
                                 <div>
-                                    <span class="text-muted pe-5">89</span>
+                                    <span class="text-muted pe-5">0</span>
                                    
                                 </div>
                             </div><!-- end -->
