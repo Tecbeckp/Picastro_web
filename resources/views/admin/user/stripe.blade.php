@@ -132,7 +132,7 @@
                 {data: 'username', name: 'username'},
                 {data: 'stripe_id', name: 'stripe_id'},
                 {data: 'type', name: 'type'},
-                {data: 'stripe_status', name: 'stripe_status'},
+                {data: 'status', name: 'status'},
                 {data: 'date', name: 'date'},
                 {data:'action',name:'action'}
             ]
