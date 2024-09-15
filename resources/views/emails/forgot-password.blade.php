@@ -107,7 +107,7 @@
                                                         style="color: #878a99; font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0; padding-top: 5px;  text-align: center;"
                                                         valign="top">
                                                         <p style="margin-bottom: 13px; line-height: 1.5;">If you didn't
-                                                            request this code then its possible the someone else is
+                                                            request this code then its possible that someone else is
                                                             trying to access your code. Donot forward or give this code
                                                             to anyone.</p>
                                                     </td>
@@ -118,7 +118,7 @@
                                 </table>
                                 <div style="text-align: center; margin: 28px auto 0px auto;">
                                     <h4>Need Help ?</h4>
-                                    <p style="color: #878a99;">Please send and feedback or bug info to <a href="mailto:support@picastroapp.com"
+                                    <p style="color: #878a99;">Please send feedback or bug info to <a href="mailto:support@picastroapp.com"
                                             style="font-weight: 500px;">support@picastroapp.com</a></p>
 
                                 </div>
