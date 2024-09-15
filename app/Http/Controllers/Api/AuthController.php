@@ -118,7 +118,6 @@ class AuthController extends Controller
 
             if((isset($request->is_from_register) && $request->is_from_register == 'true')){
                 $subject = 'Picastro Email Varification';
-
             }else{
                 $subject = 'Forgot Password';
             }
