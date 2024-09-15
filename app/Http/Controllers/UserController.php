@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PaypalSubscription;
 use App\Models\PostImage;
 use App\Models\StarCamp;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
+use Stripe\Subscription;
 use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
@@ -183,5 +186,91 @@ return $btn;
     
     public function blockToUser(){
         
+    }
+
+    public function paypalSubscription(Request $request){
+        if($request->ajax()){
+            $data = PaypalSubscription::with('user')->latest();
+
+            return DataTables::of($data)->addIndexColumn()
+            ->addColumn('ID', function ($row) {
+                static $rowid = null;
+                static $start = null;
+        
+                if ($rowid === null) {
+                    $start = request()->get('start', 0);
+                    $rowid = $start + 1;
+                }
+        
+                return $rowid++;
+            })
+                ->addColumn('username', function ($row) {
+                     return $row->user->username ?? 'N/A';
+                })
+                ->addColumn('date', function ($row) {
+                    return date('d M, Y', strtotime($row->created_at));
+                })
+                ->addColumn('action', function ($row) {
+                    $ID = Crypt::encrypt($row->id);
+    
+    $btn = '<ul class="list-inline hstack gap-2 mb-0">
+           <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Remove">
+               <a class="text-danger d-inline-block remove-item-btn" data-bs-toggle="modal" data-id="' . $ID . '" data-action="users/' . $row->id . '" href="#deleteItem">
+                   <i class="ri-delete-bin-5-fill fs-16"></i>
+               </a>
+           </li>
+       </ul>';
+    
+    return $btn;
+                    
+                })
+                ->rawColumns(['action', 'date'])
+                ->make(true);
+        }else{
+            return view('admin.user.paypal');
+        }
+    }
+
+    public function stripeSubscription(Request $request){
+        if($request->ajax()){
+            $data = DB::select('SELECT * FROM subscriptions join ORDER BY id DESC');
+dd($data);
+            return DataTables::of($data)->addIndexColumn()
+            ->addColumn('ID', function ($row) {
+                static $rowid = null;
+                static $start = null;
+        
+                if ($rowid === null) {
+                    $start = request()->get('start', 0);
+                    $rowid = $start + 1;
+                }
+        
+                return $rowid++;
+            })
+                ->addColumn('username', function ($row) {
+                     return $row->user->username ?? 'N/A';
+                })
+                ->addColumn('date', function ($row) {
+                    return date('d M, Y', strtotime($row->created_at));
+                })
+                ->addColumn('action', function ($row) {
+                    $ID = Crypt::encrypt($row->id);
+    
+    $btn = '<ul class="list-inline hstack gap-2 mb-0">
+           <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Remove">
+               <a class="text-danger d-inline-block remove-item-btn" data-bs-toggle="modal" data-id="' . $ID . '" data-action="users/' . $row->id . '" href="#deleteItem">
+                   <i class="ri-delete-bin-5-fill fs-16"></i>
+               </a>
+           </li>
+       </ul>';
+    
+    return $btn;
+                    
+                })
+                ->rawColumns(['action', 'date'])
+                ->make(true);
+        }else{
+            return view('admin.user.stripe');
+        }
     }
 }

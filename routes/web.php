@@ -29,6 +29,9 @@ Route::get('/', [LoginController::class, 'showLoginForm'])->middleware('guest')-
 Route::get('/otp', function () {
     return view('otp');
 })->name('otp');
+Route::get('/email', function () {
+    return view('email');
+})->name('email');
 Route::get('/privacy-and-policy', [HomeController::class, 'viewPrivacy'])->name('privacy-and-policy');
 Route::get('/terms-and-conditions', [HomeController::class, 'viewTerms'])->name('terms-and-conditions');
 Route::get('/subscription', [PaymentController::class, 'storeSubscription']);
@@ -56,6 +59,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/faq-edit', [HomeController::class, 'faqUpdate'])->name('faq.edit');
     Route::post('/store-faq-content', [HomeController::class, 'StoreFaqContent'])->name('StoreFaqContent');
     Route::post('/allow-registration', [HomeController::class, 'allowRegistration'])->name('allowRegistration');
+
     
     
     Route::get('/get-all-user', [UserController::class, 'getAllUser'])->name('getAllUser');
@@ -63,7 +67,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/block-user/{id}', [UserController::class, 'blockUser'])->name('blockUser');
     Route::get('/unblock-user/{id}', [UserController::class, 'unblockUser'])->name('unblockUser');
     Route::get('/block-to-user/{id}', [UserController::class, 'blockToUser'])->name('blockToUser');
+    Route::get('/paypalSubscription', [UserController::class, 'paypalSubscription'])->name('paypalSubscription');
+    Route::get('/stripeSubscription', [UserController::class, 'stripeSubscription'])->name('stripeSubscription');
     Route::resource('users', UserController::class);
+    
     Route::get('/get-all-starcamp', [StarCampController::class, 'getAllstarcamp'])->name('getAllstarcamp');
     Route::resource('starcamps', StarCampController::class);
     Route::resource('posts', PostImageController::class);
