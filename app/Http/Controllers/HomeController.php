@@ -40,7 +40,7 @@ class HomeController extends Controller
         $data['total_starcamp']  = StarCamp::count();
         $data['total_report']  = Report::count();
         $data['is_registration'] = IsRegistration::where('id','1')->first()->is_registration;
-        $data['users'] = User::with('userProfile')->latest()->limit('10');
+        $data['users'] = User::with('userProfile')->latest()->limit('10')->get();
         $paypal_subscription = PaypalSubscription::count(); 
         $stripe_subscription = DB::select('SELECT COUNT(*) as total FROM subscriptions')[0]->total; 
         $data['total_subscriptions'] = $paypal_subscription + $stripe_subscription;

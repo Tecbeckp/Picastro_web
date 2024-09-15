@@ -226,119 +226,38 @@
                                     <tr>
                                         <th scope="col">Name</th>
                                         <th scope="col">Email</th>
-                                        <th scope="col">Phone</th>
+                                        <th scope="col">Username</th>
                                         <th scope="col">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @forelse ($data['users'] as $user)
                                     <tr>
                                         <td class="d-flex">
-                                            <img src="assets/images/users/avatar-1.jpg" alt="" class="avatar-xs rounded-3 me-2 material-shadow">
+                                            <img src="{{$user->userProfile->profile_image}}" alt="" class="avatar-xs rounded-3 me-2 material-shadow">
                                             <div>
-                                                <h5 class="fs-13 mb-0">Donald Risher</h5>
-                                                <p class="fs-12 mb-0 text-muted">Product Manager</p>
+                                                <h5 class="fs-13 mb-0">{{$user->first_name}} {{$user->last_name}}</h5>
+                                                <p class="fs-12 mb-0 text-muted">User</p>
                                             </div>
                                         </td>
                                         <td>
-                                            <h6 class="mb-0">110h : <span class="text-muted">150h</span></h6>
+                                            <h6 class="mb-0">{{$user->email}}</h6>
                                         </td>
                                         <td>
-                                            +000-000-000
+                                            {{$user->username ?? 'N/A'}}
                                         </td>
-                                        <td style="width:5%;">
-                                            <span class="badge bg-success-subtle text-success text-uppercase">Active</span>
+                                        <td>
+                                            @if($user->status == '1')
+                                                <span class="badge bg-success-subtle text-success text-uppercase">Active</span>
+                                            @else
+                                                <span class="badge bg-warning-subtle text-warning text-uppercase">Blocked</span>
+                                            @endif
                                         </td>
                                     </tr><!-- end tr -->
-                                    <tr>
-                                        <td class="d-flex">
-                                            <img src="assets/images/users/avatar-2.jpg" alt="" class="avatar-xs rounded-3 me-2 material-shadow">
-                                            <div>
-                                                <h5 class="fs-13 mb-0">Jansh Brown</h5>
-                                                <p class="fs-12 mb-0 text-muted">Lead Developer</p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <h6 class="mb-0">83h : <span class="text-muted">150h</span></h6>
-                                        </td>
-                                        <td>
-                                            +000-000-000
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-danger-subtle text-danger text-uppercase">Block</span>
-                                        </td>
-                                    </tr><!-- end tr -->
-                                   <tr>
-                                        <td class="d-flex">
-                                            <img src="assets/images/users/avatar-1.jpg" alt="" class="avatar-xs rounded-3 me-2 material-shadow">
-                                            <div>
-                                                <h5 class="fs-13 mb-0">Donald Risher</h5>
-                                                <p class="fs-12 mb-0 text-muted">Product Manager</p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <h6 class="mb-0">110h : <span class="text-muted">150h</span></h6>
-                                        </td>
-                                        <td>
-                                            +000-000-000
-                                        </td>
-                                        <td style="width:5%;">
-                                            <span class="badge bg-success-subtle text-success text-uppercase">Active</span>
-                                        </td>
-                                    </tr><!-- end tr -->
-                                    <tr>
-                                        <td class="d-flex">
-                                            <img src="assets/images/users/avatar-2.jpg" alt="" class="avatar-xs rounded-3 me-2 material-shadow">
-                                            <div>
-                                                <h5 class="fs-13 mb-0">Jansh Brown</h5>
-                                                <p class="fs-12 mb-0 text-muted">Lead Developer</p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <h6 class="mb-0">83h : <span class="text-muted">150h</span></h6>
-                                        </td>
-                                        <td>
-                                            +000-000-000
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-danger-subtle text-danger text-uppercase">Block</span>
-                                        </td>
-                                    </tr><!-- end tr -->
-                                    <tr>
-                                        <td class="d-flex">
-                                            <img src="assets/images/users/avatar-1.jpg" alt="" class="avatar-xs rounded-3 me-2 material-shadow">
-                                            <div>
-                                                <h5 class="fs-13 mb-0">Donald Risher</h5>
-                                                <p class="fs-12 mb-0 text-muted">Product Manager</p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <h6 class="mb-0">110h : <span class="text-muted">150h</span></h6>
-                                        </td>
-                                        <td>
-                                            +000-000-000
-                                        </td>
-                                        <td style="width:5%;">
-                                            <span class="badge bg-success-subtle text-success text-uppercase">Active</span>
-                                        </td>
-                                    </tr><!-- end tr -->
-                                    <tr>
-                                        <td class="d-flex">
-                                            <img src="assets/images/users/avatar-2.jpg" alt="" class="avatar-xs rounded-3 me-2 material-shadow">
-                                            <div>
-                                                <h5 class="fs-13 mb-0">Jansh Brown</h5>
-                                                <p class="fs-12 mb-0 text-muted">Lead Developer</p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <h6 class="mb-0">83h : <span class="text-muted">150h</span></h6>
-                                        </td>
-                                        <td>
-                                            +000-000-000
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-danger-subtle text-danger text-uppercase">Block</span>
-                                        </td>
-                                    </tr><!-- end tr -->
+                                    @empty
+                                        
+                                    @endforelse
+                                    
                                 </tbody><!-- end tbody -->
                             </table><!-- end table -->
                         </div>
