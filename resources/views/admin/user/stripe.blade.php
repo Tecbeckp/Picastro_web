@@ -130,9 +130,9 @@
             "columns":[
                 {data: 'ID', name: 'ID'},
                 {data: 'username', name: 'username'},
-                {data: 'subscription_id', name: 'subscription_id'},
-                {data: 'plan_id', name: 'plan_id'},
-                {data: 'status', name: 'status'},
+                {data: 'stripe_id', name: 'stripe_id'},
+                {data: 'type', name: 'type'},
+                {data: 'stripe_status', name: 'stripe_status'},
                 {data: 'date', name: 'date'},
                 {data:'action',name:'action'}
             ]

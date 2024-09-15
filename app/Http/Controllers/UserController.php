@@ -233,8 +233,8 @@ return $btn;
 
     public function stripeSubscription(Request $request){
         if($request->ajax()){
-            $data = DB::select('SELECT * FROM subscriptions join ORDER BY id DESC');
-dd($data);
+            $data = DB::select('SELECT * FROM subscriptions LEFT JOIN users on users.id = subscriptions.user_id ORDER BY subscriptions.id DESC');
+// dd($data);
             return DataTables::of($data)->addIndexColumn()
             ->addColumn('ID', function ($row) {
                 static $rowid = null;
@@ -248,7 +248,7 @@ dd($data);
                 return $rowid++;
             })
                 ->addColumn('username', function ($row) {
-                     return $row->user->username ?? 'N/A';
+                     return $row->username ?? 'N/A';
                 })
                 ->addColumn('date', function ($row) {
                     return date('d M, Y', strtotime($row->created_at));
