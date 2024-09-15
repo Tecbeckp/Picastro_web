@@ -161,7 +161,7 @@
                                 <div class="row g-0 text-center">
                                     <div class="col-6 col-sm-4">
                                         <div class="p-3 border border-dashed border-start-0">
-                                            <h5 class="mb-1"><span class="counter-value" data-target="0">0</span></h5>
+                                            <h5 class="mb-1"><span class="counter-value" data-target="{{$data['total_subscriptions']}}">0</span></h5>
                                             <p class="text-muted mb-0">Total Subscriptions</p>
                                         </div>
                                     </div>

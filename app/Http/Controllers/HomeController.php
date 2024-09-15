@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Content;
 use App\Models\Faq;
 use App\Models\IsRegistration;
+use App\Models\PaypalSubscription;
 use App\Models\PostImage;
 use App\Models\Report;
 use App\Models\StarCamp;
 use App\Models\User;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
 class HomeController extends Controller
@@ -39,6 +41,9 @@ class HomeController extends Controller
         $data['total_report']  = Report::count();
         $data['is_registration'] = IsRegistration::where('id','1')->first()->is_registration;
         $data['users'] = User::with('userProfile')->latest()->limit('10');
+        $paypal_subscription = PaypalSubscription::count(); 
+        $stripe_subscription = DB::select('SELECT COUNT(*) as total FROM subscriptions')[0]->total; 
+        $data['total_subscriptions'] = $paypal_subscription + $stripe_subscription;
         return view('admin.dashboard',compact('data'));
     }
 
