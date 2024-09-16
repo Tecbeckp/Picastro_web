@@ -48,7 +48,8 @@ class RegisterController extends Controller
             'last_name'     => $request->last_name,
             'email'         => $request->email,
             'password'      => Hash::make($request->password),
-            'fcm_token'     => $request->fcm_token
+            'fcm_token'     => $request->fcm_token,
+            'platform_type' => $request->platform_type
         ]);
 
         UserProfile::create([
@@ -98,7 +99,8 @@ class RegisterController extends Controller
             'last_name'     => $request->last_name,
             'email'         => $request->email,
             'password'      => Hash::make($request->password),
-            'fcm_token'     => $request->fcm_token
+            'fcm_token'     => $request->fcm_token,
+            'platform_type' => $request->platform_type
         ]);
 
         UserProfile::create([
