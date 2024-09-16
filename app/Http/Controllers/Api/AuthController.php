@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Mail\ForgotPasswordMail;
 use App\Models\Otp;
 use App\Models\Trophy;
 use App\Models\User;
@@ -15,8 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use GuzzleHttp\Client;
 
 class AuthController extends Controller
 {
@@ -110,26 +108,23 @@ class AuthController extends Controller
                     'otp'   => $otp
                 ]
             );
-            $details = [
-                'otp'   => $otp,
-                'name'  => $user ? $user->email : null,
-                'email' => $request->email
-            ];
 
-            if((isset($request->is_from_register) && $request->is_from_register == 'true')){
-                $details['subject'] = 'Picastro Email Verification';
-            }else{
-                $details['subject'] = 'Forgot Password';
+            $client = new Client();
+            try{
+                $response = $client->post('https://picastro.co.uk/send-email', [
+                    'form_params' => [
+                        'otp' => $otp,
+                        'email' => $request->email,
+                        'is_from_register' => $request->is_from_register       
+                    ]
+                ]);
+            } catch (\GuzzleHttp\Exception\ClientException $e) {
+                    $responseBody = json_decode($e->getResponse()->getBody()->getContents(), true);
+                    if (isset($responseBody['error']['status'])) {
+                        $errorStatus = $responseBody['error']['status'];
+                    }
+                // throw $e;
             }
-            
-        //     $html = view('emails.forgot-password', ['details' => $details])->render();
-        //     $data['from'] = 'support@picastroapp.co.uk';
-        //     $data['to'] = $request->email;
-        //     $data['subject'] = $subject;
-        //     $data['html'] = $html;
-        //    $data = $this->sendMail($data);
-            // Mail::to($request->email)->send(new ForgotPasswordMail($details));
-
             return $this->success(['OTP Send Successfully on your email address.'],$otp);
 
         }else{
