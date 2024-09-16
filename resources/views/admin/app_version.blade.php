@@ -35,12 +35,12 @@
                                 <div class="card-text">
                                     <div class="mb-3">
                                         <label for="email" class="form-label">iOS version</label>
-                                        <input type="text" pattern="[0-9]+(\.[0-9]*)?" name="ios_version"
+                                        <input type="text" pattern="\d+(\.\d+)*" name="ios_version"
                                             class="form-control" placeholder="iOS version" value="{{$data->ios_version}}" required />
                                     </div>
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Android version</label>
-                                        <input type="text" pattern="[0-9]+(\.[0-9]*)?" name="android_version"
+                                        <input type="text" pattern="\d+(\.\d+)*" name="android_version"
                                             class="form-control" placeholder="Android version" value="{{$data->android_version}}" required />
                                     </div>
                                 </div>
