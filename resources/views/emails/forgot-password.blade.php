@@ -19,7 +19,6 @@
 <body>
 
     <div class="container-fluid">
-
         <!-- Forgot Password Email -->
         <div class="row">
 
@@ -118,8 +117,8 @@
                                 </table>
                                 <div style="text-align: center; margin: 28px auto 0px auto;">
                                     <h4>Need Help ?</h4>
-                                    <p style="color: #878a99;">Please send feedback or bug info to <a href="mailto:support@picastroapp.com"
-                                            style="font-weight: 500px;">support@picastroapp.com</a></p>
+                                    <p style="color: #878a99;">Please send feedback or bug info to <a href="mailto:support@picastro.co.uk"
+                                            style="font-weight: 500px;">support@picastro.co.uk</a></p>
 
                                 </div>
                             </div>

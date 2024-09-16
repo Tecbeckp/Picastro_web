@@ -117,17 +117,18 @@ class AuthController extends Controller
             ];
 
             if((isset($request->is_from_register) && $request->is_from_register == 'true')){
-                $subject = 'Picastro Email Verification';
+                $details['subject'] = 'Picastro Email Verification';
             }else{
-                $subject = 'Forgot Password';
+                $details['subject'] = 'Forgot Password';
             }
             
-            $html = view('emails.forgot-password', ['details' => $details])->render();
-            $data['from'] = 'support@picastroapp.co.uk';
-            $data['to'] = $request->email;
-            $data['subject'] = $subject;
-            $data['html'] = $html;
-            $this->sendMail($data);
+        //     $html = view('emails.forgot-password', ['details' => $details])->render();
+        //     $data['from'] = 'support@picastroapp.co.uk';
+        //     $data['to'] = $request->email;
+        //     $data['subject'] = $subject;
+        //     $data['html'] = $html;
+        //    $data = $this->sendMail($data);
+            Mail::to($request->email)->send(new ForgotPasswordMail($details));
 
             return $this->success(['OTP Send Successfully on your email address.'],$otp);
 

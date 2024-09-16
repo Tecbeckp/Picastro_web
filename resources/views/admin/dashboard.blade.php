@@ -30,14 +30,16 @@
 
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
-                            <li class="breadcrumb-item"><div class="form-check form-switch form-switch-right form-switch-md">
-                                <label for="ios" class="form-label text-muted">iOS</label>
-                                <input class="form-check-input" @if($data['is_registration']->ios == '1') checked @endif type="checkbox" id="ios">
-                            </div>&nbsp;&nbsp;&nbsp;&nbsp;
-                            <div class="form-check form-switch form-switch-right form-switch-md">
-                                <label for="android" class="form-label text-muted">Android</label>
-                                <input class="form-check-input" @if($data['is_registration']->android == '1') checked @endif type="checkbox" id="android">
-                            </div></li>
+                            <li class="breadcrumb-item">
+                                <div class="form-check form-switch form-switch-right form-switch-md">
+                                    <label for="ios" class="form-label text-muted">iOS</label>
+                                    <input class="form-check-input" @if($data['is_registration']->ios == '1') checked @endif type="checkbox" id="ios">
+                                </div>&nbsp;&nbsp;&nbsp;&nbsp;
+                                <div class="form-check form-switch form-switch-right form-switch-md">
+                                    <label for="android" class="form-label text-muted">Android</label>
+                                    <input class="form-check-input" @if($data['is_registration']->android == '1') checked @endif type="checkbox" id="android">
+                                </div>
+                        </li>
                             
                         </ol>
                     </div>
