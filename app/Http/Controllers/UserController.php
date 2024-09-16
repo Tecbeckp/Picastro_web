@@ -54,6 +54,9 @@ class UserController extends Controller
             ->addColumn('user', function ($row) {
                return $row->first_name . ' ' . $row->last_name;
             })
+            ->addColumn('image', function ($row) {
+                return '<img src="'.$row->userProfile->profile_image.'" alt="" class="avatar-xs rounded-3 me-2 material-shadow" style="border-radius: 50% !important;object-fit: cover;object-position: top;">';
+             })
             ->addColumn('username', function ($row) {
                  return $row->username ?? 'N/A';
             })
@@ -103,7 +106,7 @@ $btn = '<ul class="list-inline hstack gap-2 mb-0">'
 return $btn;
                 
             })
-            ->rawColumns(['action', 'status'])
+            ->rawColumns(['action', 'status', 'image'])
             ->make(true);
     }
 

@@ -84,6 +84,7 @@
                                     <thead>
                                         <tr>
                                             <th>ID</th>
+                                            <th>Profile Image</th>
                                             <th>User</th>
                                             <th>Username</th>
                                             <th>Email</th>
@@ -130,6 +131,7 @@
             },
             "columns":[
                 {data: 'ID', name: 'ID'},
+                {data: 'image', name: 'image'},
                 {data: 'user', name: 'user'},
                 {data: 'username', name: 'username'},
                 {data: 'email', name: 'email'},
