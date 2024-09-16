@@ -31,7 +31,12 @@
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><div class="form-check form-switch form-switch-right form-switch-md">
-                                <input class="form-check-input" @if($data['is_registration'] == '1') checked @endif type="checkbox" id="registration">
+                                <label for="ios" class="form-label text-muted">iOS</label>
+                                <input class="form-check-input" @if($data['is_registration']->ios == '1') checked @endif type="checkbox" id="ios">
+                            </div>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <div class="form-check form-switch form-switch-right form-switch-md">
+                                <label for="android" class="form-label text-muted">Android</label>
+                                <input class="form-check-input" @if($data['is_registration']->android == '1') checked @endif type="checkbox" id="android">
                             </div></li>
                             
                         </ol>
@@ -339,7 +344,7 @@
 @push('script')
 
 <script>
-    $('#registration').change(function(){
+    $('#ios').change(function(){
         
         if ($(this).is(':checked')) {
            var status = true;
@@ -353,6 +358,43 @@
                     data: {
                         _token: "{{ csrf_token() }}",
                         status: status,
+                        platform_type:'ios'
+                    },
+                    beforeSend: function () {
+                    },
+                    success: function (res) {
+                        if (res.success === true) {
+                            if(res.data == 1){
+                                var message = 'Enabled Successfuly';
+                            }else{
+                                var message = 'Disabled Successfuly';
+                            }
+                            Toast.fire({
+                                icon: 'success',
+                                title: message,
+                            })
+                        }
+                    },
+                    error: function (e) {
+                    }
+                });
+    })
+
+    $('#android').change(function(){
+        
+        if ($(this).is(':checked')) {
+           var status = true;
+        } else {
+            var status = false;
+        }
+        $.ajax({
+                    type: "POST",
+                    url: "{{ route('allowRegistration') }}",
+                    dataType: 'json',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        status: status,
+                        platform_type:'android'
                     },
                     beforeSend: function () {
                     },

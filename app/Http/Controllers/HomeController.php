@@ -39,7 +39,7 @@ class HomeController extends Controller
         $data['total_post']  = PostImage::count();
         $data['total_starcamp']  = StarCamp::count();
         $data['total_report']  = Report::count();
-        $data['is_registration'] = IsRegistration::where('id','1')->first()->is_registration;
+        $data['is_registration'] = IsRegistration::where('id','1')->first();
         $data['users'] = User::with('userProfile')->latest()->limit('10')->get();
         $paypal_subscription = PaypalSubscription::count(); 
         $stripe_subscription = DB::select('SELECT COUNT(*) as total FROM subscriptions')[0]->total; 
@@ -162,10 +162,18 @@ class HomeController extends Controller
         if($request->status == 'true'){
             $status = '1';
         }else{
-            $status = '0';        }
-        IsRegistration::where('id','1')->update([
-            'is_registration' => $status
-        ]);
+            $status = '0';        
+        }
+        if($request->platform_type == 'ios'){
+            IsRegistration::where('id','1')->update([
+                'ios' => $status
+            ]);
+        }elseif($request->platform_type == 'android'){
+            IsRegistration::where('id','1')->update([
+                'android' => $status
+            ]);
+        }
+       
         
         return $this->success(['Successfully'],$status);
     }
