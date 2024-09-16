@@ -123,7 +123,7 @@ class AuthController extends Controller
             }
             
             $html = view('emails.forgot-password', ['details' => $details])->render();
-            $data['from'] = 'support@picastroapp.com';
+            $data['from'] = 'support@picastroapp.co.uk';
             $data['to'] = $request->email;
             $data['subject'] = $subject;
             $data['html'] = $html;
