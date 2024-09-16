@@ -46,7 +46,7 @@ class UserProfileController extends Controller
         ];
 
         if ($request->file('profile_image')) {
-            $imageName = $this->imageUpload($request->file('profile_image'), 'profileImages/');
+            $imageName = $this->originalImageUpload($request->file('profile_image'), 'profileImages/');
             $data['profile_image'] = $imageName;
         }
         
