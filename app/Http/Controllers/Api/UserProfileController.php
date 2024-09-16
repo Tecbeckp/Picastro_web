@@ -19,6 +19,7 @@ class UserProfileController extends Controller
     use UploadImageTrait;
 
     public function profileSetup(Request $request){
+        return $this->susscess([''],$request->all());
         $rules = [  
             'username'      => 'required|unique:users|max:16|alpha_dash',
             'pronouns'      => 'required',
@@ -50,7 +51,7 @@ class UserProfileController extends Controller
         }
         
         UserProfile::where('user_id', auth()->id())->update($data);
-        
+
         User::where('id', auth()->id())->update([
             'username' => $request->username,
         ]);
