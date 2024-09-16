@@ -78,6 +78,14 @@ class PostImage extends Model
         return $name;
     }
     
+
+    public function getImageAttribute($image){
+        if($image){
+            return asset($image);
+        }else{
+            return '';
+        }
+    }
     public function getOnlyImageAndDescriptionAttribute($only_image_and_description){
         if($only_image_and_description == '0'){
             return false;
