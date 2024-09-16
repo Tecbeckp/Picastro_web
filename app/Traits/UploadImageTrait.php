@@ -34,7 +34,7 @@ trait  UploadImageTrait
         $filename = time() . $random . '.' . $file->getClientOriginalExtension();
         $image = Image::read($file);
         // Resize image
-        $image->resize(800, 800)->save(public_path($destinationFolder . $filename));
+        $image->resize()->save(public_path($destinationFolder . $filename));
         $file_path = $destinationFolder . $filename;
         return $file_path;
     }
