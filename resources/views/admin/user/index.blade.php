@@ -84,11 +84,12 @@
                                     <thead>
                                         <tr>
                                             <th>ID</th>
-                                            <th>Profile Image</th>
+                                            <th>Image</th>
                                             <th>User</th>
                                             <th>Username</th>
                                             <th>Email</th>
                                             <th>Pronouns</th>
+                                            <th>platform</th>
                                             <th>Created Date</th>
                                             <th>Status</th>
                                             <th>Action</th>
@@ -136,6 +137,7 @@
                 {data: 'username', name: 'username'},
                 {data: 'email', name: 'email'},
                 {data: 'gender', name: 'gender'},
+                {data: 'platform_type', name: 'platform_type'},
                 {data: 'date', name: 'date'},
                 {data: 'status', name: 'status'},
                 {data:'action',name:'action'}
