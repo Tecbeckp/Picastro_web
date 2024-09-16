@@ -128,7 +128,7 @@ class AuthController extends Controller
         //     $data['subject'] = $subject;
         //     $data['html'] = $html;
         //    $data = $this->sendMail($data);
-            Mail::to($request->email)->send(new ForgotPasswordMail($details));
+            // Mail::to($request->email)->send(new ForgotPasswordMail($details));
 
             return $this->success(['OTP Send Successfully on your email address.'],$otp);
 
