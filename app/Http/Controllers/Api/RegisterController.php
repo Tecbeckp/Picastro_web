@@ -40,9 +40,16 @@ class RegisterController extends Controller
             return $this->error($validator->errors()->all());
         }
             $is_register = IsRegistration::where('id',1)->first();
-            if(isset($is_register) && $is_register->is_registration == '0'){
-                return $this->error(['We are not accepting registrations at the moment.']);
+            if($request->platform_type == 'android'){
+                if(isset($is_register) && $is_register->android == '0'){
+                    return $this->error(['We are not accepting registrations at the moment.']);
+                }
+            }else{
+                if(isset($is_register) && $is_register->ios == '0'){
+                    return $this->error(['We are not accepting registrations at the moment.']);
+                }
             }
+            
         $user = User::create([
             'first_name'    => $request->first_name,
             'last_name'     => $request->last_name,
