@@ -355,8 +355,8 @@ class PostImageController extends Controller
 
             $postImage                        = new PostImage();
             $postImage->user_id               = auth()->id();
-            $postImage->original_image        = $imageName;
-            $postImage->image                 = $originalImageName;
+            $postImage->original_image        = $originalImageName;
+            $postImage->image                 = $imageName;
             $postImage->description           = $request->description;
         if($request->only_image_and_description == 'false'){
 
@@ -656,8 +656,8 @@ class PostImageController extends Controller
 
             ];
             if($request->file('image')){
-                $data['original_image']   = $imageName;
-                $data['image']            = $originalImageName;
+                $data['original_image']   = $originalImageName;
+                $data['image']            = $imageName;
             }
 
         if($request->only_image_and_description == 'false'){

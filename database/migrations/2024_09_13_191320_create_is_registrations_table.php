@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('is_registrations', function (Blueprint $table) {
             $table->id();
-            $table->enum('is_registration',['0','1'])->default('0');
+            $table->enum('ios',['0','1'])->default('0');
+            $table->enum('android',['0','1'])->default('0');
             $table->timestamps();
         });
     }

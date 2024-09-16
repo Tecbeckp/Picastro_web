@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('post_images', function (Blueprint $table) {
             $table->unsignedBigInteger('telescope_id')->nullable();
+            $table->tinyInteger('only_image_and_description')->nullable();
         });
     }
 
