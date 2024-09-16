@@ -112,7 +112,7 @@ class ApiGeneralController extends Controller
 
         $rules = [
             'post_image_id'   => 'required|numeric|exists:post_images,id',
-            'object_type_id'  => 'nullable|numeric|exists:post_images,id'
+            'object_type_id'  => 'nullable|numeric'
         ];
 
         $validator = Validator::make($request->all(), $rules);
