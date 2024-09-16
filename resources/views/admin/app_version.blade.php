@@ -36,12 +36,12 @@
                                     <div class="mb-3">
                                         <label for="email" class="form-label">iOS version</label>
                                         <input type="text" pattern="\d+(\.\d+)*" name="ios_version"
-                                            class="form-control" placeholder="iOS version" value="{{$data->ios_version}}" required />
+                                            class="form-control" placeholder="e.g. 1.0.0" title="Please enter a valid version like 1.0.0" value="{{$data->ios_version}}" required />
                                     </div>
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Android version</label>
                                         <input type="text" pattern="\d+(\.\d+)*" name="android_version"
-                                            class="form-control" placeholder="Android version" value="{{$data->android_version}}" required />
+                                            class="form-control" placeholder="e.g. 1.0.0" title="Please enter a valid version like 1.0.0" value="{{$data->android_version}}" required />
                                     </div>
                                 </div>
                                 <button class="btn btn-outline-primary mt-3" type="submit">Update</button>
