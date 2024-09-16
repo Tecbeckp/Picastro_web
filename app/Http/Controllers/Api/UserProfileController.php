@@ -49,12 +49,8 @@ class UserProfileController extends Controller
             $data['profile_image'] = $imageName;
         }
         
-        UserProfile::updateOrCreate(
-            [
-                'user_id' => auth()->id(),
-            ],
-            $data
-        );
+        UserProfile::where('user_id', auth()->id())->update($data);
+        
         User::where('id', auth()->id())->update([
             'username' => $request->username,
         ]);
