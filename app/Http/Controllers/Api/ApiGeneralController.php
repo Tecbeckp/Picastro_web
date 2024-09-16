@@ -532,8 +532,8 @@ if ($data->isNotEmpty()) {
         });
 
        $faq = Faq::select('title','description')->where('status','Enable')->get() ?? null;
-       $data['app_version'] = AppVersion::where('id','1')->first();
        $data['faq'] = $faq->isNotEmpty() ? $faq : null;
+       $data['app_version'] = AppVersion::where('id','1')->first();
         return $this->success([], $data);
     }
     
