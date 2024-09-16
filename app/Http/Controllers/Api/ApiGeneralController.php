@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ApproxLunarPhase;
+use App\Models\AppVersion;
 use App\Models\BlockToUser;
 use App\Models\Bortle;
 use App\Models\Content;
@@ -531,7 +532,8 @@ if ($data->isNotEmpty()) {
         });
 
        $faq = Faq::select('title','description')->where('status','Enable')->get() ?? null;
-    $data['faq'] = $faq->isNotEmpty() ? $faq : null;
+       $data['app_version'] = AppVersion::where('id','1')->first();
+       $data['faq'] = $faq->isNotEmpty() ? $faq : null;
         return $this->success([], $data);
     }
     
