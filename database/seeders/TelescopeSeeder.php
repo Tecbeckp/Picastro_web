@@ -16,34 +16,42 @@ class TelescopeSeeder extends Seeder
         Telescope::insert([
             [
                 'name'        => 'Dobsonian',
+                'icon'        => 'assets/uploads/telescope-icons/dobsonian.png',
                 'created_at'  => now(),
                 'updated_at'  => now()
             ],[
                 'name'        => 'Reflector',
+                'icon'        => 'assets/uploads/telescope-icons/reflector.png',
                 'created_at'  => now(),
                 'updated_at'  => now()
             ],[
                 'name'        => 'Refractor',
+                'icon'        => 'assets/uploads/telescope-icons/refractor.png',
                 'created_at'  => now(),
                 'updated_at'  => now()
             ],[
                 'name'        => 'Newtonian',
+                'icon'        => 'assets/uploads/telescope-icons/reflector.png',
                 'created_at'  => now(),
                 'updated_at'  => now()
             ],[
                 'name'        => 'SCT',
+                'icon'        => 'assets/uploads/telescope-icons/SCT.png',
                 'created_at'  => now(),
                 'updated_at'  => now()
             ],[
                 'name'        => 'Maksutov',
+                'icon'        => 'assets/uploads/telescope-icons/dobsonian.png',
                 'created_at'  => now(),
                 'updated_at'  => now()
             ],[
                 'name'        => 'Smart Telescope',
+                'icon'        => 'assets/uploads/telescope-icons/smart-telescope.png',
                 'created_at'  => now(),
                 'updated_at'  => now()
             ],[
                 'name'        => 'Catadioptric',
+                'icon'        => 'assets/uploads/telescope-icons/dobsonian.png',
                 'created_at'  => now(),
                 'updated_at'  => now()
             ]
