@@ -19,7 +19,7 @@ trait MailTrait
                 )
             ),
             'from' => array(
-                'email' => $data['from'] ?? 'support@picastroapp.com',
+                'email' => $data['from'] ?? 'support@picastroapp.co.uk',
                 'name' => 'Picastro'
             ),
             'content' => array(
