@@ -59,6 +59,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/faq-edit', [HomeController::class, 'faqUpdate'])->name('faq.edit');
     Route::post('/store-faq-content', [HomeController::class, 'StoreFaqContent'])->name('StoreFaqContent');
     Route::post('/allow-registration', [HomeController::class, 'allowRegistration'])->name('allowRegistration');
+    Route::get('/app-version', [HomeController::class, 'appVersion'])->name('app-version');
+    Route::post('/store-app-version', [HomeController::class, 'storeAppVersion'])->name('storeAppVersion');
 
     
     
@@ -70,7 +72,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/paypalSubscription', [UserController::class, 'paypalSubscription'])->name('paypalSubscription');
     Route::get('/stripeSubscription', [UserController::class, 'stripeSubscription'])->name('stripeSubscription');
     Route::resource('users', UserController::class);
-    
+
     Route::get('/get-all-starcamp', [StarCampController::class, 'getAllstarcamp'])->name('getAllstarcamp');
     Route::resource('starcamps', StarCampController::class);
     Route::resource('posts', PostImageController::class);

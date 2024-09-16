@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AppVersion;
 use App\Models\Content;
 use App\Models\Faq;
 use App\Models\IsRegistration;
@@ -173,9 +174,27 @@ class HomeController extends Controller
                 'android' => $status
             ]);
         }
-       
-        
         return $this->success(['Successfully'],$status);
+    }
+
+    public function appVersion(Request $request){
+
+        $data = AppVersion::where('id','1')->first();
+            return view('admin.app_version', compact('data'));
+    }
+
+    public function storeAppVersion(Request $request){
+        $request->validate([
+            'ios_version'     => 'required',
+            'android_version' => 'required'
+        ]);
+
+        AppVersion::where('id',1)->update([
+            'ios_version' => $request->ios_version,
+            'android_version' => $request->android_version
+        ]);
+
+        return redirect()->back()->with('success', 'Updated successfully.');
     }
     public function viewTerms(){
         $terms = Content::where('name','Terms and Conditions')->first();

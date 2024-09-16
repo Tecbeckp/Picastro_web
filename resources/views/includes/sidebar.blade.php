@@ -104,6 +104,9 @@
                             <li class="nav-item">
                                 <a href="{{route('about-us')}}" class="nav-link" data-key="t-term-conditions">About Us</a>
                             </li>
+                            <li class="nav-item">
+                                <a href="{{route('app-version')}}" class="nav-link" data-key="t-term-conditions">App Version</a>
+                            </li>
                         </ul>
                     </div>
                 </li>
