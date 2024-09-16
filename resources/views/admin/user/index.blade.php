@@ -79,7 +79,7 @@
                     </div>
                     <div class="card-body">
                         <div>
-                            <div class="">
+                            <div class="table-responsive">
                                 <table id="userTable" class="table nowrap align-middle" style="width:100%">
                                     <thead>
                                         <tr>
