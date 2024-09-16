@@ -257,7 +257,7 @@ return $btn;
                      return $row->username ?? 'N/A';
                 })
                 ->addColumn('status', function ($row) {
-                    return $row->stripe_status == 'incomplete' ? 'Active' : $row->stripe_status;
+                    return $row->stripe_status;
                })
                 ->addColumn('date', function ($row) {
                     return date('d M, Y', strtotime($row->created_at));
