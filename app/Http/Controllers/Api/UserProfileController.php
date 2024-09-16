@@ -37,9 +37,6 @@ class UserProfileController extends Controller
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-        User::where('id', auth()->id())->update([
-            'username' => $request->username,
-        ]);
         
         $data = [
             'pronouns'         => $request->pronouns,
@@ -58,6 +55,9 @@ class UserProfileController extends Controller
             ],
             $data
         );
+        User::where('id', auth()->id())->update([
+            'username' => $request->username,
+        ]);
         $user = User::with('userprofile')->where('id', auth()->id())->first();
         $result =[
             'user' => $user
