@@ -537,8 +537,8 @@ class ApiGeneralController extends Controller
 
         $faq = Faq::select('title', 'description')->where('status', 'Enable')->get() ?? null;
         $data['faq'] = $faq->isNotEmpty() ? $faq : null;
-        $data['ios_version '] = AppVersion::where('id', '1')->first()->ios_version;
-        $data['android_version '] = AppVersion::where('id', '1')->first()->android_version;
+        $data['ios_version'] = AppVersion::where('id', '1')->first()->ios_version;
+        $data['android_version'] = AppVersion::where('id', '1')->first()->android_version;
         return $this->success([], $data);
     }
 
