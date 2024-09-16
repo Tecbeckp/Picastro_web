@@ -60,6 +60,9 @@ class UserController extends Controller
             ->addColumn('username', function ($row) {
                  return $row->username ?? 'N/A';
             })
+            ->addColumn('platform', function ($row) {
+                return $row->platform_type ?? 'N/A';
+           })
             ->addColumn('gender', function ($row) {
                 return $row->userprofile->pronouns ?? 'N/A';
             })

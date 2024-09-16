@@ -137,7 +137,7 @@
                 {data: 'username', name: 'username'},
                 {data: 'email', name: 'email'},
                 {data: 'gender', name: 'gender'},
-                {data: 'platform_type', name: 'platform_type'},
+                {data: 'platform', name: 'platform'},
                 {data: 'date', name: 'date'},
                 {data: 'status', name: 'status'},
                 {data:'action',name:'action'}
