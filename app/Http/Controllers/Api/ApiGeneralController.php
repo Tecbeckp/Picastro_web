@@ -647,7 +647,7 @@ class ApiGeneralController extends Controller
     public function inviteUser(Request $request)
     {
         $rules = [
-            'email_1'   => 'required|email'
+            'email_1'   => 'required|email',
             'email_2'   => 'nullable|email',
             'email_3'   => 'nullable|email',
             'email_4'   => 'nullable|email',
