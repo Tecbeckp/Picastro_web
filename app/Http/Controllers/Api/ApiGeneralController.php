@@ -648,6 +648,10 @@ class ApiGeneralController extends Controller
     {
         $rules = [
             'email_1'   => 'required|email'
+            'email_2'   => 'nullable|email',
+            'email_3'   => 'nullable|email',
+            'email_4'   => 'nullable|email',
+            'email_5'   => 'nullable|email'
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -673,6 +677,7 @@ class ApiGeneralController extends Controller
                 $responseBody = json_decode($e->getResponse()->getBody()->getContents(), true);
                 if (isset($responseBody['error']['status'])) {
                     $errorStatus = $responseBody['error']['status'];
+                    dd($errorStatus);
                 }
         }
         return $this->success(['Invite sent successfully'], []);
