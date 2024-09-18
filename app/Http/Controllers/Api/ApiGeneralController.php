@@ -673,8 +673,8 @@ class ApiGeneralController extends Controller
                 ]
             ]);
         } catch (\GuzzleHttp\Exception\ClientException $e) {
-            dd($e);
-                $responseBody = json_decode($e->getResponse()->getBody()->getContents(), true);
+            $responseBody = json_decode($e->getResponse()->getBody()->getContents(), true);
+            dd($responseBody);
                 if (isset($responseBody['error']['status'])) {
                     $errorStatus = $responseBody['error']['status'];
                 }
