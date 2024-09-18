@@ -672,6 +672,8 @@ class ApiGeneralController extends Controller
                     'email_5' => $request->email_5    
                 ]
             ]);
+        return $this->success(['Invite sent successfully'], $response);
+
         } catch (\GuzzleHttp\Exception\ClientException $e) {
             $responseBody = json_decode($e->getResponse()->getBody()->getContents(), true);
             dd($responseBody);
@@ -679,7 +681,7 @@ class ApiGeneralController extends Controller
                     $errorStatus = $responseBody['error']['status'];
                 }
         }
-        return $this->success(['Invite sent successfully'], []);
+        // return $this->success(['Invite sent successfully'], []);
     }
 
     public function getUserById(Request $request)
