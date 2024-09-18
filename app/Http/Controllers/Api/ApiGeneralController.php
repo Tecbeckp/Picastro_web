@@ -677,8 +677,8 @@ class ApiGeneralController extends Controller
                 $responseBody = json_decode($e->getResponse()->getBody()->getContents(), true);
                 if (isset($responseBody['error']['status'])) {
                     $errorStatus = $responseBody['error']['status'];
-                    dd($errorStatus);
                 }
+                dd($responseBody);
         }
         return $this->success(['Invite sent successfully'], []);
     }
