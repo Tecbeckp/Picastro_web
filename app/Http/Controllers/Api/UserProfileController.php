@@ -23,7 +23,7 @@ class UserProfileController extends Controller
         $rules = [  
             'username'      => 'required|unique:users|max:16|alpha_dash',
             'pronouns'      => 'required',
-            'bio'           => 'required|max:120',
+            'bio'           => 'required|max:250',
             'profile_image' => 'nullable|mimes:jpg,jpeg,png,webp'
         ];
         

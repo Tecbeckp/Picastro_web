@@ -620,6 +620,7 @@ class PostImageController extends Controller
         unset($updateData['id']); // Replace 'id' with the actual unique column name if different
         unset($updateData['user_id']);
         unset($updateData['image']);
+        unset($updateData['original_image']);
         unset($updateData['created_at']);
     
         // Update the specific row identified by the unique ID
