@@ -28,6 +28,7 @@ use App\Models\CommentWarning;
 use App\Models\PostComment;
 use App\Models\FollowerList;
 use App\Models\Faq;
+use GuzzleHttp\Client;
 
 
 class ApiGeneralController extends Controller
@@ -655,6 +656,24 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
+        $client = new Client();
+        try{
+            $response = $client->post('https://picastro.co.uk/bulk-email', [
+                'form_params' => [
+                    'name'  => auth()->user()->username,    
+                    'email_1' => $request->email_1,    
+                    'email_2' => $request->email_2,    
+                    'email_3' => $request->email_3,    
+                    'email_4' => $request->email_4,    
+                    'email_5' => $request->email_5,    
+                ]
+            ]);
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+                $responseBody = json_decode($e->getResponse()->getBody()->getContents(), true);
+                if (isset($responseBody['error']['status'])) {
+                    $errorStatus = $responseBody['error']['status'];
+                }
+        }
         return $this->success(['Invite sent successfully'], []);
     }
 
