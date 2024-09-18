@@ -674,7 +674,7 @@ class ApiGeneralController extends Controller
                     $errorStatus = $responseBody['error']['status'];
                 }
         }
-        return $this->success(['Invite sent successfully'], []);
+        return $this->success(['Invite sent successfully'], $response);
     }
 
     public function getUserById(Request $request)
