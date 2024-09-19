@@ -115,6 +115,24 @@ class UserProfileController extends Controller
 
     }
 
+    public function updateFcmToken(Request $request){
+        $rules = [
+            'fcm_token'  => 'required'
+            
+        ];
+        $validator = Validator::make($request->all(), $rules, [
+            'experience_level.required' => 'fcm token is required.'
+        ]);
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+
+        User::where('id',auth()->id())->update([
+            'fcm_token' => $request->fcm_token
+        ]);
+
+        return $this->success(['Updated Successfully'], []);
+    }
     public function getUserProfile(){
 
         $user = User::with('userprofile')->withCount('TotalStar')->where('id', Auth::id())->first();

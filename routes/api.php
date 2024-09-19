@@ -46,6 +46,7 @@ Route::get('/create-plan', [PaymentController::class, 'createPlan']);
 Route::group(['middleware' => 'auth:sanctum'], function () {    
     Route::post('profile-setup', [UserProfileController::class, 'profileSetup']);
     Route::post('update-profile', [UserProfileController::class, 'updateProfile']);
+    Route::post('update_fcm_token', [UserProfileController::class, 'updateFcmToken']);
     Route::get('get-user-profile', [UserProfileController::class, 'getUserProfile']);
 
     Route::get('get-post-image', [PostImageController::class, 'index']);
