@@ -489,6 +489,7 @@ class PostImageController extends Controller
                 'user_id'            => $post->user_id,
                 'post_image_title'   => $post->post_image_title,
                 'image'              => $post->image,
+                'original_image'      => $post->original_image,
                 'description'        => $post->description,
                 'video_length'       => $post->video_length,
                 'number_of_frame'    => $post->number_of_frame,

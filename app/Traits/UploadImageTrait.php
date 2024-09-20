@@ -31,10 +31,10 @@ trait  UploadImageTrait
         }
         
         $random = rand(1000,9999);
-        $filename = time() . $random . '.' . $file->getClientOriginalExtension();
+        $filename = time() . $random . '.webp';
         $image = Image::read($file);
         // Resize image
-        $image->resize()->save(public_path($destinationFolder . $filename));
+        $image->resize()->save(public_path($destinationFolder . $filename), 70);
         $file_path = $destinationFolder . $filename;
         return $file_path;
     }
