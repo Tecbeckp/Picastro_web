@@ -108,7 +108,7 @@
                                 <a href="{{route('app-version')}}" class="nav-link" data-key="t-term-conditions">App Version</a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{route('payment-status')}}" class="nav-link" data-key="t-term-conditions">Payment Status</a>
+                                <a href="{{route('payment-status')}}" class="nav-link" data-key="t-term-conditions">Payment Method Status</a>
                             </li>
                         </ul>
                     </div>
