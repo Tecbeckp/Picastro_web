@@ -34,6 +34,7 @@ Route::post('reset-password', [AuthController::class, 'ResetPassword']);
 Route::get('get-object-info',[PostImageController::class, 'GetObjectInfo']);
 
 Route::get('/get-content', [ApiGeneralController::class, 'getContent']);
+Route::get('/get-payment-method-status', [ApiGeneralController::class, 'getPaymentMethodStatus']);
 
 Route::get('/subscription', [PaymentController::class, 'storeSubscription']);
 Route::get('/subscribed/{id}', [PaymentController::class, 'Subscribed'])->name('subscribed');

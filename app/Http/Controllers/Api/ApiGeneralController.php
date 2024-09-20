@@ -14,6 +14,7 @@ use App\Models\Notification;
 use App\Models\PostImage;
 use App\Models\Report;
 use App\Models\SaveObject;
+use App\Models\PaymentMethodStatus;
 use App\Models\Trophy;
 use App\Models\User;
 use App\Models\VoteImage;
@@ -799,5 +800,12 @@ class ApiGeneralController extends Controller
             );
         }
         return $this->success(['Sent message successfully'], []);
+    }
+
+    public function getPaymentMethodStatus(){
+        $data = PaymentMethodStatus::first();
+
+        return $this->success(['get payment method status'], $data);
+
     }
 }
