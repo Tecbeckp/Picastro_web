@@ -541,6 +541,8 @@ class ApiGeneralController extends Controller
         $data['faq'] = $faq->isNotEmpty() ? $faq : null;
         $data['ios_version'] = AppVersion::where('id', '1')->first()->ios_version;
         $data['android_version'] = AppVersion::where('id', '1')->first()->android_version;
+        $data['payment_methods'] = PaymentMethodStatus::first();
+        
         return $this->success([], $data);
     }
 
