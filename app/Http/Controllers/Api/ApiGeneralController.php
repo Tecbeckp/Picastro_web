@@ -542,7 +542,7 @@ class ApiGeneralController extends Controller
         $data['ios_version'] = AppVersion::where('id', '1')->first()->ios_version;
         $data['android_version'] = AppVersion::where('id', '1')->first()->android_version;
         $data['payment_methods'] = PaymentMethodStatus::first();
-        
+
         return $this->success([], $data);
     }
 
@@ -739,6 +739,7 @@ class ApiGeneralController extends Controller
                 'user_id'            => $post->user_id,
                 'post_image_title'   => $post->post_image_title,
                 'image'              => $post->image,
+                'original_image'      => $post->original_image,
                 'description'        => $post->description,
                 'video_length'       => $post->video_length,
                 'number_of_frame'    => $post->number_of_frame,
