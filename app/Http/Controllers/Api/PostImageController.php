@@ -481,7 +481,7 @@ class PostImageController extends Controller
   public function edit(string $id)
     {
 
-        $posts = PostImage::with('user','StarCard.StarCardFilter','ObjectType','Bortle','ObserverLocation','ApproxLunarPhase','Telescope','giveStar','totalStar','Follow','votedTrophy')->where('user_id',auth()->id())->where('id',$id)->get();
+        $posts = PostImage::with('user','StarCard.StarCardFilter','ObjectType','Bortle','ObserverLocation','ApproxLunarPhase','Telescope','giveStar','totalStar','Follow','votedTrophy')->where('id',$id)->get();
         $trophies = Trophy::select('id','name','icon')->get();
         $posts->transform(function ($post) use($trophies) {
             return [
