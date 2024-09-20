@@ -6,6 +6,7 @@ use App\Models\AppVersion;
 use App\Models\Content;
 use App\Models\Faq;
 use App\Models\IsRegistration;
+use App\Models\PaymentMethodStatus;
 use App\Models\PaypalSubscription;
 use App\Models\PostImage;
 use App\Models\Report;
@@ -183,6 +184,11 @@ class HomeController extends Controller
             return view('admin.app_version', compact('data'));
     }
 
+    public function paymentStatus(Request $request){
+
+        $data = PaymentMethodStatus::where('id','1')->first();
+            return view('admin.payment_status', compact('data'));
+    }
     public function storeAppVersion(Request $request){
         $request->validate([
             'ios_version'     => 'required',
@@ -192,6 +198,37 @@ class HomeController extends Controller
         AppVersion::where('id',1)->update([
             'ios_version' => $request->ios_version,
             'android_version' => $request->android_version
+        ]);
+
+        return redirect()->back()->with('success', 'Updated successfully.');
+    }
+
+    public function updatePaymentStatus(Request $request){
+        if(isset($request->paypal_android)){
+            $paypal_android = $request->paypal_android;
+        }else{
+            $paypal_android = '0';
+        }
+        if(isset($request->stripe_android)){
+            $stripe_android = $request->stripe_android;
+        }else{
+            $stripe_android = '0';
+        }
+        if(isset($request->paypal_ios)){
+            $paypal_ios = $request->paypal_ios;
+        }else{
+            $paypal_ios = '0';
+        }
+        if(isset($request->stripe_ios)){
+            $stripe_ios = $request->stripe_ios;
+        }else{
+            $stripe_ios = '0';
+        }
+        PaymentMethodStatus::where('id',1)->update([
+            'paypal_android' => $paypal_android,
+            'stripe_android' => $stripe_android,
+            'paypal_ios'     => $paypal_ios,
+            'stripe_ios'     => $stripe_ios
         ]);
 
         return redirect()->back()->with('success', 'Updated successfully.');

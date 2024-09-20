@@ -60,7 +60,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/store-faq-content', [HomeController::class, 'StoreFaqContent'])->name('StoreFaqContent');
     Route::post('/allow-registration', [HomeController::class, 'allowRegistration'])->name('allowRegistration');
     Route::get('/app-version', [HomeController::class, 'appVersion'])->name('app-version');
+    Route::get('/payment-status', [HomeController::class, 'paymentStatus'])->name('payment-status');
     Route::post('/store-app-version', [HomeController::class, 'storeAppVersion'])->name('storeAppVersion');
+    Route::post('/update-payment-status', [HomeController::class, 'updatePaymentStatus'])->name('updatePaymentStatus');
 
     
     

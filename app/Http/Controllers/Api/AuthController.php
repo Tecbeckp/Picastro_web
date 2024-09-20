@@ -205,7 +205,6 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-
         if (Auth::check()) {
             if ($request->user()->fcm_token && $this->getClientIP() != '58.65.222.176') {
                 user::where('id', Auth::id())->update([
