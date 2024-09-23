@@ -354,7 +354,7 @@ class PostImageController extends Controller
 
         try {
             $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/');
-            dd($imageName);
+            // dd($imageName);
             $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/');
 
             $postImage                        = new PostImage();
