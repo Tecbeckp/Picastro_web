@@ -45,7 +45,7 @@ class PostImageController extends Controller
             if($search){
                 $posts->whereAny(['object_name','catalogue_number','post_image_title','description'],'LIKE', '%' .$search. '%');
             }
-            $posts = $posts->latest()->paginate(10);
+            $posts = $posts->with('user')->latest()->paginate(10);
             return view('admin.post.posts', compact('posts'))->render();
         }
         $posts = PostImage::latest()->paginate(10);

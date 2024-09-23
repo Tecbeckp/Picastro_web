@@ -77,6 +77,8 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/get-all-starcamp', [StarCampController::class, 'getAllstarcamp'])->name('getAllstarcamp');
     Route::resource('starcamps', StarCampController::class);
+
     Route::resource('posts', PostImageController::class);
+    
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 });

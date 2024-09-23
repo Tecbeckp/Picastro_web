@@ -283,7 +283,7 @@ class PostImageController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'image'                 => 'required|mimes:jpg,jpeg,png,webp,tiff|max:153600',
+            'image'                 => 'required|mimes:jpg,jpeg,png,webp,tif|max:153600',
             'description'           => 'required',
             'object_type'           => 'required_if:only_image_and_description,false',
             'bortle_number'         => 'required_if:only_image_and_description,false',
@@ -353,8 +353,9 @@ class PostImageController extends Controller
         }
 
         try {
-            $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/');
             $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/');
+            dd($imageName);
+            $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/');
 
             $postImage                        = new PostImage();
             $postImage->user_id               = auth()->id();
