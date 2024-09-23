@@ -30,7 +30,7 @@ use App\Models\PostComment;
 use App\Models\FollowerList;
 use App\Models\Faq;
 use GuzzleHttp\Client;
-
+use Carbon\Carbon;
 
 class ApiGeneralController extends Controller
 {
@@ -294,6 +294,38 @@ class ApiGeneralController extends Controller
     public function imageOfMonth(Request $request)
     {
 
+        $currentMonth = Carbon::now()->format('m-Y');
+        $currentDay = Carbon::now()->day;
+        // dd($currentMonth);
+        // Check if the current day is the 28th
+        if ($currentDay == 28) {
+            $data = VoteImage::select('post_image_id', 'month', DB::raw('count(id) as post_count'))
+                ->whereHas('postImage', function ($q) {
+                    $q->whereNull('deleted_at');
+                })
+                ->where('trophy_id', '1')
+                ->where('month', $currentMonth) // Filter by the current month
+                ->groupBy('month', 'post_image_id')
+                ->orderBy('post_count', 'desc')
+                ->get()
+                ->groupBy('month')
+                ->map(function($groupedByMonth) {
+                    return [
+                        'post_image_id' => $groupedByMonth->first()->post_image_id,
+                        'month' => $groupedByMonth->first()->month,
+                        'post_count' => $groupedByMonth->first()->post_count
+                    ];
+                });
+        
+                $res  = $data[$currentMonth];
+
+               $update_Res = VoteImage::where('post_image_id',$res['post_image_id'])->where('month',$res['month'])->first();
+                $update_Res->update([
+                    'IOT' => '1'
+                ]);
+        }
+        
+
         $data = VoteImage::with([
             'postImage.user',
             'postImage.StarCard.StarCardFilter',
@@ -307,12 +339,9 @@ class ApiGeneralController extends Controller
             'postImage.Follow',
             'postImage.votedTrophy'
         ])
-            ->select('post_image_id', 'post_user_id', 'month', DB::raw('count(id) as post_count'))
             ->whereHas('postImage', function ($q) {
                 $q->whereNull('deleted_at');
-            })
-            ->groupBy('post_image_id', 'post_user_id', 'month')
-            ->orderBy('post_count', 'desc')
+            })->where('IOT','1')
             ->get();
         if ($data->isNotEmpty()) {
             $data->transform(function ($post) {
