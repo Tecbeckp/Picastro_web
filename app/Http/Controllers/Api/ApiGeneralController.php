@@ -390,7 +390,7 @@ class ApiGeneralController extends Controller
 
             return $this->success(['Get Image of month successfully!'], $data);
         } else {
-            return $this->error(['No data found for the given month']);
+            return $this->error(['No data found']);
         }
     }
 
