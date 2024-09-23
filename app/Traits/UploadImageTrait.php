@@ -43,8 +43,8 @@ trait  UploadImageTrait
         $originalHeight = $image->height();
 
         // Calculate 70% of the original width and height
-        $newWidth = round($originalWidth * 0.3);
-        $newHeight = round($originalHeight * 0.3);
+        $newWidth = round($originalWidth * 0.1);
+        $newHeight = round($originalHeight * 0.1);
 
         // Resize the image to 70% of its original size
         $image->resize($newWidth, $newHeight, function ($constraint) {
