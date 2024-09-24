@@ -304,7 +304,7 @@ class PostImageController extends Controller
         }
        
 
-        $posts = PostImage::with('user','StarCard.StarCardFilter','ObjectType','Bortle','ObserverLocation','ApproxLunarPhase','Telescope','giveStar','totalStar','Follow','votedTrophy')->where('user_id',$request->user_id)->latest()->paginate(10);
+        $posts = PostImage::with('user','StarCard.StarCardFilter','ObjectType','Bortle','ObserverLocation','ApproxLunarPhase','Telescope','giveStar','totalStar','Follow','votedTrophy')->where('user_id',$request->user_id)->latest()->get();
         $troph = Trophy::select('id','name','icon')->get();
         $data = [
             'user' => $user,
@@ -357,15 +357,7 @@ class PostImageController extends Controller
                 ]
             ];
             
-        }),
-        'pagination' => [
-                'total' => $posts->total(),
-                'per_page' => $posts->perPage(),
-                'current_page' => $posts->currentPage(),
-                'last_page' => $posts->lastPage(),
-                'next_page_url' => $posts->nextPageUrl(),
-                'prev_page_url' => $posts->previousPageUrl(),
-            ] 
+        })
         ];
         return $this->success([], $data);
     }
