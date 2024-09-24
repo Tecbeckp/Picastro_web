@@ -57,12 +57,12 @@
                 </li> <!-- end Dashboard Menu -->
                 
                 
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('starcamps.index')}}">
                         <i class="ri-pages-line"></i> <span data-key="t-starcamps">StarCamps</span>
                     </a>
                    
-                </li> <!-- end Dashboard Menu -->
+                </li> <!-- end Dashboard Menu --> --}}
 
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="#SubscriptionPages" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="SubscriptionPages">
