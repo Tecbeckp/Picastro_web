@@ -52,6 +52,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::get('get-post-image', [PostImageController::class, 'index']);
     Route::get('get-all-post-image', [PostImageController::class, 'allPostImage']);
+    Route::get('get-all-test-post-image', [PostImageController::class, 'allTestPostImage']);
     Route::get('get-user-post-image', [PostImageController::class, 'userPostImage']);
     Route::post('store-post-image', [PostImageController::class, 'store']);
     Route::get('edit-post-image/{id}', [PostImageController::class, 'edit']);

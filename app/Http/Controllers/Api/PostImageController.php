@@ -191,6 +191,97 @@ class PostImageController extends Controller
         return $this->success([], $posts);
     }
 
+    public function allTestPostImage(Request $request){
+        $rules = [
+            'location'          => 'nullable',
+            'telescope_type_id' => 'nullable|numeric|exists:telescopes,id',
+            'object_type_id'    => 'nullable|numeric|exists:object_types,id',
+            'most_recent'       => 'nullable|numeric|exists:object_types,id',
+            'randomizer'        => 'nullable|numeric|exists:object_types,id'
+        ];
+        
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+        $location       = $request->location;
+        $telescope_type = $request->telescope_type_id;
+        $object_type    = $request->object_type_id;
+        $most_recent    = $request->most_recent;
+        $randomizer    = $request->randomizer;
+        if($location && $location == 'NH'){
+          $observer_location = [1, 2, 3, 4, 6];
+        }elseif($location && $location == 'SH'){
+          $observer_location = [5, 7, 8];
+        }else{
+            $observer_location = null;
+        }
+
+        $posts = PostImage::with('user','StarCard.StarCardFilter','ObjectType','Bortle','ObserverLocation','ApproxLunarPhase','Telescope','giveStar','totalStar','Follow','votedTrophy')->whereDoesntHave('blockToUser')->whereNot('user_id',auth()->id());
+        if($observer_location){
+            $posts->whereIn('observer_location_id',$observer_location);
+        }
+        if($object_type){
+            $posts->where('object_type_id',$object_type);
+        }
+        if($telescope_type){
+            $posts->where('telescope_id', $telescope_type);
+        }
+        if($randomizer){
+            $posts->where('object_type_id',$randomizer)->inRandomOrder();
+        }
+        if($most_recent){
+            $posts->where('object_type_id',$most_recent);
+        }
+       $posts = $posts->latest()->paginate(10);
+        $trophies = Trophy::select('id','name','icon')->get();
+        $posts->getCollection()->transform(function ($post) use ($trophies) {
+
+            return [
+                'id'                 => $post->id,
+                'user_id'            => $post->user_id,
+                'post_image_title'   => $post->post_image_title,
+                'image'              => $post->image,
+                'original_image'     => $post->original_image,
+                'description'        => $post->description,
+                'video_length'       => $post->video_length,
+                'number_of_frame'    => $post->number_of_frame,
+                'number_of_video'    => $post->number_of_video,
+                'exposure_time'      => $post->exposure_time,
+                'total_hours'        => $post->total_hours,
+                'additional_minutes' => $post->additional_minutes,
+                'catalogue_number'   => $post->catalogue_number,
+                'object_name'        => $post->object_name,
+                'ir_pass'            => $post->ir_pass,
+                'planet_name'        => $post->planet_name,
+                'ObjectType'         => $post->ObjectType,
+                'Bortle'             => $post->Bortle,
+                'ObserverLocation'   => $post->ObserverLocation,
+                'ApproxLunarPhase'   => $post->ApproxLunarPhase,
+                'location'           => $post->location,
+                'Telescope'          => $post->Telescope,
+                'only_image_and_description' => $post->only_image_and_description,
+                'giveStar'           => $post->giveStar ? true : false,
+                'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
+                'Follow'             => $post->Follow ? true : false,
+                'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                'trophy'             => $trophies,
+                'star_card'          => $post->StarCard,
+                'user'               => [
+                    'id'             => $post->user->id,
+                    'first_name'     => $post->user->first_name,
+                    'last_name'      => $post->user->last_name,
+                    'username'       => $post->user->username,
+                    'profile_image'  => $post->user->userprofile->profile_image,
+                    'fcm_token'      => $post->user->fcm_token,
+                ]
+            ];
+        });
+        // return $this->success([], $posts);
+        return view('admin.post.test_posts', compact('posts'));
+    }
+
     public function userPostImage(Request $request)
     {
         $rules = [
