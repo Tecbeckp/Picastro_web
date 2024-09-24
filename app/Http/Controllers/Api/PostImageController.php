@@ -228,11 +228,11 @@ class PostImageController extends Controller
         if($telescope_type){
             $posts->where('telescope_id', $telescope_type);
         }
-        if($randomizer){
-            $posts->where('object_type_id',$randomizer)->inRandomOrder();
-        }
         if($most_recent){
             $posts->where('object_type_id',$most_recent);
+        }
+        if($randomizer){
+            $posts->where('object_type_id',$randomizer)->inRandomOrder();
         }
        $posts = $posts->latest()->paginate(10);
         $trophies = Trophy::select('id','name','icon')->get();
