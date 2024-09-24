@@ -43,6 +43,7 @@ Route::get('/paypal-subscription', [PaymentController::class, 'create']);
 Route::get('/paypal-subscribed/{id}', [PaymentController::class, 'paypalSubscribed']);
 Route::get('/paypal-subscription-cancel/{id}', [PaymentController::class, 'paypalsubscriptionCancel']);
 Route::get('/create-plan', [PaymentController::class, 'createPlan']);
+Route::get('get-all-test-post-image', [PostImageController::class, 'allTestPostImage']);
 
 Route::group(['middleware' => 'auth:sanctum'], function () {    
     Route::post('profile-setup', [UserProfileController::class, 'profileSetup']);
@@ -52,7 +53,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::get('get-post-image', [PostImageController::class, 'index']);
     Route::get('get-all-post-image', [PostImageController::class, 'allPostImage']);
-    Route::get('get-all-test-post-image', [PostImageController::class, 'allTestPostImage']);
     Route::get('get-user-post-image', [PostImageController::class, 'userPostImage']);
     Route::post('store-post-image', [PostImageController::class, 'store']);
     Route::get('edit-post-image/{id}', [PostImageController::class, 'edit']);
