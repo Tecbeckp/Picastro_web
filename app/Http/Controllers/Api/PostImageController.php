@@ -316,7 +316,7 @@ class PostImageController extends Controller
                 'user_total_trophy' => $vote[$trophy->id] ?? 0
             ];
         }),
-        'user_post' => $posts->getCollection()->transform(function ($post) use($troph) {
+        'user_post' => $posts->transform(function ($post) use($troph) {
             return [
                 'id'                 => $post->id,
                 'user_id'            => $post->user_id,
