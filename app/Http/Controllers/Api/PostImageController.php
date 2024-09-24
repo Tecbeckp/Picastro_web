@@ -356,7 +356,16 @@ class PostImageController extends Controller
                     'fcm_token'      => $post->user->fcm_token,
                 ]
             ];
-        })  
+            
+        }),
+        'pagination' => [
+                'total' => $posts->total(),
+                'per_page' => $posts->perPage(),
+                'current_page' => $posts->currentPage(),
+                'last_page' => $posts->lastPage(),
+                'next_page_url' => $posts->nextPageUrl(),
+                'prev_page_url' => $posts->previousPageUrl(),
+            ] 
         ];
         return $this->success([], $data);
     }
