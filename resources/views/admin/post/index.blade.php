@@ -133,8 +133,6 @@
                     
                 }
             });
-        } else {
-            swal.fire("success","You are safe!","success");
         }
     });
 }
