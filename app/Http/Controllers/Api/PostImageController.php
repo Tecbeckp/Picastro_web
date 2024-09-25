@@ -132,16 +132,16 @@ class PostImageController extends Controller
         if($observer_location){
             $posts->whereIn('observer_location_id',$observer_location);
         }
-        if($object_type){
+        elseif($object_type){
             $posts->where('object_type_id',$object_type);
         }
-        if($telescope_type){
+        elseif($telescope_type){
             $posts->where('telescope_id', $telescope_type);
         }
-        if($randomizer){
+        elseif($randomizer){
             $posts->where('object_type_id',$randomizer)->inRandomOrder();
         }
-        if($most_recent){
+        elseif($most_recent){
             $posts->where('object_type_id',$most_recent);
         }
        $posts = $posts->latest()->paginate(10);
