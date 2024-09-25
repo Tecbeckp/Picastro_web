@@ -36,12 +36,12 @@
                         <div class="col-4">
                             <div>
                                 <p class="text-muted mb-1">Thumbnail Size</p>
-                                @php
+                                {{-- @php
                                 $filePath = $post->image;
                                 $fileSizeInBytes = filesize($filePath);
                                 $fileSizeInMB = $fileSizeInKB / 1024;
-                                @endphp
-                                <h5 class="fs-14">{{ round($fileSizeInMB, 2). ' MB'}}</h5>
+                                @endphp --}}
+                                {{-- <h5 class="fs-14">{{ round($fileSizeInMB, 2). ' MB'}}</h5> --}}
                             </div>
                         </div>
                         <div class="col-4">
