@@ -333,7 +333,7 @@
                             </div>
                         </div><!-- end card header -->
 
-                        <div class="card-body">
+                        {{-- <div class="card-body">
                             <div id="prjects-status"
                                 data-colors='["--vz-success", "--vz-primary", "--vz-warning", "--vz-danger"]'
                                 data-colors-minimal='["--vz-primary", "--vz-primary-rgb, 0.85", "--vz-primary-rgb, 0.70", "--vz-primary-rgb, 0.50"]'
@@ -388,7 +388,7 @@
                                     </div>
                                 </div><!-- end -->
                             </div>
-                        </div><!-- end cardbody -->
+                        </div><!-- end cardbody --> --}}
                     </div><!-- end card -->
                 </div><!-- end col -->
             </div><!-- end row -->
