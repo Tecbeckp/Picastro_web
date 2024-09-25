@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ApiGeneralController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\HomeController;
@@ -63,6 +64,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/payment-status', [HomeController::class, 'paymentStatus'])->name('payment-status');
     Route::post('/store-app-version', [HomeController::class, 'storeAppVersion'])->name('storeAppVersion');
     Route::post('/update-payment-status', [HomeController::class, 'updatePaymentStatus'])->name('updatePaymentStatus');
+    Route::get('/subscriptions-data', [HomeController::class, 'getSubscriptionData'])->name('SubscriptionData');
 
     
     
@@ -79,6 +81,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('starcamps', StarCampController::class);
 
     Route::resource('posts', PostImageController::class);
+
+    Route::get('get-notification', [ApiGeneralController::class, 'Notification'])->name('getNotification');
+    Route::get('send-notification', [ApiGeneralController::class, 'sendNotification'])->name('sendNotification');
+
     
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 });
