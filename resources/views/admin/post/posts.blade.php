@@ -37,11 +37,14 @@
                             <div>
                                 <p class="text-muted mb-1">Thumbnail Size</p>
                                 @php
-                                $filePath = "$post->image";
+                                $file = explode('/',$post->image);
+                                $filePath = array_slice($file, 7)[0];
+                                $filePath = public_path('assets/uploads/postimage/'.$filePath);
                                 $fileSizeInBytes = filesize($filePath);
+                                $fileSizeInKB = $fileSizeInBytes / 1024;
                                 $fileSizeInMB = $fileSizeInKB / 1024;
                                 @endphp
-                                <h5 class="fs-14">{{ round($fileSizeInMB, 2). ' MB'}}</h5>
+                                <h5 class="fs-14">@if($fileSizeInKB >= '1024') {{ round($fileSizeInMB, 2). ' MB'}} @else {{ round($fileSizeInKB, 2). ' KB'}} @endif</h5>
                             </div>
                         </div>
                         <div class="col-4">
