@@ -79,6 +79,14 @@ class UserController extends Controller
                 }
                 return $status;
             })
+            ->addColumn('subscription', function ($row) {
+                if($row->subscription == '1'){
+                    $status = '<span class="badge bg-success-subtle text-success text-uppercase">Active</span>';
+                }else{
+                    $status = '<span class="badge bg-warning-subtle text-warning text-uppercase">Inactive</span>';
+                }
+                return $status;
+            })
                       ->addColumn('action', function ($row) {
                 $ID = Crypt::encrypt($row->id);
 
@@ -111,7 +119,7 @@ $btn = '<ul class="list-inline hstack gap-2 mb-0">'
 return $btn;
                 
             })
-            ->rawColumns(['action', 'status', 'image'])
+            ->rawColumns(['action', 'status', 'image','subscription'])
             ->make(true);
     }
 
@@ -176,9 +184,6 @@ return $btn;
         if($user){
             $user->delete();
             $post = PostImage::where('user_id',decrypt($id))->delete();
-            // if($post){
-            //     $post;
-            // }
             return $this->success('User deleted successfully!', []);
         }else{
             return $this->error('Something went wrong please try again');

@@ -91,6 +91,7 @@
                                             <th>Pronouns</th>
                                             <th>platform</th>
                                             <th>Created Date</th>
+                                            <th>Subscription</th>
                                             <th>Status</th>
                                             <th>Action</th>
                                         </tr>
@@ -139,6 +140,7 @@
                 {data: 'gender', name: 'gender'},
                 {data: 'platform', name: 'platform'},
                 {data: 'date', name: 'date'},
+                {data: 'subscription', name: 'subscription'},
                 {data: 'status', name: 'status'},
                 {data:'action',name:'action'}
             ]
