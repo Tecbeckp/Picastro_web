@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\PostComment;
 use App\Models\PostImage;
 use App\Models\Report;
+use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 class PostImageController extends Controller
 {
+    use ApiResponseTrait;
     /**
      * Display a listing of the resource.
      */
@@ -102,6 +104,14 @@ class PostImageController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+       $data = PostImage::find(decrypt($id));
+
+       if($data){
+            $data->delete();
+            return $this->success('Post deleted successfully!', []);
+       }else{
+        return $this->error('Something went wrong please try again');
+       }
+        
     }
 }

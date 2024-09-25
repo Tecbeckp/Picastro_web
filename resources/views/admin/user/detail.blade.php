@@ -27,16 +27,10 @@
                 <!--end col-->
                 <div class="col-12 col-lg-auto order-last order-lg-0">
                     <div class="row text text-white-50 text-center">
-                        <div class="col-lg-6 col-4">
+                        <div class="col-lg-12 col-12">
                             <div class="p-2">
                                 <h4 class="text-white mb-1">{{$data['total_posts']}}</h4>
                                 <p class="fs-14 mb-0">Posts</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-4">
-                            <div class="p-2">
-                                <h4 class="text-white mb-1">{{$data['total_starcamp']}}</h4>
-                                <p class="fs-14 mb-0">Star Camps</p>
                             </div>
                         </div>
                     </div>
@@ -68,11 +62,6 @@
                                     <i class="ri-price-tag-line d-inline-block d-md-none"></i> <span class="d-none d-md-inline-block">Posts</span>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link fs-14" data-bs-toggle="tab" href="#documents" role="tab">
-                                    <i class="ri-folder-4-line d-inline-block d-md-none"></i> <span class="d-none d-md-inline-block">Star Camps</span>
-                                </a>
-                            </li>
                         </ul>
                         
                     </div>
@@ -81,17 +70,6 @@
                         <div class="tab-pane active" id="overview-tab" role="tabpanel">
                             <div class="row">
                                 <div class="col-xxl-3">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h5 class="card-title mb-5">Complete Your Profile</h5>
-                                            <div class="progress animated-progress custom-progress progress-label">
-                                                <div class="progress-bar bg-danger" role="progressbar" style="width: 30%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">
-                                                    <div class="label">30%</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                     <div class="card">
                                         <div class="card-body">
                                             <h5 class="card-title mb-3">Info</h5>
@@ -124,159 +102,6 @@
                                             </div>
                                         </div><!-- end card body -->
                                     </div><!-- end card -->
-
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h5 class="card-title mb-4">Your StarCamps</h5>
-                                            <div class="d-flex flex-wrap gap-2">
-
-                                                @php
-                                                    $colors = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning', 'bg-info', 'bg-dark'];
-                                                @endphp
-                                                @forelse($data['starcamps'] as $index => $starcamp)
-                                                @php
-                                                    $colorClass = $colors[$index % count($colors)];
-                                                @endphp
-                                                <div>
-                                                    <a href="javascript:void(0);" class="avatar-xs d-block" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="" data-bs-original-title="{{$starcamp->name}}">
-                                                        <span class="avatar-title rounded-circle fs-16 {{ $colorClass }} text-body material-shadow">
-                                                            {{strtoupper(substr($starcamp->name, 0, 1))}}
-                                                        </span>
-                                                    </a>
-                                                </div>
-                                                @empty
-                                                <span class="w-100 text-center">No StarCamp Found</span>
-                                                @endforelse
-                                            </div>
-                                        </div><!-- end card body -->
-                                    </div><!-- end card -->
-
-
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-center mb-4">
-                                                <div class="flex-grow-1">
-                                                    <h5 class="card-title mb-0">Suggestions</h5>
-                                                </div>
-                                                <div class="flex-shrink-0">
-                                                    <div class="dropdown">
-                                                        <a href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="ri-more-2-fill fs-14"></i>
-                                                        </a>
-
-                                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink2">
-                                                            <li><a class="dropdown-item" href="#">View</a></li>
-                                                            <li><a class="dropdown-item" href="#">Edit</a></li>
-                                                            <li><a class="dropdown-item" href="#">Delete</a></li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div class="d-flex align-items-center py-3">
-                                                    <div class="avatar-xs flex-shrink-0 me-3">
-                                                        <img src="{{asset('assets/images/users/avatar-3.jpg')}}" alt="" class="img-fluid rounded-circle material-shadow" />
-                                                    </div>
-                                                    <div class="flex-grow-1">
-                                                        <div>
-                                                            <h5 class="fs-14 mb-1">Esther James</h5>
-                                                            <p class="fs-13 text-muted mb-0">Frontend Developer</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-shrink-0 ms-2">
-                                                        <button type="button" class="btn btn-sm btn-outline-success material-shadow-none"><i class="ri-user-add-line align-middle"></i></button>
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex align-items-center py-3">
-                                                    <div class="avatar-xs flex-shrink-0 me-3">
-                                                        <img src="{{asset('assets/images/users/avatar-4.jpg')}}" alt="" class="img-fluid rounded-circle material-shadow" />
-                                                    </div>
-                                                    <div class="flex-grow-1">
-                                                        <div>
-                                                            <h5 class="fs-14 mb-1">Jacqueline Steve</h5>
-                                                            <p class="fs-13 text-muted mb-0">UI/UX Designer</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-shrink-0 ms-2">
-                                                        <button type="button" class="btn btn-sm btn-outline-success material-shadow-none"><i class="ri-user-add-line align-middle"></i></button>
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex align-items-center py-3">
-                                                    <div class="avatar-xs flex-shrink-0 me-3">
-                                                        <img src="{{asset('assets/images/users/avatar-5.jpg')}}" alt="" class="img-fluid rounded-circle material-shadow" />
-                                                    </div>
-                                                    <div class="flex-grow-1">
-                                                        <div>
-                                                            <h5 class="fs-14 mb-1">George Whalen</h5>
-                                                            <p class="fs-13 text-muted mb-0">Backend Developer</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-shrink-0 ms-2">
-                                                        <button type="button" class="btn btn-sm btn-outline-success material-shadow-none"><i class="ri-user-add-line align-middle"></i></button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div><!-- end card body -->
-                                    </div>
-                                    <!--end card-->
-
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-center mb-4">
-                                                <div class="flex-grow-1">
-                                                    <h5 class="card-title mb-0">Popular Posts</h5>
-                                                </div>
-                                                <div class="flex-shrink-0">
-                                                    <div class="dropdown">
-                                                        <a href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="ri-more-2-fill fs-14"></i>
-                                                        </a>
-
-                                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink1">
-                                                            <li><a class="dropdown-item" href="#">View</a></li>
-                                                            <li><a class="dropdown-item" href="#">Edit</a></li>
-                                                            <li><a class="dropdown-item" href="#">Delete</a></li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex mb-4">
-                                                <div class="flex-shrink-0">
-                                                    <img src="{{asset('assets/images/small/img-4.jpg')}}" alt="" height="50" class="rounded material-shadow" />
-                                                </div>
-                                                <div class="flex-grow-1 ms-3 overflow-hidden">
-                                                    <a href="javascript:void(0);">
-                                                        <h6 class="text-truncate fs-14">Design your apps in your own way</h6>
-                                                    </a>
-                                                    <p class="text-muted mb-0">15 Dec 2021</p>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex mb-4">
-                                                <div class="flex-shrink-0">
-                                                    <img src="{{asset('assets/images/small/img-5.jpg')}}" alt="" height="50" class="rounded material-shadow" />
-                                                </div>
-                                                <div class="flex-grow-1 ms-3 overflow-hidden">
-                                                    <a href="javascript:void(0);">
-                                                        <h6 class="text-truncate fs-14">Smartest Applications for Business</h6>
-                                                    </a>
-                                                    <p class="text-muted mb-0">28 Nov 2021</p>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex">
-                                                <div class="flex-shrink-0">
-                                                    <img src="{{asset('assets/images/small/img-6.jpg')}}" alt="" height="50" class="rounded material-shadow" />
-                                                </div>
-                                                <div class="flex-grow-1 ms-3 overflow-hidden">
-                                                    <a href="javascript:void(0);">
-                                                        <h6 class="text-truncate fs-14">How to get creative in your work</h6>
-                                                    </a>
-                                                    <p class="text-muted mb-0">21 Nov 2021</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!--end card-body-->
-                                    </div>
-                                    <!--end card-->
                                 </div>
                                 <!--end col-->
                                 <div class="col-xxl-9">
@@ -1444,71 +1269,6 @@
                                 <!--end card-body-->
                             </div>
                             <!--end card-->
-                        </div>
-                        <!--end tab-pane-->
-                        <div class="tab-pane fade" id="documents" role="tabpanel">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center mb-4">
-                                        <h5 class="card-title flex-grow-1 mb-0">Star Camps</h5>
-                                        
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-12">
-                                            <div class="table-responsive">
-                                                <table class="table table-borderless align-middle mb-0" id="userstarcamp">
-                                                    <thead class="table-light">
-                                                        <tr>
-                                                            <th scope="col">Camp Name</th>
-                                                            <th scope="col">Total Members</th>
-                                                            <th scope="col">Upload Date</th>
-                                                            <th scope="col">Action</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {{-- <tr>
-                                                            <td>
-                                                                <div class="d-flex align-items-center">
-                                                                    <div class="avatar-sm img-thumbnail rounded-circle">
-                                                                        <div class="avatar-title bg-success-subtle text-success rounded-circle">
-                                                                            SN
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="ms-3 flex-grow-1">
-                                                                        <h6 class="fs-15 mb-0"><a href="starcamp-detail.php">StarCamp Name</a>
-                                                                        </h6>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td>9</td>
-                                                            
-                                                            <td>12 Dec 2021</td>
-                                                            <td>
-                                                                <ul class="list-inline hstack gap-2 mb-0">
-                                                                    <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="View">
-                                                                        <a href="starcamp-detail.php" class="text-primary d-inline-block edit-item-btn">
-                                                                            <i class="ri-eye-line fs-16"></i>
-                                                                        </a>
-                                                                    </li>
-                                                                    <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Remove">
-                                                                        <a class="text-danger d-inline-block remove-item-btn" data-bs-toggle="modal" href="#deleteCamp">
-                                                                            <i class="ri-delete-bin-5-fill fs-16"></i>
-                                                                        </a>
-                                                                    </li>
-                                                                </ul>
-                                                            </td>
-                                                        </tr> --}}
-                                                       
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                            {{-- <div class="text-center mt-3">
-                                                <a href="javascript:void(0);" class="text-success"><i class="mdi mdi-loading mdi-spin fs-20 align-middle me-2"></i> Load more </a>
-                                            </div> --}}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                         <!--end tab-pane-->
                     </div>
