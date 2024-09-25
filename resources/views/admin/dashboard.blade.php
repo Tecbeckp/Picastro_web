@@ -313,7 +313,7 @@
                     </div><!-- end card -->
                 </div><!-- end col -->
 
-                <div class="col-xxl-6 col-lg-6">
+                {{-- <div class="col-xxl-6 col-lg-6">
                     <div class="card card-height-100">
                         <div class="card-header align-items-center d-flex">
                             <h4 class="card-title mb-0 flex-grow-1">Trancations Overview</h4>
@@ -333,7 +333,7 @@
                             </div>
                         </div><!-- end card header -->
 
-                        {{-- <div class="card-body">
+                        <div class="card-body">
                             <div id="prjects-status"
                                 data-colors='["--vz-success", "--vz-primary", "--vz-warning", "--vz-danger"]'
                                 data-colors-minimal='["--vz-primary", "--vz-primary-rgb, 0.85", "--vz-primary-rgb, 0.70", "--vz-primary-rgb, 0.50"]'
@@ -388,9 +388,9 @@
                                     </div>
                                 </div><!-- end -->
                             </div>
-                        </div><!-- end cardbody --> --}}
+                        </div><!-- end cardbody -->
                     </div><!-- end card -->
-                </div><!-- end col -->
+                </div><!-- end col --> --}}
             </div><!-- end row -->
 
         </div>
