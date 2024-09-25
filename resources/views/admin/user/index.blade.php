@@ -148,43 +148,45 @@
             table.draw();
         });
     });
-    $('#delete-record').click(function(){
-        console.log('yes');
-        ('#deleteItem').modal('hide');
-    })
-//     function deleteConfirmation(id) {
-//     swal.fire({
-//         title: "Are you sure?",
-//         text: "Once deleted, you will not be able to recover",
-//         icon: "warning",
-//         showCancelButton:true,
-//             showCloseButton:true,
-//             confirmButtonText:'Yes, Delete It',
-//             cancelButtonText:'x close',
-//             cancelButtonColor:'#0ab39c',
-//             confirmButtonColor:'#f06548',
-//             // width:300,
-//             allowOutsideClick:false
-//     }).then((willDelete) => {
-//         console.log(willDelete);
-//         if (willDelete.isConfirmed) {
-//             $.ajaxSetup({
-//                 headers: {
-//                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-//                 }
-//             });
-//             $.ajax({
-//                 type: "DELETE",
-//                 url: "{{ url('admin/users') }}" + '/' + id,
-//                 dataType: 'JSON',
-//                 success: function(response) {
-//                     location.reload();
-//                 }
-//             });
-//         } else {
-//             swal.fire("success","You are safe!","success");
-//         }
-//     });
-// }
+    
+    function deleteConfirmation(id) {
+    swal.fire({
+        title: "Are you sure?",
+        text: "Once deleted, you will not be able to recover",
+        icon: "warning",
+        showCancelButton:true,
+            showCloseButton:true,
+            cancelButtonText:'Cancel',
+            confirmButtonText:'Yes, Delete',
+            cancelButtonColor:'#d33',
+            confirmButtonColor:'#556ee6',
+            // width:300,
+            allowOutsideClick:false
+    }).then((willDelete) => {
+        console.log(willDelete);
+        if (willDelete.isConfirmed) {
+            $.ajaxSetup({
+                headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            });
+            $.ajax({
+                type: "DELETE",
+                url: "{{ url('users') }}" + '/' + id,
+                dataType: 'JSON',
+                success: function(response) {
+                    if(response.success == true){
+                        swal.fire("success",response.message,"success").then(function(){
+                        location.reload();
+                    });
+                    }else{
+                        swal.fire("error",response.message,"error");
+                    }
+                    
+                }
+            });
+        }
+    });
+}
     </script>
 @endpush

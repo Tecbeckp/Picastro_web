@@ -104,6 +104,16 @@
                             <li class="nav-item">
                                 <a href="{{route('about-us')}}" class="nav-link" data-key="t-term-conditions">About Us</a>
                             </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="#settingPages" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="settingPages">
+                        <i class="ri-file-list-3-line"></i> <span data-key="t-pages">Settings</span>
+                    </a>
+                    <div class="collapse menu-dropdown" id="settingPages">
+                        <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
                                 <a href="{{route('app-version')}}" class="nav-link" data-key="t-term-conditions">App Version</a>
                             </li>

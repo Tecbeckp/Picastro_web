@@ -122,7 +122,6 @@
                 url: "{{ url('posts') }}" + '/' + id,
                 dataType: 'JSON',
                 success: function(response) {
-                    console.log(response);
                     if(response.success == true){
                         swal.fire("success",response.message,"success").then(function(){
                         location.reload();

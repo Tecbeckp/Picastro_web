@@ -6,6 +6,7 @@ use App\Models\PaypalSubscription;
 use App\Models\PostImage;
 use App\Models\StarCamp;
 use App\Models\User;
+use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
+    use ApiResponseTrait;
     /**
      * Display a listing of the resource.
      */
@@ -100,7 +102,7 @@ $btn = '<ul class="list-inline hstack gap-2 mb-0">'
            </a>
        </li>
        <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Remove">
-           <a class="text-danger d-inline-block remove-item-btn" data-bs-toggle="modal" data-id="' . $ID . '" data-action="users/' . $row->id . '" href="#deleteItem">
+           <a href="javascript:void(0)" class="text-danger d-inline-block remove-item-btn" onclick="deleteConfirmation(\'' . encrypt($row->id) . '\')">
                <i class="ri-delete-bin-5-fill fs-16"></i>
            </a>
        </li>
@@ -169,7 +171,18 @@ return $btn;
      */
     public function destroy(string $id)
     {
-        //
+        $user = User::find(decrypt($id));
+
+        if($user){
+            $user->delete();
+            $post = PostImage::where('user_id',decrypt($id))->delete();
+            // if($post){
+            //     $post;
+            // }
+            return $this->success('User deleted successfully!', []);
+        }else{
+            return $this->error('Something went wrong please try again');
+        }
     }
     public function blockUser($id){
         $user_id = decrypt($id);
