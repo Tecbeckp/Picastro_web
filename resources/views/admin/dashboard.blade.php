@@ -54,7 +54,7 @@
             <div class="row project-wrapper">
                 <div class="col-xxl-8">
                     <div class="row">
-                        <div class="col-xl-3">
+                        <div class="col-xl-4">
                             <div class="card card-animate">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
@@ -69,18 +69,18 @@
                                             <div class="d-flex align-items-center mb-3">
                                                 <h4 class="fs-4 flex-grow-1 mb-0"><span class="counter-value"
                                                         data-target="{{ $data['total_users'] }}">0</span></h4>
-                                                <span class="badge bg-danger-subtle text-danger fs-12"><i
+                                                {{-- <span class="badge bg-danger-subtle text-danger fs-12"><i
                                                         class="ri-arrow-down-s-line fs-13 align-middle me-1"></i>5.02
-                                                    %</span>
+                                                    %</span> --}}
                                             </div>
-                                            <p class="text-muted text-truncate mb-0">this month</p>
+                                            {{-- <p class="text-muted text-truncate mb-0">this month</p> --}}
                                         </div>
                                     </div>
                                 </div><!-- end card body -->
                             </div>
                         </div><!-- end col -->
 
-                        <div class="col-xl-3">
+                        <div class="col-xl-4">
                             <div class="card card-animate">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
@@ -94,43 +94,17 @@
                                             <div class="d-flex align-items-center mb-3">
                                                 <h4 class="fs-4 flex-grow-1 mb-0"><span class="counter-value"
                                                         data-target="{{ $data['total_post'] }}">0</span></h4>
-                                                <span class="badge bg-success-subtle text-success fs-12"><i
-                                                        class="ri-arrow-up-s-line fs-13 align-middle me-1"></i>3.58 %</span>
+                                                {{-- <span class="badge bg-success-subtle text-success fs-12"><i
+                                                        class="ri-arrow-up-s-line fs-13 align-middle me-1"></i>3.58 %</span> --}}
                                             </div>
-                                            <p class="text-muted mb-0">this month</p>
+                                            {{-- <p class="text-muted mb-0">this month</p> --}}
                                         </div>
                                     </div>
                                 </div><!-- end card body -->
                             </div>
                         </div><!-- end col -->
 
-                        <div class="col-xl-3">
-                            <div class="card card-animate">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm flex-shrink-0">
-                                            <span class="avatar-title bg-info-subtle text-info rounded-2 fs-2">
-                                                <i data-feather="clock" class="text-info"></i>
-                                            </span>
-                                        </div>
-                                        <div class="flex-grow-1 overflow-hidden ms-3">
-                                            <p class="text-uppercase fw-medium text-muted text-truncate mb-3">Total
-                                                StarCamps</p>
-                                            <div class="d-flex align-items-center mb-3">
-                                                <h4 class="fs-4 flex-grow-1 mb-0"><span class="counter-value"
-                                                        data-target="{{ $data['total_starcamp'] }}">0</span></h4>
-                                                <span class="badge bg-danger-subtle text-danger fs-12"><i
-                                                        class="ri-arrow-down-s-line fs-13 align-middle me-1"></i>10.35
-                                                    %</span>
-                                            </div>
-                                            <p class="text-muted text-truncate mb-0">this month</p>
-                                        </div>
-                                    </div>
-                                </div><!-- end card body -->
-                            </div>
-                        </div><!-- end col -->
-
-                        <div class="col-xl-3">
+                        <div class="col-xl-4">
                             <div class="card card-animate">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center">
@@ -145,11 +119,11 @@
                                             <div class="d-flex align-items-center mb-3">
                                                 <h4 class="fs-4 flex-grow-1 mb-0"><span class="counter-value"
                                                         data-target="{{ $data['total_report'] }}">0</span></h4>
-                                                <span class="badge bg-danger-subtle text-danger fs-12"><i
+                                                {{-- <span class="badge bg-danger-subtle text-danger fs-12"><i
                                                         class="ri-arrow-down-s-line fs-13 align-middle me-1"></i>5.02
-                                                    %</span>
+                                                    %</span> --}}
                                             </div>
-                                            <p class="text-muted text-truncate mb-0">this month</p>
+                                            {{-- <p class="text-muted text-truncate mb-0">this month</p> --}}
                                         </div>
                                     </div>
                                 </div><!-- end card body -->

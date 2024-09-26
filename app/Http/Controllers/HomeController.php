@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ForgotPasswordMail;
 use App\Models\AppVersion;
 use App\Models\Content;
 use App\Models\Faq;
@@ -17,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
 
 class HomeController extends Controller
 {
@@ -286,8 +288,25 @@ class HomeController extends Controller
             )
             ->get();
                         // dd($subscriptions);
+
         return response()->json([
             'subscriptions' => $subscriptions
         ]);
     }
+
+    public function sendEmail(Request $request){
+        
+        $subject = $request->is_from_register == 'true' ? 'Picastro Email Verification' : 'Forgot Password';
+ 
+     $details = [
+         'email'             => $request->email,
+         'otp'               => $request->otp,
+         'is_from_register'  => $request->is_from_register,
+         'subject'           => $subject
+     ];
+ 
+     Mail::to($details['email'])->send(new ForgotPasswordMail($details));
+ 
+     return response()->json(['message' => 'Email sent successfully.'], 200);
+     }
 }

@@ -33,6 +33,8 @@ Route::get('/otp', function () {
 Route::get('/email', function () {
     return view('email');
 })->name('email');
+Route::post('/send-email', [HomeController::class, 'sendEmail'])->name('sendEmail');
+
 Route::get('/privacy-and-policy', [HomeController::class, 'viewPrivacy'])->name('privacy-and-policy');
 Route::get('/terms-and-conditions', [HomeController::class, 'viewTerms'])->name('terms-and-conditions');
 Route::get('/subscription', [PaymentController::class, 'storeSubscription']);
