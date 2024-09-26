@@ -323,7 +323,7 @@ class HomeController extends Controller
          'message'  => $request->message
      ];
  
-     Mail::to('danyalhassan651@gmail.com')->send(new ContactUsMail($details));
+     Mail::to('support@picastroapp.com')->send(new ContactUsMail($details));
  
      return response()->json(['message' => 'Email sent successfully.'], 200);
      }
