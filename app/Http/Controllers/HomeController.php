@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ContactUsMail;
 use App\Mail\ForgotPasswordMail;
 use App\Models\AppVersion;
+use App\Models\ContactUs;
 use App\Models\Content;
 use App\Models\Faq;
 use App\Models\IsRegistration;
@@ -294,6 +296,9 @@ class HomeController extends Controller
         ]);
     }
 
+    // public function contactUs(){
+    //     return view('')
+    // }
     public function sendEmail(Request $request){
         
         $subject = $request->is_from_register == 'true' ? 'Picastro Email Verification' : 'Forgot Password';
@@ -306,6 +311,19 @@ class HomeController extends Controller
      ];
  
      Mail::to($details['email'])->send(new ForgotPasswordMail($details));
+ 
+     return response()->json(['message' => 'Email sent successfully.'], 200);
+     }
+
+     public function contactUsMail(Request $request){
+     
+     $details = [
+         'name'     => $request->name,
+         'email'    => $request->email,
+         'message'  => $request->message
+     ];
+ 
+     Mail::to('danyalhassan651@gmail.com')->send(new ContactUsMail($details));
  
      return response()->json(['message' => 'Email sent successfully.'], 200);
      }

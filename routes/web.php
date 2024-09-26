@@ -34,6 +34,7 @@ Route::get('/email', function () {
     return view('email');
 })->name('email');
 Route::post('/send-email', [HomeController::class, 'sendEmail'])->name('sendEmail');
+Route::post('/contact-us-mail', [HomeController::class, 'contactUsMail'])->name('contactUsMail');
 
 Route::get('/privacy-and-policy', [HomeController::class, 'viewPrivacy'])->name('privacy-and-policy');
 Route::get('/terms-and-conditions', [HomeController::class, 'viewTerms'])->name('terms-and-conditions');
@@ -67,6 +68,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/store-app-version', [HomeController::class, 'storeAppVersion'])->name('storeAppVersion');
     Route::post('/update-payment-status', [HomeController::class, 'updatePaymentStatus'])->name('updatePaymentStatus');
     Route::get('/subscriptions-data', [HomeController::class, 'getSubscriptionData'])->name('SubscriptionData');
+    Route::get('/contact-us', [HomeController::class, 'contactUs'])->name('contactUs');
 
     
     

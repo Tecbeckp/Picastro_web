@@ -13,6 +13,7 @@ class VerifyCsrfToken extends Middleware
      */
   protected $except = [
         'stripe/*',
-        'https://picastro.co.uk/send-email'
+        'https://picastro.co.uk/send-email',
+        'https://picastro.co.uk/contact-us-mail'
     ];
 }

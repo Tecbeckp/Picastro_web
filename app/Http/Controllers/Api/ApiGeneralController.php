@@ -31,6 +31,7 @@ use App\Models\FollowerList;
 use App\Models\Faq;
 use GuzzleHttp\Client;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
 
 class ApiGeneralController extends Controller
 {
@@ -540,6 +541,12 @@ class ApiGeneralController extends Controller
         $contact->email    = $request->email;
         $contact->message  = $request->message;
         $contact->save();
+
+        Http::post('https://picastro.co.uk/contact-us-mail', [
+            'name' => $request->username,
+            'email' => $request->email,
+            'message' => $request->message       
+        ]);
 
         return $this->success(['Sent successfully!'], []);
     }
