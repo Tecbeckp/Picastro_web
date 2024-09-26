@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use GuzzleHttp\Client;
-
+use Illuminate\Support\Facades\Http;
 class AuthController extends Controller
 {
     use ApiResponseTrait;
@@ -117,22 +117,11 @@ class AuthController extends Controller
                 ]
             );
 
-            $client = new Client();
-            try{
-                $response = $client->post('https://picastro.co.uk/send-email', [
-                    'form_params' => [
-                        'otp' => $otp,
-                        'email' => $request->email,
-                        'is_from_register' => $request->is_from_register       
-                    ]
+                Http::post('https://picastro.co.uk/send-email', [
+                    'otp' => $otp,
+                    'email' => $request->email,
+                    'is_from_register' => $request->is_from_register       
                 ]);
-            } catch (\GuzzleHttp\Exception\ClientException $e) {
-                    $responseBody = json_decode($e->getResponse()->getBody()->getContents(), true);
-                    if (isset($responseBody['error']['status'])) {
-                        $errorStatus = $responseBody['error']['status'];
-                    }
-                // throw $e;
-            }
             return $this->success(['OTP Send Successfully on your email address.'],$otp);
 
         }else{
