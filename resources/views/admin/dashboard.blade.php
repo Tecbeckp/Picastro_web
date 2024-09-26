@@ -213,7 +213,7 @@
             </div><!-- end row -->
 
             <div class="row">
-                <div class="col-xxl-6">
+                <div class="col-xxl-12">
                     <div class="card card-height-100">
                         <div class="card-header align-items-center d-flex">
                             <h4 class="card-title mb-0 flex-grow-1">Users</h4>
