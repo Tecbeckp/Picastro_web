@@ -95,5 +95,45 @@
             });
         }
     });
+
+    function deleteConfirmation(id) {
+    swal.fire({
+        title: "Are you sure?",
+        text: "Once deleted, you will not be able to recover",
+        icon: "warning",
+        showCancelButton:true,
+            showCloseButton:true,
+            cancelButtonText:'Cancel',
+            confirmButtonText:'Yes, Delete',
+            cancelButtonColor:'#d33',
+            confirmButtonColor:'#556ee6',
+            // width:300,
+            allowOutsideClick:false
+    }).then((willDelete) => {
+        console.log(willDelete);
+        if (willDelete.isConfirmed) {
+            $.ajaxSetup({
+                headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            });
+            $.ajax({
+                type: "DELETE",
+                url: "{{ url('posts') }}" + '/' + id,
+                dataType: 'JSON',
+                success: function(response) {
+                    if(response.success == true){
+                        swal.fire("success",response.message,"success").then(function(){
+                        location.reload();
+                    });
+                    }else{
+                        swal.fire("error",response.message,"error");
+                    }
+                    
+                }
+            });
+        }
+    });
+}
 </script>
 @endpush

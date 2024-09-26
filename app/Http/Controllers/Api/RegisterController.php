@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\IsRegistration;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserProfile;
@@ -22,6 +23,7 @@ class RegisterController extends Controller
         $rules = [
             'first_name'        => 'required|string',
             'last_name'         => 'required|string',
+            'platform_type'     => 'required|string',
             'email'             => 'required|email|unique:users',
             'password'          => 'required|min:8',
             'confirm_password'  => 'required|same:password'
@@ -38,14 +40,21 @@ class RegisterController extends Controller
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-
-        return $this->error(['We are not accepting registrations at the moment.']);
+            $is_register = IsRegistration::where('id',1)->first();
+          
+                if(isset($is_register) && $is_register->android == '0' && $request->platform_type == 'android'){
+                    return $this->error(['We are not accepting registrations at the moment.']);
+                }elseif(isset($is_register) && $is_register->ios == '0' && $request->platform_type == 'iOS'){
+                    return $this->error(['We are not accepting registrations at the moment.']);
+                }
+            
         $user = User::create([
             'first_name'    => $request->first_name,
             'last_name'     => $request->last_name,
             'email'         => $request->email,
             'password'      => Hash::make($request->password),
-            'fcm_token'     => $request->fcm_token
+            'fcm_token'     => $request->fcm_token,
+            'platform_type' => $request->platform_type
         ]);
 
         UserProfile::create([
@@ -95,7 +104,8 @@ class RegisterController extends Controller
             'last_name'     => $request->last_name,
             'email'         => $request->email,
             'password'      => Hash::make($request->password),
-            'fcm_token'     => $request->fcm_token
+            'fcm_token'     => $request->fcm_token,
+            'platform_type' => $request->platform_type
         ]);
 
         UserProfile::create([

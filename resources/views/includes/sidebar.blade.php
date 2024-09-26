@@ -57,12 +57,29 @@
                 </li> <!-- end Dashboard Menu -->
                 
                 
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ route('starcamps.index')}}">
                         <i class="ri-pages-line"></i> <span data-key="t-starcamps">StarCamps</span>
                     </a>
                    
-                </li> <!-- end Dashboard Menu -->
+                </li> <!-- end Dashboard Menu --> --}}
+
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="#SubscriptionPages" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="SubscriptionPages">
+                        <i class="ri-file-list-3-line"></i> <span data-key="t-pages">Subscription</span>
+                    </a>
+                    <div class="collapse menu-dropdown" id="SubscriptionPages">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="{{route('paypalSubscription')}}" class="nav-link" data-key="Paypal">Paypal</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{route('stripeSubscription')}}" class="nav-link" data-key="stripe">stripe</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="#sidebarPages" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarPages">
                         <i class="ri-file-list-3-line"></i> <span data-key="t-pages">Content Pages</span>
@@ -86,6 +103,22 @@
                             </li>
                             <li class="nav-item">
                                 <a href="{{route('about-us')}}" class="nav-link" data-key="t-term-conditions">About Us</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="#settingPages" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="settingPages">
+                        <i class="ri-file-list-3-line"></i> <span data-key="t-pages">Settings</span>
+                    </a>
+                    <div class="collapse menu-dropdown" id="settingPages">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="{{route('app-version')}}" class="nav-link" data-key="t-term-conditions">App Version</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{route('payment-status')}}" class="nav-link" data-key="t-term-conditions">Payment Method Status</a>
                             </li>
                         </ul>
                     </div>

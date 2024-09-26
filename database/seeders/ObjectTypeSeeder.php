@@ -26,12 +26,12 @@ class ObjectTypeSeeder extends Seeder
                 'updated_at'    => now()
             ], [
                 'name'          => 'Widefield',
-                'icon'          => 'assets/uploads/icons/galaxy.png',
+                'icon'          => 'assets/uploads/icons/Widefield.png',
                 'created_at'    => now(),
                 'updated_at'    => now()
             ], [
                 'name'          => 'Milkyway',
-                'icon'          => 'assets/uploads/icons/galaxy.png',
+                'icon'          => 'assets/uploads/icons/milkyWay.png',
                 'created_at'    => now(),
                 'updated_at'    => now()
             ], [
@@ -41,7 +41,7 @@ class ObjectTypeSeeder extends Seeder
                 'updated_at'    => now()
             ], [
                 'name'          => 'Double Stars',
-                'icon'          => 'assets/uploads/icons/star.png',
+                'icon'          => 'assets/uploads/icons/DoubleStars.png',
                 'created_at'    => now(),
                 'updated_at'    => now()
             ], [

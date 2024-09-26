@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('telescopes', function (Blueprint $table) {
+        Schema::create('app_versions', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('icon');
-            $table->softDeletes();
+            $table->string('ios_version')->nullable();
+            $table->string('android_version')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('telescopes');
+        Schema::dropIfExists('app_versions');
     }
 };

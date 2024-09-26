@@ -1,23 +1,53 @@
 <div class="row">
     @foreach ($posts as $post)
-    <div class="col-xxl-3 col-sm-6 project-card">
-        <div class="card" style="height: 400px;"> <!-- Set a fixed height for the card -->
+    <div class="col-xxl-4 col-sm-6 project-card">
+        <div class="card" style="height: 420px;"> <!-- Set a fixed height for the card -->
             <div class="card-body p-0">
                 <div class="p-0 bg-secondary-subtle rounded-top">
-                    <div class="text-center">
+                    <a href="{{route('posts.show', encrypt($post->id))}}" class="text-center">
                         <img class="card-img-top img-fluid" style="object-fit: cover; width: 100%; height: 300px;" src="{{$post->image}}" alt=""> <!-- Set a fixed height for the image -->
-                    </div>
+                    </a>
                 </div>
                 <div class="p-3">
-                    <h5 class="fs-14 mb-3"><a href="{{route('posts.show', encrypt($post->id))}}" class="text-body">{{ $post->catalogue_number ?? $post->post_image_title }}</a></h5>
+                    <div class="d-flex align-items-center mb-4 justify-content-between">
+                    <h5 class="fs-14 mb-0"><a href="{{route('posts.show', encrypt($post->id))}}" class="text-body">{{ $post->catalogue_number ?? $post->post_image_title }}</a></h5>
+                    <div class="flex-shrink-0">
+                        <div class="dropdown">
+                            <a href="javascript:void(0)" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="ri-more-2-fill fs-14"></i>
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink2">
+                                <li><a class="dropdown-item" href="{{route('posts.show', encrypt($post->id))}}">View</a></li>
+                                <li><a class="dropdown-item" href="javascript:void(0)" onclick="deleteConfirmation('{{encrypt($post->id)}}')">Delete</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
                     <div class="row gy-3">
-                        <div class="col-6">
+                        <div class="col-4">
                             <div>
-                                <p class="text-muted mb-1">Status</p>
-                                <div class="badge bg-success-subtle text-success fs-12">Complete</div>
+                                <p class="text-muted mb-1">Username</p>
+                                <h5 class="fs-14">{{ ucfirst($post->user->username) }}</h5>
+
+                                {{-- <div class="badge bg-success-subtle text-success fs-12">Complete</div> --}}
                             </div>
                         </div>
-                        <div class="col-6">
+                        <div class="col-4">
+                            <div>
+                                <p class="text-muted mb-1">Thumbnail Size</p>
+                                @php
+                                $file = explode('/',$post->image);
+                                $filePath = array_slice($file, 7)[0];
+                                $filePath = public_path('assets/uploads/postimage/'.$filePath);
+                                $fileSizeInBytes = filesize($filePath);
+                                $fileSizeInKB = $fileSizeInBytes / 1024;
+                                $fileSizeInMB = $fileSizeInKB / 1024;
+                                @endphp
+                                <h5 class="fs-14">@if($fileSizeInKB >= '1024') {{ round($fileSizeInMB, 2). ' MB'}} @else {{ round($fileSizeInKB, 2). ' KB'}} @endif</h5>
+                            </div>
+                        </div>
+                        <div class="col-4">
                             <div>
                                 <p class="text-muted mb-1">Created</p>
                                 <h5 class="fs-14">{{ $post->created_at->format('d M, Y') }}</h5>

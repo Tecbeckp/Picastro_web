@@ -10,9 +10,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
    
-    @include('includes.style');
-    @include('includes.dtstyle');
-    @stack('style');
+    @include('includes.style')
+    @include('includes.dtstyle')
+    @stack('style')
 </head>
 
 <body>
@@ -47,8 +47,8 @@
     <!-- END layout-wrapper -->
     
 
-    @include('includes.dtscript');
-    @include('includes.script');
+    @include('includes.dtscript')
+    @include('includes.script')
     @stack('script')
 </body>
 

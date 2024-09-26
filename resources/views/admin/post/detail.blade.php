@@ -15,8 +15,8 @@
                                                 <div class="row align-items-center g-3">
                                                     <div class="col-md-auto">
                                                         <div class="avatar-md">
-                                                            <div class="avatar-title bg-white rounded-circle">
-                                                                <img src="{{asset('assets/images/brands/slack.png')}}" alt="" class="avatar-xs">
+                                                            <div class="avatar avatar-title bg-white rounded-circle">
+                                                                <img src="{{asset($post->user->userProfile->profile_image)}}" alt="" class="avatar-xs">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -150,7 +150,9 @@
                                                             </div>
                                                         </div>
                                                         @empty
-                                                            <h4>Not Found</h4>
+                                                        <div style=" display: flex;justify-content: center;align-items: center;height: 50vh">
+                                                            <h4 style="color: #fcf6f686;">Comment Not Found</h4>
+                                                        </div>
                                                         @endforelse
                                                         
                                                         
@@ -175,7 +177,7 @@
                                                             @if($post->Follower->isNotEmpty())
                                                             @forelse ($post->Follower as $user)
                                                             <div class="d-flex align-items-center">
-                                                                <div class="avatar-xs flex-shrink-0 me-3">
+                                                                <div class="avatar avatar-xs flex-shrink-0 me-3">
                                                                     <img src="{{$user->follower->userprofile->profile_image}}" alt="" class="img-fluid rounded-circle">
                                                                 </div>
                                                                 <div class="flex-grow-1">

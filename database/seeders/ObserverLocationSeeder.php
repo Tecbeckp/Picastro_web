@@ -23,7 +23,7 @@ class ObserverLocationSeeder extends Seeder
                 'created_at'  => now(),
                 'updated_at'  => now()
             ],[
-                'name'        => 'N. America',
+                'name'        => 'North America',
                 'created_at'  => now(),
                 'updated_at'  => now()
             ],[
@@ -32,6 +32,18 @@ class ObserverLocationSeeder extends Seeder
                 'updated_at'  => now()
             ],[
                 'name'        => 'Australia',
+                'created_at'  => now(),
+                'updated_at'  => now()
+            ],[
+                'name'        => 'Africa',
+                'created_at'  => now(),
+                'updated_at'  => now()
+            ],[
+                'name'        => 'Antarctica',
+                'created_at'  => now(),
+                'updated_at'  => now()
+            ],[
+                'name'        => 'South America',
                 'created_at'  => now(),
                 'updated_at'  => now()
             ]

@@ -1,13 +1,13 @@
 <?php return array (
-  'intervention/image' => 
+  'intervention/image-laravel' => 
   array (
     'providers' => 
     array (
-      0 => 'Intervention\\Image\\ImageServiceProvider',
+      0 => 'Intervention\\Image\\Laravel\\ServiceProvider',
     ),
     'aliases' => 
     array (
-      'Image' => 'Intervention\\Image\\Facades\\Image',
+      'Image' => 'Intervention\\Image\\Laravel\\Facades\\Image',
     ),
   ),
   'laravel/cashier' => 

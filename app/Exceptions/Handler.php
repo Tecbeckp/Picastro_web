@@ -32,7 +32,13 @@ class Handler extends ExceptionHandler
 
     protected function unauthenticated($request, AuthenticationException $exception)
     {
-        return $this->error(['Unauthenticated']);
+        if ($request->is('api/*')) {
+            return $this->error(['Unauthenticated']);
+        }
+    
+        // For web requests, redirect to login
+        return redirect()->guest(route('userLogin'));
+        
     }
 
 }

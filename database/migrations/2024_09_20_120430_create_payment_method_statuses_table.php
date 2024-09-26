@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('telescopes', function (Blueprint $table) {
+        Schema::create('payment_method_statuses', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('icon');
-            $table->softDeletes();
+            $table->enum('paypal_android',['0','1'])->default('1');
+            $table->enum('paypal_ios',['0','1'])->default('1');
+            $table->enum('stripe_android',['0','1'])->default('1');
+            $table->enum('stripe_ios',['0','1'])->default('1');
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('telescopes');
+        Schema::dropIfExists('payment_method_statuses');
     }
 };

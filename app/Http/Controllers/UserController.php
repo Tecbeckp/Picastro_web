@@ -2,15 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PaypalSubscription;
 use App\Models\PostImage;
 use App\Models\StarCamp;
 use App\Models\User;
+use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
+use Stripe\Subscription;
 use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
+    use ApiResponseTrait;
     /**
      * Display a listing of the resource.
      */
@@ -51,9 +56,15 @@ class UserController extends Controller
             ->addColumn('user', function ($row) {
                return $row->first_name . ' ' . $row->last_name;
             })
+            ->addColumn('image', function ($row) {
+                return '<img src="'.$row->userProfile->profile_image.'" alt="" class="avatar-xs rounded-3 me-2 material-shadow" style="border-radius: 50% !important;object-fit: cover;object-position: top;">';
+             })
             ->addColumn('username', function ($row) {
                  return $row->username ?? 'N/A';
             })
+            ->addColumn('platform', function ($row) {
+                return $row->platform_type ?? 'N/A';
+           })
             ->addColumn('gender', function ($row) {
                 return $row->userprofile->pronouns ?? 'N/A';
             })
@@ -65,6 +76,14 @@ class UserController extends Controller
                     $status = '<span class="badge bg-success-subtle text-success text-uppercase">Active</span>';
                 }else{
                     $status = '<span class="badge bg-warning-subtle text-warning text-uppercase">Blocked</span>';
+                }
+                return $status;
+            })
+            ->addColumn('subscription', function ($row) {
+                if($row->subscription == '1'){
+                    $status = '<span class="badge bg-success-subtle text-success text-uppercase">Active</span>';
+                }else{
+                    $status = '<span class="badge bg-warning-subtle text-warning text-uppercase">Inactive</span>';
                 }
                 return $status;
             })
@@ -91,7 +110,7 @@ $btn = '<ul class="list-inline hstack gap-2 mb-0">'
            </a>
        </li>
        <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Remove">
-           <a class="text-danger d-inline-block remove-item-btn" data-bs-toggle="modal" data-id="' . $ID . '" data-action="users/' . $row->id . '" href="#deleteItem">
+           <a href="javascript:void(0)" class="text-danger d-inline-block remove-item-btn" onclick="deleteConfirmation(\'' . encrypt($row->id) . '\')">
                <i class="ri-delete-bin-5-fill fs-16"></i>
            </a>
        </li>
@@ -100,7 +119,7 @@ $btn = '<ul class="list-inline hstack gap-2 mb-0">'
 return $btn;
                 
             })
-            ->rawColumns(['action', 'status'])
+            ->rawColumns(['action', 'status', 'image','subscription'])
             ->make(true);
     }
 
@@ -160,7 +179,15 @@ return $btn;
      */
     public function destroy(string $id)
     {
-        //
+        $user = User::find(decrypt($id));
+
+        if($user){
+            $user->delete();
+            $post = PostImage::where('user_id',decrypt($id))->delete();
+            return $this->success('User deleted successfully!', []);
+        }else{
+            return $this->error('Something went wrong please try again');
+        }
     }
     public function blockUser($id){
         $user_id = decrypt($id);
@@ -183,5 +210,94 @@ return $btn;
     
     public function blockToUser(){
         
+    }
+
+    public function paypalSubscription(Request $request){
+        if($request->ajax()){
+            $data = PaypalSubscription::with('user')->latest();
+
+            return DataTables::of($data)->addIndexColumn()
+            ->addColumn('ID', function ($row) {
+                static $rowid = null;
+                static $start = null;
+        
+                if ($rowid === null) {
+                    $start = request()->get('start', 0);
+                    $rowid = $start + 1;
+                }
+        
+                return $rowid++;
+            })
+                ->addColumn('username', function ($row) {
+                     return $row->user->username ?? 'N/A';
+                })
+                ->addColumn('date', function ($row) {
+                    return date('d M, Y', strtotime($row->created_at));
+                })
+                ->addColumn('action', function ($row) {
+                    $ID = Crypt::encrypt($row->id);
+    
+    $btn = '<ul class="list-inline hstack gap-2 mb-0">
+           <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Remove">
+               <a class="text-danger d-inline-block remove-item-btn" data-bs-toggle="modal" data-id="' . $ID . '" data-action="users/' . $row->id . '" href="#deleteItem">
+                   <i class="ri-delete-bin-5-fill fs-16"></i>
+               </a>
+           </li>
+       </ul>';
+    
+    return $btn;
+                    
+                })
+                ->rawColumns(['action', 'date'])
+                ->make(true);
+        }else{
+            return view('admin.user.paypal');
+        }
+    }
+
+    public function stripeSubscription(Request $request){
+        if($request->ajax()){
+            $data = DB::select('SELECT * FROM subscriptions LEFT JOIN users on users.id = subscriptions.user_id ORDER BY subscriptions.id DESC');
+// dd($data);
+            return DataTables::of($data)->addIndexColumn()
+            ->addColumn('ID', function ($row) {
+                static $rowid = null;
+                static $start = null;
+        
+                if ($rowid === null) {
+                    $start = request()->get('start', 0);
+                    $rowid = $start + 1;
+                }
+        
+                return $rowid++;
+            })
+                ->addColumn('username', function ($row) {
+                     return $row->username ?? 'N/A';
+                })
+                ->addColumn('status', function ($row) {
+                    return $row->stripe_status;
+               })
+                ->addColumn('date', function ($row) {
+                    return date('d M, Y', strtotime($row->created_at));
+                })
+                ->addColumn('action', function ($row) {
+                    $ID = Crypt::encrypt($row->id);
+    
+    $btn = '<ul class="list-inline hstack gap-2 mb-0">
+           <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Remove">
+               <a class="text-danger d-inline-block remove-item-btn" data-bs-toggle="modal" data-id="' . $ID . '" data-action="users/' . $row->id . '" href="#deleteItem">
+                   <i class="ri-delete-bin-5-fill fs-16"></i>
+               </a>
+           </li>
+       </ul>';
+    
+    return $btn;
+                    
+                })
+                ->rawColumns(['action', 'date'])
+                ->make(true);
+        }else{
+            return view('admin.user.stripe');
+        }
     }
 }

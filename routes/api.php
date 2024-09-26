@@ -34,6 +34,7 @@ Route::post('reset-password', [AuthController::class, 'ResetPassword']);
 Route::get('get-object-info',[PostImageController::class, 'GetObjectInfo']);
 
 Route::get('/get-content', [ApiGeneralController::class, 'getContent']);
+Route::get('/get-payment-method-status', [ApiGeneralController::class, 'getPaymentMethodStatus']);
 
 Route::get('/subscription', [PaymentController::class, 'storeSubscription']);
 Route::get('/subscribed/{id}', [PaymentController::class, 'Subscribed'])->name('subscribed');
@@ -42,10 +43,12 @@ Route::get('/paypal-subscription', [PaymentController::class, 'create']);
 Route::get('/paypal-subscribed/{id}', [PaymentController::class, 'paypalSubscribed']);
 Route::get('/paypal-subscription-cancel/{id}', [PaymentController::class, 'paypalsubscriptionCancel']);
 Route::get('/create-plan', [PaymentController::class, 'createPlan']);
+Route::get('get-all-test-post-image', [PostImageController::class, 'allTestPostImage']);
 
 Route::group(['middleware' => 'auth:sanctum'], function () {    
     Route::post('profile-setup', [UserProfileController::class, 'profileSetup']);
     Route::post('update-profile', [UserProfileController::class, 'updateProfile']);
+    Route::post('update_fcm_token', [UserProfileController::class, 'updateFcmToken']);
     Route::get('get-user-profile', [UserProfileController::class, 'getUserProfile']);
 
     Route::get('get-post-image', [PostImageController::class, 'index']);

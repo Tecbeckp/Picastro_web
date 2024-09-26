@@ -19,10 +19,11 @@ class UserProfileController extends Controller
     use UploadImageTrait;
 
     public function profileSetup(Request $request){
+        // return $this->susscess([''],$request->all());
         $rules = [  
             'username'      => 'required|unique:users|max:16|alpha_dash',
             'pronouns'      => 'required',
-            'bio'           => 'required|max:120',
+            'bio'           => 'required|max:250',
             'profile_image' => 'nullable|mimes:jpg,jpeg,png,webp'
         ];
         
@@ -37,9 +38,6 @@ class UserProfileController extends Controller
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-        User::where('id', auth()->id())->update([
-            'username' => $request->username,
-        ]);
         
         $data = [
             'pronouns'         => $request->pronouns,
@@ -48,16 +46,15 @@ class UserProfileController extends Controller
         ];
 
         if ($request->file('profile_image')) {
-            $imageName = $this->imageUpload($request->file('profile_image'), 'profileImages/');
+            $imageName = $this->originalImageUpload($request->file('profile_image'), 'profileImages/');
             $data['profile_image'] = $imageName;
         }
         
-        UserProfile::updateOrCreate(
-            [
-                'user_id' => auth()->id(),
-            ],
-            $data
-        );
+        UserProfile::where('user_id', auth()->id())->update($data);
+
+        User::where('id', auth()->id())->update([
+            'username' => $request->username,
+        ]);
         $user = User::with('userprofile')->where('id', auth()->id())->first();
         $result =[
             'user' => $user
@@ -97,7 +94,7 @@ class UserProfileController extends Controller
         ];
         
         if ($request->file('profile_image')) {
-            $imageName = $this->imageUpload($request->file('profile_image'), 'profileImages/');
+            $imageName = $this->originalImageUpload($request->file('profile_image'), 'profileImages/');
             $data['profile_image'] = $imageName;
         }
         User::where('id',auth()->id())->update(
@@ -118,6 +115,24 @@ class UserProfileController extends Controller
 
     }
 
+    public function updateFcmToken(Request $request){
+        $rules = [
+            'fcm_token'  => 'required'
+            
+        ];
+        $validator = Validator::make($request->all(), $rules, [
+            'experience_level.required' => 'fcm token is required.'
+        ]);
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+
+        User::where('id',auth()->id())->update([
+            'fcm_token' => $request->fcm_token
+        ]);
+
+        return $this->success(['Updated Successfully'], []);
+    }
     public function getUserProfile(){
 
         $user = User::with('userprofile')->withCount('TotalStar')->where('id', Auth::id())->first();

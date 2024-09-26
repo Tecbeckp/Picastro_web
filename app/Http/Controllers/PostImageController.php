@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\PostComment;
 use App\Models\PostImage;
 use App\Models\Report;
+use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 class PostImageController extends Controller
 {
+    use ApiResponseTrait;
     /**
      * Display a listing of the resource.
      */
@@ -45,7 +47,7 @@ class PostImageController extends Controller
             if($search){
                 $posts->whereAny(['object_name','catalogue_number','post_image_title','description'],'LIKE', '%' .$search. '%');
             }
-            $posts = $posts->latest()->paginate(10);
+            $posts = $posts->with('user')->latest()->paginate(10);
             return view('admin.post.posts', compact('posts'))->render();
         }
         $posts = PostImage::latest()->paginate(10);
@@ -102,6 +104,14 @@ class PostImageController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+       $data = PostImage::find(decrypt($id));
+
+       if($data){
+            $data->delete();
+            return $this->success('Post deleted successfully!', []);
+       }else{
+        return $this->error('Something went wrong please try again');
+       }
+        
     }
 }

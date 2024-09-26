@@ -62,6 +62,7 @@ class PostImageController extends Controller
                 'user_id'            => $post->user_id,
                 'post_image_title'   => $post->post_image_title,
                 'image'              => $post->image,
+                'original_image'     => $post->original_image,
                 'description'        => $post->description,
                 'video_length'       => $post->video_length,
                 'number_of_frame'    => $post->number_of_frame,
@@ -131,17 +132,17 @@ class PostImageController extends Controller
         if($observer_location){
             $posts->whereIn('observer_location_id',$observer_location);
         }
-        if($object_type){
+        elseif($object_type){
             $posts->where('object_type_id',$object_type);
         }
-        if($telescope_type){
+        elseif($telescope_type){
             $posts->where('telescope_id', $telescope_type);
         }
-        if($randomizer){
+        elseif($randomizer){
             $posts->where('object_type_id',$randomizer)->inRandomOrder();
         }
-        if($most_recent){
-            $posts->where('observer_location_id',$most_recent);
+        elseif($most_recent){
+            $posts->where('object_type_id',$most_recent);
         }
        $posts = $posts->latest()->paginate(10);
         $trophies = Trophy::select('id','name','icon')->get();
@@ -152,6 +153,7 @@ class PostImageController extends Controller
                 'user_id'            => $post->user_id,
                 'post_image_title'   => $post->post_image_title,
                 'image'              => $post->image,
+                'original_image'     => $post->original_image,
                 'description'        => $post->description,
                 'video_length'       => $post->video_length,
                 'number_of_frame'    => $post->number_of_frame,
@@ -189,6 +191,97 @@ class PostImageController extends Controller
         return $this->success([], $posts);
     }
 
+    public function allTestPostImage(Request $request){
+        $rules = [
+            'location'          => 'nullable',
+            'telescope_type_id' => 'nullable|numeric|exists:telescopes,id',
+            'object_type_id'    => 'nullable|numeric|exists:object_types,id',
+            'most_recent'       => 'nullable|numeric|exists:object_types,id',
+            'randomizer'        => 'nullable|numeric|exists:object_types,id'
+        ];
+        
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+        $location       = $request->location;
+        $telescope_type = $request->telescope_type_id;
+        $object_type    = $request->object_type_id;
+        $most_recent    = $request->most_recent;
+        $randomizer    = $request->randomizer;
+        if($location && $location == 'NH'){
+          $observer_location = [1, 2, 3, 4, 6];
+        }elseif($location && $location == 'SH'){
+          $observer_location = [5, 7, 8];
+        }else{
+            $observer_location = null;
+        }
+
+        $posts = PostImage::with('user','StarCard.StarCardFilter','ObjectType','Bortle','ObserverLocation','ApproxLunarPhase','Telescope','giveStar','totalStar','Follow','votedTrophy')->whereDoesntHave('blockToUser')->whereNot('user_id',auth()->id());
+        if($observer_location){
+            $posts->whereIn('observer_location_id',$observer_location);
+        }
+        if($object_type){
+            $posts->where('object_type_id',$object_type);
+        }
+        if($telescope_type){
+            $posts->where('telescope_id', $telescope_type);
+        }
+        if($most_recent){
+            $posts->where('object_type_id',$most_recent);
+        }
+        if($randomizer){
+            $posts->where('object_type_id',$randomizer)->inRandomOrder();
+        }
+       $posts = $posts->latest()->paginate(10);
+        $trophies = Trophy::select('id','name','icon')->get();
+        $posts->getCollection()->transform(function ($post) use ($trophies) {
+
+            return [
+                'id'                 => $post->id,
+                'user_id'            => $post->user_id,
+                'post_image_title'   => $post->post_image_title,
+                'image'              => $post->image,
+                'original_image'     => $post->original_image,
+                'description'        => $post->description,
+                'video_length'       => $post->video_length,
+                'number_of_frame'    => $post->number_of_frame,
+                'number_of_video'    => $post->number_of_video,
+                'exposure_time'      => $post->exposure_time,
+                'total_hours'        => $post->total_hours,
+                'additional_minutes' => $post->additional_minutes,
+                'catalogue_number'   => $post->catalogue_number,
+                'object_name'        => $post->object_name,
+                'ir_pass'            => $post->ir_pass,
+                'planet_name'        => $post->planet_name,
+                'ObjectType'         => $post->ObjectType,
+                'Bortle'             => $post->Bortle,
+                'ObserverLocation'   => $post->ObserverLocation,
+                'ApproxLunarPhase'   => $post->ApproxLunarPhase,
+                'location'           => $post->location,
+                'Telescope'          => $post->Telescope,
+                'only_image_and_description' => $post->only_image_and_description,
+                'giveStar'           => $post->giveStar ? true : false,
+                'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
+                'Follow'             => $post->Follow ? true : false,
+                'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                'trophy'             => $trophies,
+                'star_card'          => $post->StarCard,
+                'user'               => [
+                    'id'             => $post->user->id,
+                    'first_name'     => $post->user->first_name,
+                    'last_name'      => $post->user->last_name,
+                    'username'       => $post->user->username,
+                    'profile_image'  => $post->user->userprofile->profile_image,
+                    'fcm_token'      => $post->user->fcm_token,
+                ]
+            ];
+        });
+        // return $this->success([], $posts);
+        return view('admin.post.test_posts', compact('posts'));
+    }
+
     public function userPostImage(Request $request)
     {
         $rules = [
@@ -211,7 +304,7 @@ class PostImageController extends Controller
         }
        
 
-        $posts = PostImage::with('user','StarCard.StarCardFilter','ObjectType','Bortle','ObserverLocation','ApproxLunarPhase','Telescope','giveStar','totalStar','Follow','votedTrophy')->where('user_id',$request->user_id)->latest()->paginate(10);
+        $posts = PostImage::with('user','StarCard.StarCardFilter','ObjectType','Bortle','ObserverLocation','ApproxLunarPhase','Telescope','giveStar','totalStar','Follow','votedTrophy')->where('user_id',$request->user_id)->latest()->get();
         $troph = Trophy::select('id','name','icon')->get();
         $data = [
             'user' => $user,
@@ -223,12 +316,13 @@ class PostImageController extends Controller
                 'user_total_trophy' => $vote[$trophy->id] ?? 0
             ];
         }),
-        'user_post' => $posts->getCollection()->transform(function ($post) use($troph) {
+        'user_post' => $posts->transform(function ($post) use($troph) {
             return [
                 'id'                 => $post->id,
                 'user_id'            => $post->user_id,
                 'post_image_title'   => $post->post_image_title,
                 'image'              => $post->image,
+                'original_image'     => $post->original_image,
                 'description'        => $post->description,
                 'video_length'       => $post->video_length,
                 'number_of_frame'    => $post->number_of_frame,
@@ -262,7 +356,8 @@ class PostImageController extends Controller
                     'fcm_token'      => $post->user->fcm_token,
                 ]
             ];
-        })  
+            
+        })
         ];
         return $this->success([], $data);
     }
@@ -280,7 +375,7 @@ class PostImageController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'image'                 => 'required|mimes:jpg,jpeg,png,webp,tiff|max:153600',
+            'image'                 => 'required|mimes:jpg,jpeg,png,webp,tif|max:153600',
             'description'           => 'required',
             'object_type'           => 'required_if:only_image_and_description,false',
             'bortle_number'         => 'required_if:only_image_and_description,false',
@@ -350,10 +445,13 @@ class PostImageController extends Controller
         }
 
         try {
-            $imageName =  $this->imageUpload($request->file('image'), 'images/');
+            $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/');
+            // dd($imageName);
+            $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/');
 
             $postImage                        = new PostImage();
             $postImage->user_id               = auth()->id();
+            $postImage->original_image        = $originalImageName;
             $postImage->image                 = $imageName;
             $postImage->description           = $request->description;
         if($request->only_image_and_description == 'false'){
@@ -476,7 +574,7 @@ class PostImageController extends Controller
   public function edit(string $id)
     {
 
-        $posts = PostImage::with('user','StarCard.StarCardFilter','ObjectType','Bortle','ObserverLocation','ApproxLunarPhase','Telescope','giveStar','totalStar','Follow','votedTrophy')->where('user_id',auth()->id())->where('id',$id)->get();
+        $posts = PostImage::with('user','StarCard.StarCardFilter','ObjectType','Bortle','ObserverLocation','ApproxLunarPhase','Telescope','giveStar','totalStar','Follow','votedTrophy')->where('id',$id)->get();
         $trophies = Trophy::select('id','name','icon')->get();
         $posts->transform(function ($post) use($trophies) {
             return [
@@ -484,6 +582,7 @@ class PostImageController extends Controller
                 'user_id'            => $post->user_id,
                 'post_image_title'   => $post->post_image_title,
                 'image'              => $post->image,
+                'original_image'      => $post->original_image,
                 'description'        => $post->description,
                 'video_length'       => $post->video_length,
                 'number_of_frame'    => $post->number_of_frame,
@@ -615,6 +714,7 @@ class PostImageController extends Controller
         unset($updateData['id']); // Replace 'id' with the actual unique column name if different
         unset($updateData['user_id']);
         unset($updateData['image']);
+        unset($updateData['original_image']);
         unset($updateData['created_at']);
     
         // Update the specific row identified by the unique ID
@@ -640,9 +740,10 @@ class PostImageController extends Controller
 
         if($post){
             if($request->file('image')){
-                $imageName =  $this->imageUpload($request->file('image'), 'images/');
+                $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/');
+                $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/');
             }
-
+           
             $data = [
                 'object_type_id'        => $request->object_type,
                 'bortle_id'             => $request->bortle_number,
@@ -653,7 +754,8 @@ class PostImageController extends Controller
 
             ];
             if($request->file('image')){
-                $data['image']                 = $imageName;
+                $data['original_image']   = $originalImageName;
+                $data['image']            = $imageName;
             }
 
         if($request->only_image_and_description == 'false'){

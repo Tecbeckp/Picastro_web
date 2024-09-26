@@ -2,14 +2,30 @@
 
 namespace App\Traits;
 
+use App\Models\User;
+
 trait ApiResponseTrait
 {
     public function success($message=null, $data)
     {
-        return response()->json(['success'=> true, 'message'=>$message, 'data' => $data],200);
+        $user_id = auth()->id();
+        $user  = User::where('id',$user_id)->first();
+        if(isset($user)){
+            $is_subscription = $user->subscription;
+        }else{
+            $is_subscription = null;
+        }
+        return response()->json(['success'=> true, 'message'=>$message, 'data' => $data, 'is_subscription' => $is_subscription],200);
     }
     public function error($message, $code=200)
     {
-        return response()->json(['success'=> false, 'message' => $message], $code);
+        $user_id = auth()->id();
+        $user  = User::where('id',$user_id)->first();
+        if(isset($user)){
+            $is_subscription = $user->subscription;
+        }else{
+            $is_subscription = null;
+        }
+        return response()->json(['success'=> false, 'message' => $message, 'is_subscription' => $is_subscription], $code);
     }
 }

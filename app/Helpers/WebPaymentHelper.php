@@ -98,7 +98,7 @@ class WebPaymentHelper
 
                         ],
                         'experience_context' => [
-                            'brand_name' => 'Shouri',
+                            'brand_name' => 'Picastro',
                             'locale' => 'en-US',
                             'user_action' => 'PAY_NOW',
                             'return_url' => $successUrl,
@@ -190,8 +190,8 @@ class WebPaymentHelper
                 'Prefer' => 'return=representation',
             ])
             ->post($this->url . '/v1/catalogs/products', [
-                'name' => 'Shouri ' . $name . ' Subscription Product',
-                'description' => 'Shouri Picastro Subscription Products',
+                'name' => $name . ' Subscription Product',
+                'description' => 'Picastro Subscription Products',
                 'type' => 'SERVICE',
                 'category' => 'SOFTWARE',
             ]);
@@ -210,7 +210,7 @@ class WebPaymentHelper
             ])
             ->post($this->url . '/v1/billing/plans', [
                 'product_id' => $productId,
-                'name' => 'Shouri ' . $name . ' Subscription Plan',
+                'name' => $name . ' Subscription Plan',
                 'description' => 'Video Streaming Service basic plan',
                 'status' => 'ACTIVE',
                 'billing_cycles' => [
