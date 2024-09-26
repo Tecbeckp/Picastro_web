@@ -7,7 +7,7 @@
 <head>
 
     <meta charset="utf-8" />
-    <title>Picastro</title>
+    <title>{{ $details['name'] }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
@@ -51,7 +51,7 @@
                                                         style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;"
                                                         valign="top">
                                                         <div style="text-align: center;margin-bottom: 15px;">
-                                                            <img src="https://picastro.beckapps.co/public/assets/images/picastro.png"
+                                                            <img src="https://picastro.co.uk/public/assets/images/PicastroLogo.png"
                                                                 alt="" height="64">
                                                         </div>
                                                     </td>
@@ -90,38 +90,10 @@
                                                         </div>
                                                     </td>
                                                 </tr>
-                                                <tr
-                                                    style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
-                                                    <td class="content-block" itemprop="handler" itemscope
-                                                        itemtype="http://schema.org/HttpActionHandler"
-                                                        style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 22px; text-align: center;"
-                                                        valign="top">
-                                                        <a href="javascript:void(0)" itemprop="url"
-                                                            style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: .8125rem; color: #000; text-decoration: none; font-weight: 400; text-align: center; cursor: pointer; display: inline-block; border-radius: .25rem; text-transform: capitalize; background-color: #FFC700; margin: 0; border-color: #FFC700; border-style: solid; border-width: 1px; padding: .5rem .9rem;">{{ $details['otp'] }}</a>
-                                                    </td>
-                                                </tr>
-
-                                                {{-- <tr
-                                                    style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
-                                                    <td class="content-block"
-                                                        style="color: #878a99; font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0; padding-top: 5px;  text-align: center;"
-                                                        valign="top">
-                                                        <p style="margin-bottom: 13px; line-height: 1.5;">If you didn't
-                                                            request this code then its possible that someone else is
-                                                            trying to access your code. Donot forward or give this code
-                                                            to anyone.</p>
-                                                    </td>
-                                                </tr> --}}
                                             </table>
                                         </td>
                                     </tr>
                                 </table>
-                                {{-- <div style="text-align: center; margin: 28px auto 0px auto;">
-                                    <h4>Need Help ?</h4>
-                                    <p style="color: #878a99;">Please send feedback or bug info to <a href="mailto:support@picastroapp.com"
-                                            style="font-weight: 500px;">support@picastroapp.com</a></p>
-
-                                </div> --}}
                             </div>
                         </td>
                     </tr>
