@@ -86,9 +86,9 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::resource('posts', PostImageController::class);
 
-    Route::get('get-notification', [ApiGeneralController::class, 'getNotification'])->name('getNotification');
-    Route::get('create-notification', [ApiGeneralController::class, 'createNotification'])->name('createNotification');
-    Route::post('send-notification', [ApiGeneralController::class, 'sendNotification'])->name('sendNotification');
+    Route::get('get-bulk-notification', [ApiGeneralController::class, 'getBulkNotification'])->name('getBulkNotification');
+    Route::get('create-bulk-notification', [ApiGeneralController::class, 'createBulkNotification'])->name('createBulkNotification');
+    Route::post('send-bulk-notification', [ApiGeneralController::class, 'sendBulkNotification'])->name('sendBulkNotification');
 
     
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');

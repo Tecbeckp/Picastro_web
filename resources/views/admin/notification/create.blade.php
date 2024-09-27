@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Bulk Notification | Picastro')
+@section('title', 'Send Notification | Picastro')
 @section('content')
     <div class="page-content">
         <div class="container-fluid">
@@ -30,7 +30,7 @@
                         </div><!-- end card header -->
 
                         <div class="card-body">
-                            <form method="POST" action="{{ route('sendNotification') }}">
+                            <form method="POST" action="{{ route('sendBulkNotification') }}">
                                 @csrf
                                 <div class="card-text">
                                     <div class="mb-3">

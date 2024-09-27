@@ -58,8 +58,8 @@
                 
                 
                 {{-- <li class="nav-item">
-                    <a class="nav-link menu-link" href="{{ route('starcamps.index')}}">
-                        <i class="ri-pages-line"></i> <span data-key="t-starcamps">StarCamps</span>
+                    <a class="nav-link menu-link" href="{{ route('contact-us')}}">
+                        <i class="ri-pages-line"></i> <span data-key="t-starcamps">Contact Us</span>
                     </a>
                    
                 </li> <!-- end Dashboard Menu --> --}}
@@ -119,6 +119,22 @@
                             </li>
                             <li class="nav-item">
                                 <a href="{{route('payment-status')}}" class="nav-link" data-key="t-term-conditions">Payment Method Status</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="#notificationPages" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="notificationPages">
+                        <i class="ri-file-list-3-line"></i> <span data-key="t-pages">Bulk Notification</span>
+                    </a>
+                    <div class="collapse menu-dropdown" id="notificationPages">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="{{route('getBulkNotification')}}" class="nav-link" data-key="t-term-conditions">Get Notification</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{route('createBulkNotification')}}" class="nav-link" data-key="t-term-conditions">Send Notification</a>
                             </li>
                         </ul>
                     </div>

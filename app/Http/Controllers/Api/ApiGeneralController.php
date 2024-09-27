@@ -32,6 +32,7 @@ use App\Models\Faq;
 use GuzzleHttp\Client;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
+use Yajra\DataTables\Facades\DataTables;
 
 class ApiGeneralController extends Controller
 {
@@ -848,17 +849,35 @@ class ApiGeneralController extends Controller
 
     }
 
-    public function createNotification(){
+    public function getBulkNotification(Request $request){
+        if($request->ajax()){
+          $data = BulkNotification::latest();
+          return DataTables::of($data)->addIndexColumn()
+        ->addColumn('ID', function ($row) use(&$rowid) {
+            $rowid++;
+            return $rowid;
+         })
+            ->addColumn('success', function ($row) {
+                return $row->success_user ? count(json_decode($row->success_user)) : 0 ;
+            })->addColumn('failed', function ($row) {
+                return $row->faild_user ? count(json_decode($row->faild_user)) :0;
+            })->rawColumns(['success', 'failed'])
+            ->make(true);
+        }else{
+            return view('admin.notification.index');
+        }
+    }
+    public function createBulkNotification(){
         return view('admin.notification.create');
     }
 
-    public function sendNotification(Request $request){
+    public function sendBulkNotification(Request $request){
         $request->validate([
             'title'   => 'required',
             'message' => 'required'
         ]);
 
-        $users = User::where('id','31')->get();
+        $users = User::whereNot('id','1')->get();
         if($users){
             $success_user = [];
             $faild_user   = [];
