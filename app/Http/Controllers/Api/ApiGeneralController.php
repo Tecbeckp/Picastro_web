@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ApproxLunarPhase;
 use App\Models\AppVersion;
 use App\Models\BlockToUser;
-use App\Models\Bortle;
+use App\Models\BulkNotification;
 use App\Models\Content;
 use App\Models\GiveStar;
 use App\Models\ObjectType;
@@ -846,5 +846,47 @@ class ApiGeneralController extends Controller
 
         return $this->success(['get payment method status'], $data);
 
+    }
+
+    public function createNotification(){
+        return view('admin.notification.create');
+    }
+
+    public function sendNotification(Request $request){
+        $request->validate([
+            'title'   => 'required',
+            'message' => 'required'
+        ]);
+
+        $users = User::where('id','31')->get();
+        if($users){
+            $success_user = [];
+            $faild_user   = [];
+            foreach($users as $user){
+              if($user->fcm_token){
+                $this->notificationService->sendNotification(
+                    $request->title,
+                    $request->message,
+                    $user->fcm_token,
+                    null
+                );
+                $success_user[] = $user->id;
+              }else{
+                $faild_user[] = $user->id;
+              }
+            }
+
+            BulkNotification::create([
+                'title' => $request->title,
+                'message' => $request->message,
+                'success_user' => json_encode($success_user),
+                'faild_user' => json_encode($faild_user)
+            ]);
+
+        return redirect()->back()->with('success', 'Send successfully.');
+        }else{
+        return redirect()->back()->with('error', 'Something went wrong.');
+        }
+        
     }
 }
