@@ -542,7 +542,7 @@ class ApiGeneralController extends Controller
         $contact->message  = $request->message;
         $contact->save();
 
-        Http::post('http://picastro.co.uk/contact-us-mail', [
+        Http::post('https://picastro.co.uk/contact-us-mail', [
             'name' => $request->username,
             'email' => $request->email,
             'message' => $request->message       

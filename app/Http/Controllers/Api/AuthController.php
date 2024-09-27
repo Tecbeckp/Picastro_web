@@ -116,7 +116,7 @@ class AuthController extends Controller
                 ]
             );
 
-                Http::post('http://picastro.co.uk/send-email', [
+                Http::post('https://picastro.co.uk/send-email', [
                     'otp' => $otp,
                     'email' => $request->email,
                     'is_from_register' => $request->is_from_register       
