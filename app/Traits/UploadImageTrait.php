@@ -13,9 +13,10 @@ trait  UploadImageTrait
         if (!$file) {
             return null;
         }
-
         // Define the file name and path
-        $filePath = $destinationFolder . time() . '-' . $file->getClientOriginalName();
+        $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+
+        $filePath = $destinationFolder . time() . '-' . $fileName . '.webp';
 
         // Store the file on S3
         Storage::disk('s3')->put($filePath, file_get_contents($file));

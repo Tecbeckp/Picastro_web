@@ -30,9 +30,11 @@ Route::get('/', [LoginController::class, 'showLoginForm'])->middleware('guest')-
 Route::get('/otp', function () {
     return view('otp');
 })->name('otp');
+
 Route::get('/email', function () {
     return view('email');
 })->name('email');
+
 Route::post('/send-email', [HomeController::class, 'sendEmail'])->name('sendEmail');
 Route::post('/contact-us-mail', [HomeController::class, 'contactUsMail'])->name('contactUsMail');
 
