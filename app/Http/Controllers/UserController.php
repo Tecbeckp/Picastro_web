@@ -68,8 +68,12 @@ class UserController extends Controller
             ->addColumn('platform', function ($row) {
                 return $row->platform_type ?? 'N/A';
            })
-            ->addColumn('gender', function ($row) {
-                return $row->userprofile->pronouns ?? 'N/A';
+            ->addColumn('subscription_type', function ($row) {
+                if($row->stripe_id != null){
+                    return $row->stripe_id ? 'Stripe' : 'Paypal';
+                }else{
+                    return 'N/A';
+                }
             })
             ->addColumn('date', function ($row) {
                 return date('d M, Y', strtotime($row->created_at));

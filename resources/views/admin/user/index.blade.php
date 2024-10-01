@@ -57,17 +57,19 @@
                                         <div class="col-sm-3">
                                             <div>
                                                 <select class="form-control status" data-plugin="choices" data-choices data-choices-search-false name="choices-single-default" id="idStatus">
-                                                    <option value="" selected>All</option>
+                                                    <option value="" selected disabled>Status</option>
+                                                    <option value="" >All</option>
                                                     <option value="1">Active</option>
                                                     <option value="0">Block</option>
                                                 </select>
                                             </div>
                                         </div>
                                         <!--end col-->
-                                        <div class="col-sm-3">
+                                        <div class="col-sm-4">
                                             <div>
                                                 <select class="form-control subscription" data-plugin="choices" data-choices data-choices-search-false name="choices-single-default" id="idSubscription">
-                                                    <option value="" selected>All</option>
+                                                    <option value="" selected disabled>Subscription</option>
+                                                    <option value="" >All</option>
                                                     <option value="1">Paid</option>
                                                     <option value="0">Unpaid</option>
                                                 </select>
@@ -75,7 +77,7 @@
                                         </div>
                                         <!--end col-->
 
-                                        <div class="col-sm-3">
+                                        <div class="col-sm-2">
                                             <div>
                                                 <button type="button" class="btn btn-primary w-100" id="filter"> <i class="ri-equalizer-fill me-2 align-bottom"></i>Filters</button>
                                             </div>
@@ -98,9 +100,8 @@
                                             <th>User</th>
                                             <th>Username</th>
                                             <th>Email</th>
-                                            <th>Pronouns</th>
                                             <th>platform</th>
-                                            <th>Created Date</th>
+                                            <th>Subscription Type</th>
                                             <th>Subscription</th>
                                             <th>Status</th>
                                             <th>Action</th>
@@ -148,9 +149,8 @@
                 {data: 'user', name: 'user'},
                 {data: 'username', name: 'username'},
                 {data: 'email', name: 'email'},
-                {data: 'gender', name: 'gender'},
                 {data: 'platform', name: 'platform'},
-                {data: 'date', name: 'date'},
+                {data: 'subscription_type', name: 'subscription_type'},
                 {data: 'subscription', name: 'subscription'},
                 {data: 'status', name: 'status'},
                 {data:'action',name:'action'}
