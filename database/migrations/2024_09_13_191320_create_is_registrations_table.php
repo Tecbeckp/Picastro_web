@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->enum('ios',['0','1'])->default('0');
             $table->enum('android',['0','1'])->default('0');
+            $table->enum('ios_screenshot',['0','1'])->default('0');
+            $table->enum('android_screenshot',['0','1'])->default('0');
             $table->timestamps();
         });
     }

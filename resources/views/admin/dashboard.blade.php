@@ -51,6 +51,35 @@
             </div>
             <!-- end page title -->
 
+            <!-- start page title -->
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
+                        <h4 class="mb-sm-0">Allow screenshot / screen recording</h4>
+
+                        <div class="page-title-right">
+                            <ol class="breadcrumb m-0">
+                                <li class="breadcrumb-item">
+                                    <div class="form-check form-switch form-switch-right form-switch-md">
+                                        <label for="ios_screenshot" class="form-label text-muted">iOS</label>
+                                        <input class="form-check-input screenshot" @if ($data['is_registration']->ios_screenshot == '1') checked @endif
+                                            type="checkbox" id="ios_screenshot" data-plateform="ios_screenshot">
+                                    </div>&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <div class="form-check form-switch form-switch-right form-switch-md">
+                                        <label for="android_screenshot" class="form-label text-muted">Android</label>
+                                        <input class="form-check-input screenshot" @if ($data['is_registration']->android_screenshot == '1') checked @endif
+                                            type="checkbox" id="android_screenshot" data-plateform="android_screenshot">
+                                    </div>
+                                </li>
+
+                            </ol>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- end page title -->
+
             <div class="row project-wrapper">
                 <div class="col-xxl-8">
                     <div class="row">
@@ -423,6 +452,40 @@
                     _token: "{{ csrf_token() }}",
                     status: status,
                     platform_type: 'android'
+                },
+                beforeSend: function() {},
+                success: function(res) {
+                    if (res.success === true) {
+                        if (res.data == 1) {
+                            var message = 'Enabled Successfuly';
+                        } else {
+                            var message = 'Disabled Successfuly';
+                        }
+                        Toast.fire({
+                            icon: 'success',
+                            title: message,
+                        })
+                    }
+                },
+                error: function(e) {}
+            });
+        })
+
+        $('.screenshot').change(function() {
+            
+            if ($(this).is(':checked')) {
+                var status = true;
+            } else {
+                var status = false;
+            }
+            $.ajax({
+                type: "POST",
+                url: "{{ route('allowRegistration') }}",
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    status: status,
+                    platform_type: $(this).attr('data-plateform')
                 },
                 beforeSend: function() {},
                 success: function(res) {

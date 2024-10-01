@@ -191,6 +191,14 @@ class HomeController extends Controller
             IsRegistration::where('id', '1')->update([
                 'android' => $status
             ]);
+        } elseif ($request->platform_type == 'ios_screenshot') {
+            IsRegistration::where('id', '1')->update([
+                'ios_screenshot' => $status
+            ]);
+        } elseif ($request->platform_type == 'android_screenshot') {
+            IsRegistration::where('id', '1')->update([
+                'android_screenshot' => $status
+            ]);
         }
         return $this->success(['Successfully'], $status);
     }
