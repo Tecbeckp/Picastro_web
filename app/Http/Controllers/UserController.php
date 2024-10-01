@@ -69,7 +69,7 @@ class UserController extends Controller
                 return $row->platform_type ?? 'N/A';
            })
             ->addColumn('subscription_type', function ($row) {
-                if($row->stripe_id != null){
+                if($row->subscription == '1'){
                     return $row->stripe_id ? 'Stripe' : 'Paypal';
                 }else{
                     return 'N/A';
