@@ -28,7 +28,7 @@ class UserController extends Controller
         $search = $request->search;
         $date   = $request->date;
         $status = $request->status;
-
+        $subscription = $request->subscription;
         $users = User::query()->with(['userprofile'])->whereNotIn('id',['1']);
         if($search){
             $users->whereAny(['first_name', 'last_name', 'username','email'], 'LIKE', '%'.$search.'%');
@@ -38,6 +38,9 @@ class UserController extends Controller
         }
         if(!is_null($status)){
             $users->where('status',$status);
+        }
+        if(!is_null($subscription)){
+            $users->where('subscription',$subscription);
         }
         $users->latest();
         // $rowid = 0;

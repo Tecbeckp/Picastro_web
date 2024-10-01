@@ -9,6 +9,7 @@ use App\Models\BlockToUser;
 use App\Models\BulkNotification;
 use App\Models\Content;
 use App\Models\GiveStar;
+use App\Models\IsRegistration;
 use App\Models\ObjectType;
 use App\Models\Notification;
 use App\Models\PostImage;
@@ -579,6 +580,8 @@ class ApiGeneralController extends Controller
         $data['ios_version'] = AppVersion::where('id', '1')->first()->ios_version;
         $data['android_version'] = AppVersion::where('id', '1')->first()->android_version;
         $data['payment_methods'] = PaymentMethodStatus::first();
+        $data['ios_screenshot'] = IsRegistration::first()->ios_screenshot;
+        $data['android_screenshot'] = IsRegistration::first()->android_screenshot;
 
         return $this->success([], $data);
     }

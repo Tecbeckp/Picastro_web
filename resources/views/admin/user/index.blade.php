@@ -39,22 +39,22 @@
                     <div class="card-body border-bottom-dashed border-bottom">
                         <form>
                             <div class="row g-3">
-                                <div class="col-xl-6">
+                                <div class="col-xl-4">
                                     <div class="search-box">
                                         <input type="text" class="form-control search" placeholder="Search for customer, email, username, name">
                                         <i class="ri-search-line search-icon"></i>
                                     </div>
                                 </div>
                                 <!--end col-->
-                                <div class="col-xl-6">
+                                <div class="col-xl-8">
                                     <div class="row g-3">
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-3">
                                             <div class="">
                                                 <input type="text" class="form-control date" id="datepicker-range" data-provider="flatpickr" data-date-format="d M, Y" data-range-date="true" placeholder="Select date">
                                             </div>
                                         </div>
                                         <!--end col-->
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-3">
                                             <div>
                                                 <select class="form-control status" data-plugin="choices" data-choices data-choices-search-false name="choices-single-default" id="idStatus">
                                                     <option value="" selected>All</option>
@@ -64,8 +64,18 @@
                                             </div>
                                         </div>
                                         <!--end col-->
+                                        <div class="col-sm-3">
+                                            <div>
+                                                <select class="form-control subscription" data-plugin="choices" data-choices data-choices-search-false name="choices-single-default" id="idSubscription">
+                                                    <option value="" selected>All</option>
+                                                    <option value="1">Paid</option>
+                                                    <option value="0">Unpaid</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <!--end col-->
 
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-3">
                                             <div>
                                                 <button type="button" class="btn btn-primary w-100" id="filter"> <i class="ri-equalizer-fill me-2 align-bottom"></i>Filters</button>
                                             </div>
@@ -128,7 +138,8 @@
                 data: function (d) {
                     d.search   = $('.search').val(),
                     d.date     = $('.date').val(),
-                    d.status   = $('.status').val()
+                    d.status   = $('.status').val(),
+                    d.subscription   = $('.subscription').val()
                 }
             },
             "columns":[
