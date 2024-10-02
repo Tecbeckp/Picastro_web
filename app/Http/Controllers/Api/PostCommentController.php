@@ -108,7 +108,7 @@ if ($post_comments) {
         $post = PostImage::with('user')->where('id',$request->post_image_id)->first();
         $post_comment = PostComment::with('user')->where('id',$request->post_comment_id)->first();
         
-       if($request->post_comment_id && $post->user_id != auth()->id() && ($post_comment && $post_comment->user_id != auth()->id())){
+       if($request->post_comment_id && ($post_comment && $post_comment->user_id != auth()->id())){
 
             $notification                    = new Notification();
             $notification->user_id           = $post_comment->user_id;
