@@ -187,12 +187,10 @@ class HomeController extends Controller
             IsRegistration::where('id', '1')->update([
                 'ios' => $status
             ]);
-            return $this->success(['Successfully'], $status);
         } elseif ($request->platform_type == 'android') {
             IsRegistration::where('id', '1')->update([
                 'android' => $status
             ]);
-            return $this->success(['Successfully'], $status);
         } elseif ($request->platform_type == 'ios_screenshot') {
             if ($request->status == 'true') {
                 $allow = '0';
@@ -202,7 +200,6 @@ class HomeController extends Controller
             IsRegistration::where('id', '1')->update([
                 'ios_screenshot' => $allow
             ]);
-            return $this->success(['Successfully'], $allow);
         } elseif ($request->platform_type == 'android_screenshot') {
             if ($request->status == 'true') {
                 $allow = '0';
@@ -212,8 +209,9 @@ class HomeController extends Controller
             IsRegistration::where('id', '1')->update([
                 'android_screenshot' => $allow
             ]);
-            return $this->success(['Successfully'], $allow);
         }
+        return $this->success(['Successfully'], $status);
+
     }
 
     public function appVersion(Request $request)
