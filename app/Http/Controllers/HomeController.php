@@ -187,10 +187,12 @@ class HomeController extends Controller
             IsRegistration::where('id', '1')->update([
                 'ios' => $status
             ]);
+            return $this->success(['Successfully'], $status);
         } elseif ($request->platform_type == 'android') {
             IsRegistration::where('id', '1')->update([
                 'android' => $status
             ]);
+            return $this->success(['Successfully'], $status);
         } elseif ($request->platform_type == 'ios_screenshot') {
             if ($request->status == 'true') {
                 $allow = '0';
@@ -200,8 +202,7 @@ class HomeController extends Controller
             IsRegistration::where('id', '1')->update([
                 'ios_screenshot' => $allow
             ]);
-        return $this->success(['Successfully'], $allow);
-
+            return $this->success(['Successfully'], $allow);
         } elseif ($request->platform_type == 'android_screenshot') {
             if ($request->status == 'true') {
                 $allow = '0';
@@ -211,9 +212,8 @@ class HomeController extends Controller
             IsRegistration::where('id', '1')->update([
                 'android_screenshot' => $allow
             ]);
-        return $this->success(['Successfully'], $allow);
+            return $this->success(['Successfully'], $allow);
         }
-        return $this->success(['Successfully'], $status);
     }
 
     public function appVersion(Request $request)
@@ -310,7 +310,7 @@ class HomeController extends Controller
                     ->groupBy('month')
             )
             ->get();
-                        // dd($subscriptions);
+        // dd($subscriptions);
 
         return response()->json([
             'subscriptions' => $subscriptions
@@ -320,34 +320,36 @@ class HomeController extends Controller
     // public function contactUs(){
     //     return view('')
     // }
-    public function sendEmail(Request $request){
-        
-        $subject = $request->is_from_register == 'true' ? 'Picastro Email Verification' : 'Forgot Password';
- 
-     $details = [
-         'email'             => $request->email,
-         'otp'               => $request->otp,
-         'is_from_register'  => $request->is_from_register,
-         'subject'           => $subject
-     ];
- 
-     Mail::to($details['email'])->send(new ForgotPasswordMail($details));
- 
-     return response()->json(['message' => 'Email sent successfully.'], 200);
-     }
+    public function sendEmail(Request $request)
+    {
 
-     public function contactUsMail(Request $request){
-     
-     $details = [
-         'name'     => $request->name,
-         'email'    => $request->email,
-         'message'  => $request->message
-     ];
- 
-     Mail::to('support@picastroapp.com')->send(new ContactUsMail($details));
- 
-     return response()->json(['message' => 'Email sent successfully.'], 200);
-     }
+        $subject = $request->is_from_register == 'true' ? 'Picastro Email Verification' : 'Forgot Password';
+
+        $details = [
+            'email'             => $request->email,
+            'otp'               => $request->otp,
+            'is_from_register'  => $request->is_from_register,
+            'subject'           => $subject
+        ];
+
+        Mail::to($details['email'])->send(new ForgotPasswordMail($details));
+
+        return response()->json(['message' => 'Email sent successfully.'], 200);
+    }
+
+    public function contactUsMail(Request $request)
+    {
+
+        $details = [
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'message'  => $request->message
+        ];
+
+        Mail::to('support@picastroapp.com')->send(new ContactUsMail($details));
+
+        return response()->json(['message' => 'Email sent successfully.'], 200);
+    }
 
     //  public function updateStatus(){
     //     $user = Subscription::where('stripe_status','incomplete')
