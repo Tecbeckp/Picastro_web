@@ -192,13 +192,26 @@ class HomeController extends Controller
                 'android' => $status
             ]);
         } elseif ($request->platform_type == 'ios_screenshot') {
+            if ($request->status == 'true') {
+                $allow = '0';
+            } else {
+                $allow = '1';
+            }
             IsRegistration::where('id', '1')->update([
-                'ios_screenshot' => $status
+                'ios_screenshot' => $allow
             ]);
+        return $this->success(['Successfully'], $allow);
+
         } elseif ($request->platform_type == 'android_screenshot') {
+            if ($request->status == 'true') {
+                $allow = '0';
+            } else {
+                $allow = '1';
+            }
             IsRegistration::where('id', '1')->update([
-                'android_screenshot' => $status
+                'android_screenshot' => $allow
             ]);
+        return $this->success(['Successfully'], $allow);
         }
         return $this->success(['Successfully'], $status);
     }
@@ -335,4 +348,8 @@ class HomeController extends Controller
  
      return response()->json(['message' => 'Email sent successfully.'], 200);
      }
+
+    //  public function updateStatus(){
+    //     $user = Subscription::where('stripe_status','incomplete')
+    //  }
 }
