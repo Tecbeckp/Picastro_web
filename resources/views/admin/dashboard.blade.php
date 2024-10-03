@@ -62,12 +62,12 @@
                                 <li class="breadcrumb-item">
                                     <div class="form-check form-switch form-switch-right form-switch-md">
                                         <label for="ios_screenshot" class="form-label text-muted">iOS</label>
-                                        <input class="form-check-input screenshot" @if ($data['is_registration']->ios_screenshot == '1') checked @endif
+                                        <input class="form-check-input screenshot" @if ($data['is_registration']->ios_screenshot == '0') checked @endif
                                             type="checkbox" id="ios_screenshot" data-plateform="ios_screenshot">
                                     </div>&nbsp;&nbsp;&nbsp;&nbsp;
                                     <div class="form-check form-switch form-switch-right form-switch-md">
                                         <label for="android_screenshot" class="form-label text-muted">Android</label>
-                                        <input class="form-check-input screenshot" @if ($data['is_registration']->android_screenshot == '1') checked @endif
+                                        <input class="form-check-input screenshot" @if ($data['is_registration']->android_screenshot == '0') checked @endif
                                             type="checkbox" id="android_screenshot" data-plateform="android_screenshot">
                                     </div>
                                 </li>
