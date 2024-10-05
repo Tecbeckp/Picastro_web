@@ -30,6 +30,7 @@ use App\Models\CommentWarning;
 use App\Models\PostComment;
 use App\Models\FollowerList;
 use App\Models\Faq;
+use App\Models\TrialPeriod;
 use GuzzleHttp\Client;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -582,6 +583,7 @@ class ApiGeneralController extends Controller
         $data['payment_methods'] = PaymentMethodStatus::first();
         $data['ios_screenshot'] = IsRegistration::first()->ios_screenshot;
         $data['android_screenshot'] = IsRegistration::first()->android_screenshot;
+        $data['trial_period'] = TrialPeriod::first();
 
         return $this->success([], $data);
     }
