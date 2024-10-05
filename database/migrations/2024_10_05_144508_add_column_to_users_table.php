@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->timestamp('trail_start_at')->nullable();
-            $table->enum('trail_periods',['0','1'])->default('1');
+            $table->timestamp('trial_start_at')->nullable();
+            $table->enum('trial_periods',['0','1'])->default('1');
 
         });
     }

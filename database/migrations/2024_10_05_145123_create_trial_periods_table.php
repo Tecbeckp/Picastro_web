@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('trail_periods', function (Blueprint $table) {
+        Schema::create('trial_periods', function (Blueprint $table) {
             $table->id();
             $table->integer('number')->nullable();
             $table->string('time_period')->nullable();
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('trail_periods');
+        Schema::dropIfExists('trial_periods');
     }
 };
