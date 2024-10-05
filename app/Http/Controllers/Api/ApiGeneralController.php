@@ -937,8 +937,8 @@ class ApiGeneralController extends Controller
                 }
 
                 $user->update([
-                    'trial_start_at' => now(),
-                    'trial_ends_at'  => $time,
+                    'trial_start_at' => date('Y-m-d H:i:s'),
+                    'trial_ends_at'  => $time->format('Y-m-d H:i:s'),
                     'trial_periods'  => '0'
                 ]);
 

@@ -30,7 +30,7 @@ class TrialPeriodUpdate extends Command
 
         if($users){
             foreach($users as $user){
-                if($user->trial_ends_at <= now()){
+                if($user->trial_ends_at <= date('Y-m-d H:i:s')){
                         User::where('id',$user->id)->update([
                             'trial_period_end' => '1'
                         ]);
