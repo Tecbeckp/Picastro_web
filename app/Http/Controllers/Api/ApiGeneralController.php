@@ -313,22 +313,22 @@ class ApiGeneralController extends Controller
                 ->orderBy('post_count', 'desc')
                 ->get()
                 ->groupBy('month')
-                ->map(function($groupedByMonth) {
+                ->map(function ($groupedByMonth) {
                     return [
                         'post_image_id' => $groupedByMonth->first()->post_image_id,
                         'month' => $groupedByMonth->first()->month,
                         'post_count' => $groupedByMonth->first()->post_count
                     ];
                 });
-        
-                $res  = $data[$currentMonth];
 
-               $update_Res = VoteImage::where('post_image_id',$res['post_image_id'])->where('month',$res['month'])->first();
-                $update_Res->update([
-                    'IOT' => '1'
-                ]);
+            $res  = $data[$currentMonth];
+
+            $update_Res = VoteImage::where('post_image_id', $res['post_image_id'])->where('month', $res['month'])->first();
+            $update_Res->update([
+                'IOT' => '1'
+            ]);
         }
-        
+
 
         $data = VoteImage::with([
             'postImage.user',
@@ -345,7 +345,7 @@ class ApiGeneralController extends Controller
         ])
             ->whereHas('postImage', function ($q) {
                 $q->whereNull('deleted_at');
-            })->where('IOT','1')
+            })->where('IOT', '1')
             ->get();
         if ($data->isNotEmpty()) {
             $data->transform(function ($post) {
@@ -548,7 +548,7 @@ class ApiGeneralController extends Controller
         Http::post('https://picastro.co.uk/contact-us-mail', [
             'name' => $request->username,
             'email' => $request->email,
-            'message' => $request->message       
+            'message' => $request->message
         ]);
 
         return $this->success(['Sent successfully!'], []);
@@ -706,23 +706,22 @@ class ApiGeneralController extends Controller
         }
 
         $client = new Client();
-        try{
+        try {
             $response = $client->post('https://picastro.co.uk/bulk-email', [
                 'form_params' => [
-                    'name'  => auth()->user()->username,    
-                    'email_1' => $request->email_1,    
-                    'email_2' => $request->email_2,    
-                    'email_3' => $request->email_3,    
-                    'email_4' => $request->email_4,    
-                    'email_5' => $request->email_5    
+                    'name'  => auth()->user()->username,
+                    'email_1' => $request->email_1,
+                    'email_2' => $request->email_2,
+                    'email_3' => $request->email_3,
+                    'email_4' => $request->email_4,
+                    'email_5' => $request->email_5
                 ]
             ]);
-
         } catch (\GuzzleHttp\Exception\ClientException $e) {
             $responseBody = json_decode($e->getResponse()->getBody()->getContents(), true);
-                if (isset($responseBody['error']['status'])) {
-                    $errorStatus = $responseBody['error']['status'];
-                }
+            if (isset($responseBody['error']['status'])) {
+                $errorStatus = $responseBody['error']['status'];
+            }
         }
         return $this->success(['Invite sent successfully'], []);
     }
@@ -847,57 +846,60 @@ class ApiGeneralController extends Controller
         return $this->success(['Sent message successfully'], []);
     }
 
-    public function getPaymentMethodStatus(){
+    public function getPaymentMethodStatus()
+    {
         $data = PaymentMethodStatus::first();
 
         return $this->success(['get payment method status'], $data);
-
     }
 
-    public function getBulkNotification(Request $request){
-        if($request->ajax()){
-          $data = BulkNotification::latest();
-          return DataTables::of($data)->addIndexColumn()
-        ->addColumn('ID', function ($row) use(&$rowid) {
-            $rowid++;
-            return $rowid;
-         })
-            ->addColumn('success', function ($row) {
-                return $row->success_user ? count(json_decode($row->success_user)) : 0 ;
-            })->addColumn('failed', function ($row) {
-                return $row->faild_user ? count(json_decode($row->faild_user)) :0;
-            })->rawColumns(['success', 'failed'])
-            ->make(true);
-        }else{
+    public function getBulkNotification(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = BulkNotification::latest();
+            return DataTables::of($data)->addIndexColumn()
+                ->addColumn('ID', function ($row) use (&$rowid) {
+                    $rowid++;
+                    return $rowid;
+                })
+                ->addColumn('success', function ($row) {
+                    return $row->success_user ? count(json_decode($row->success_user)) : 0;
+                })->addColumn('failed', function ($row) {
+                    return $row->faild_user ? count(json_decode($row->faild_user)) : 0;
+                })->rawColumns(['success', 'failed'])
+                ->make(true);
+        } else {
             return view('admin.notification.index');
         }
     }
-    public function createBulkNotification(){
+    public function createBulkNotification()
+    {
         return view('admin.notification.create');
     }
 
-    public function sendBulkNotification(Request $request){
+    public function sendBulkNotification(Request $request)
+    {
         $request->validate([
             'title'   => 'required',
             'message' => 'required'
         ]);
 
-        $users = User::whereNot('id','1')->get();
-        if($users){
+        $users = User::whereNot('id', '1')->get();
+        if ($users) {
             $success_user = [];
             $faild_user   = [];
-            foreach($users as $user){
-              if($user->fcm_token){
-                $this->notificationService->sendNotification(
-                    $request->title,
-                    $request->message,
-                    $user->fcm_token,
-                    null
-                );
-                $success_user[] = $user->id;
-              }else{
-                $faild_user[] = $user->id;
-              }
+            foreach ($users as $user) {
+                if ($user->fcm_token) {
+                    $this->notificationService->sendNotification(
+                        $request->title,
+                        $request->message,
+                        $user->fcm_token,
+                        null
+                    );
+                    $success_user[] = $user->id;
+                } else {
+                    $faild_user[] = $user->id;
+                }
             }
 
             BulkNotification::create([
@@ -907,10 +909,45 @@ class ApiGeneralController extends Controller
                 'faild_user' => json_encode($faild_user)
             ]);
 
-        return redirect()->back()->with('success', 'Send successfully.');
-        }else{
-        return redirect()->back()->with('error', 'Something went wrong.');
+            return redirect()->back()->with('success', 'Send successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Something went wrong.');
         }
-        
+    }
+
+    public function startTrialPeriod(Request $request)
+    {
+        $data = TrialPeriod::first();
+        if ($data) {
+            $user = User::where('id', auth()->id())->first();
+            if ($user->trial_periods == '1') {
+                $timeNow = Carbon::now();
+                if ($data->time_period == 'mins') {
+                    $time = $timeNow->addMinutes($data->number);
+                } elseif ($data->time_period == 'hour') {
+                    $time = $timeNow->addHours($data->number);
+                } elseif ($data->time_period == 'day') {
+                    $time = $timeNow->addDays($data->number);
+                } elseif ($data->time_period == 'week') {
+                    $time = $timeNow->addWeeks($data->number);
+                } elseif ($data->time_period == 'month') {
+                    $time = $timeNow->addMonths($data->number);
+                } elseif ($data->time_period == 'year') {
+                    $time = $timeNow->addYears($data->number);
+                }
+
+                $user->update([
+                    'trial_start_at' => now(),
+                    'trial_ends_at'  => $time,
+                    'trial_periods'  => '0'
+                ]);
+
+                return $this->success(['Trial period active successfully.'], []);
+            } else {
+                return $this->error(['Your trial period has ended.']);
+            }
+        } else {
+            return $this->error(['Something went wrong.']);
+        }
     }
 }

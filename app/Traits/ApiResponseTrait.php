@@ -11,11 +11,13 @@ trait ApiResponseTrait
         $user_id = auth()->id();
         $user  = User::where('id',$user_id)->first();
         if(isset($user)){
-            $is_subscription = $user->subscription;
+            $is_subscription  = $user->subscription;
+            $trial_period_end = $user->trial_period_end;
         }else{
-            $is_subscription = null;
+            $is_subscription  = null;
+            $trial_period_end = null;
         }
-        return response()->json(['success'=> true, 'message'=>$message, 'data' => $data, 'is_subscription' => $is_subscription],200);
+        return response()->json(['success'=> true, 'message'=>$message, 'data' => $data, 'is_subscription' => $is_subscription, 'trial_period_end' => $trial_period_end],200);
     }
     public function error($message, $code=200)
     {

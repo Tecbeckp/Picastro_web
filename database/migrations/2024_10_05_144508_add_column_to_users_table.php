@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->timestamp('trial_start_at')->nullable();
             $table->enum('trial_periods',['0','1'])->default('1');
+            $table->enum('trial_period_end',['0','1'])->default('0');
 
         });
     }
