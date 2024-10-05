@@ -24,10 +24,12 @@ trait ApiResponseTrait
         $user_id = auth()->id();
         $user  = User::where('id',$user_id)->first();
         if(isset($user)){
-            $is_subscription = $user->subscription;
+            $is_subscription  = $user->subscription;
+            $trial_period_end = $user->trial_period_end;
         }else{
-            $is_subscription = null;
+            $is_subscription  = null;
+            $trial_period_end = null;
         }
-        return response()->json(['success'=> false, 'message' => $message, 'is_subscription' => $is_subscription], $code);
+        return response()->json(['success'=> false, 'message' => $message, 'is_subscription' => $is_subscription, 'trial_period_end' => $trial_period_end], $code);
     }
 }

@@ -936,7 +936,7 @@ class ApiGeneralController extends Controller
                     $time = $timeNow->addYears($data->number);
                 }
 
-                $user->update([
+                User::where('id', auth()->id())->update([
                     'trial_start_at' => date('Y-m-d H:i:s'),
                     'trial_ends_at'  => $time->format('Y-m-d H:i:s'),
                     'trial_periods'  => '0'
