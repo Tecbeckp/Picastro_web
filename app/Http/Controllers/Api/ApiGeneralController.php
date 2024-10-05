@@ -896,6 +896,11 @@ class ApiGeneralController extends Controller
                         $user->fcm_token,
                         null
                     );
+                    $notification = new Notification();
+                    $notification->user_id = $user->id;
+                    $notification->type    = $request->title;
+                    $notification->notification = $request->message;
+                    $notification->save();
                     $success_user[] = $user->id;
                 } else {
                     $faild_user[] = $user->id;
@@ -908,6 +913,8 @@ class ApiGeneralController extends Controller
                 'success_user' => json_encode($success_user),
                 'faild_user' => json_encode($faild_user)
             ]);
+
+
 
             return redirect()->back()->with('success', 'Send successfully.');
         } else {
