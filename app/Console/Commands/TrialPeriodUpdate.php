@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use Illuminate\Console\Command;
-use PusherHelper;
+use App\Helpers\PusherHelper;
 class TrialPeriodUpdate extends Command
 {
     /**
@@ -26,9 +26,9 @@ class TrialPeriodUpdate extends Command
      */
     protected $pusherHelper;
 
-    public function __construct()
+    public function __construct(PusherHelper $pusherHelper)
     {
-        $this->pusherHelper = new PusherHelper();
+        $this->pusherHelper = $pusherHelper;
     }
     public function handle()
     {

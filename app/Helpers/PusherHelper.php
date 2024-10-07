@@ -1,5 +1,7 @@
 <?php
+namespace App\Helpers;
 
+use Exception;
 use Pusher\Pusher;
 
 class PusherHelper
