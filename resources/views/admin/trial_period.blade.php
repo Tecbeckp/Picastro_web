@@ -42,12 +42,12 @@
                                         <label for="email" class="form-label">Android version</label>
                                         <select name="period" id="period" class="form-control" required>
                                             <option value="">Select Option</option>
-                                            <option value="minute" @if($data->period == 'minute') Selected @endif>Minute</option>
-                                            <option value="hour" @if($data->period == 'hour') Selected @endif>Hour</option>
-                                            <option value="day" @if($data->period == 'day') Selected @endif>Day</option>
-                                            <option value="week" @if($data->period == 'week') Selected @endif>Week</option>
-                                            <option value="month" @if($data->period == 'month') Selected @endif>Month</option>
-                                            <option value="year" @if($data->period == 'year') Selected @endif>Year</option>
+                                            <option value="minute" @if($data->time_period == 'minute') Selected @endif>Minute</option>
+                                            <option value="hour" @if($data->time_period == 'hour') Selected @endif>Hour</option>
+                                            <option value="day" @if($data->time_period == 'day') Selected @endif>Day</option>
+                                            <option value="week" @if($data->time_period == 'week') Selected @endif>Week</option>
+                                            <option value="month" @if($data->time_period == 'month') Selected @endif>Month</option>
+                                            <option value="year" @if($data->time_period == 'year') Selected @endif>Year</option>
                                             
                                         </select>
                                     </div>
