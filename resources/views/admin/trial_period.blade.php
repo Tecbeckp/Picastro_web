@@ -40,7 +40,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Android version</label>
-                                        <select name="period" id="period" required>
+                                        <select name="period" id="period" class="form-control" required>
                                             <option value="">Select Option</option>
                                             <option value="minute" @if($data->period == 'minute') Selected @endif>Minute</option>
                                             <option value="hour" @if($data->period == 'hour') Selected @endif>Hour</option>
