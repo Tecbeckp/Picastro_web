@@ -12,7 +12,7 @@ trait ApiResponseTrait
         $user  = User::where('id',$user_id)->first();
         if(isset($user)){
             $is_subscription  = $user->subscription;
-            $trial_period_end = $user->trial_period_end;
+            $trial_period_end = $user->trial_period_status;
         }else{
             $is_subscription  = null;
             $trial_period_end = null;
@@ -25,7 +25,7 @@ trait ApiResponseTrait
         $user  = User::where('id',$user_id)->first();
         if(isset($user)){
             $is_subscription  = $user->subscription;
-            $trial_period_end = $user->trial_period_end;
+            $trial_period_end = $user->trial_period_status;
         }else{
             $is_subscription  = null;
             $trial_period_end = null;
