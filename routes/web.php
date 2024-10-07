@@ -91,6 +91,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('get-bulk-notification', [ApiGeneralController::class, 'getBulkNotification'])->name('getBulkNotification');
     Route::get('create-bulk-notification', [ApiGeneralController::class, 'createBulkNotification'])->name('createBulkNotification');
     Route::post('send-bulk-notification', [ApiGeneralController::class, 'sendBulkNotification'])->name('sendBulkNotification');
+    Route::get('trial-period', [ApiGeneralController::class, 'trialPeriod'])->name('trial-period');
+    Route::post('store-trial-period', [ApiGeneralController::class, 'storeTrialPeriod'])->name('storeTrialPeriod');
 
     
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');

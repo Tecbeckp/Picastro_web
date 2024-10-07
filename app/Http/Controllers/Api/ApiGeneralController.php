@@ -35,7 +35,7 @@ use GuzzleHttp\Client;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Yajra\DataTables\Facades\DataTables;
-use PusherHelper;
+use App\Helpers\PusherHelper;
 class ApiGeneralController extends Controller
 {
     use ApiResponseTrait;
@@ -985,5 +985,26 @@ class ApiGeneralController extends Controller
         $auth = $pusher->pusherAuth($channel_name, $socket_id, auth()->user());
         $auth = json_decode($auth);
         return response()->json($auth);
+    }
+
+    public function trialPeriod(){
+
+        $data = TrialPeriod::where('id','1')->first();
+        return view('admin.trial_period', compact('data'));
+    }
+
+    public function storeTrialPeriod(Request $request){
+
+        $request->validate([
+            'time_number'   => 'required',
+            'period'        => 'required'
+        ]);
+
+        TrialPeriod::where('id', 1)->update([
+            'number'      => $request->time_number,
+            'time_period' => $request->period
+        ]);
+
+        return redirect()->back()->with('success', 'Updated successfully.');
     }
 }
