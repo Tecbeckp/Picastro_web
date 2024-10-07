@@ -35,7 +35,7 @@ use GuzzleHttp\Client;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Yajra\DataTables\Facades\DataTables;
-
+use PusherHelper;
 class ApiGeneralController extends Controller
 {
     use ApiResponseTrait;
@@ -956,5 +956,34 @@ class ApiGeneralController extends Controller
         } else {
             return $this->error(['Something went wrong.']);
         }
+    }
+
+    public function pusherCommonKeys(){
+
+        $data = [
+            'key' => env('PUSHER_APP_KEY'),
+            'secret' => env('PUSHER_APP_SECRET'),
+            'app_id' => env('PUSHER_APP_ID'),
+            'cluster' => env('PUSHER_APP_CLUSTER')
+        ];
+
+        return $this->success(['Successfully.'],$data);
+    }
+
+    public function pusherAuths(Request $request)
+    {
+        $postdata = file_get_contents("php://input");
+        $parsedData = array();
+        parse_str($postdata, $parsedData);
+
+
+        $socket_id = $parsedData['socket_id'];
+        $channel_name = $parsedData['channel_name'];
+
+
+        $pusher = new PusherHelper();
+        $auth = $pusher->pusherAuth($channel_name, $socket_id, auth()->user());
+        $auth = json_decode($auth);
+        return response()->json($auth);
     }
 }

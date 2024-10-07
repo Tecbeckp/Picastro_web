@@ -20,7 +20,7 @@
         "mailersend/laravel-driver": "*",
         "mailersend/mailersend": "^0.24.0",
         "php-open-source-saver/jwt-auth": "^2.5",
-        "pusher/pusher-php-server": "^7.2",
+        "pusher/pusher-php-server": "*",
         "srmklive/paypal": "~3.0",
         "yajra/laravel-datatables-oracle": "^10.11"
     },
@@ -40,7 +40,8 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Helpers/WebPaymentHelper.php"
+            "app/Helpers/WebPaymentHelper.php",
+            "app/Helpers/PusherHelper.php"
         ]
     },
     "autoload-dev": {

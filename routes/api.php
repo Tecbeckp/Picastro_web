@@ -44,8 +44,11 @@ Route::get('/paypal-subscribed/{id}', [PaymentController::class, 'paypalSubscrib
 Route::get('/paypal-subscription-cancel/{id}', [PaymentController::class, 'paypalsubscriptionCancel']);
 Route::get('/create-plan', [PaymentController::class, 'createPlan']);
 Route::get('get-all-test-post-image', [PostImageController::class, 'allTestPostImage']);
+Route::get('/pusher-common-keys', [ApiGeneralController::class ,'pusherCommonKeys']);
 
 Route::group(['middleware' => 'auth:sanctum'], function () {    
+    Route::post('pusher-auths', [ApiGeneralController::class, 'pusherAuths']); 
+    
     Route::post('profile-setup', [UserProfileController::class, 'profileSetup']);
     Route::post('update-profile', [UserProfileController::class, 'updateProfile']);
     Route::post('update_fcm_token', [UserProfileController::class, 'updateFcmToken']);
