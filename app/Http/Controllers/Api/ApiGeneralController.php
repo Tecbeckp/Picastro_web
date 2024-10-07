@@ -929,7 +929,7 @@ class ApiGeneralController extends Controller
             $user = User::where('id', auth()->id())->first();
             if ($user->trial_period_status == '1') {
                 $timeNow = Carbon::now();
-                if ($data->time_period == 'mins') {
+                if ($data->time_period == 'minute') {
                     $time = $timeNow->addMinutes($data->number);
                 } elseif ($data->time_period == 'hour') {
                     $time = $timeNow->addHours($data->number);
