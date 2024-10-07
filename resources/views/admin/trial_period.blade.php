@@ -39,7 +39,7 @@
                                             class="form-control" placeholder="15" value="{{$data->number}}" required />
                                     </div>
                                     <div class="mb-3">
-                                        <label for="email" class="form-label">Android version</label>
+                                        <label for="email" class="form-label">Period</label>
                                         <select name="period" id="period" class="form-control" required>
                                             <option value="">Select Option</option>
                                             <option value="minute" @if($data->time_period == 'minute') Selected @endif>Minute</option>
