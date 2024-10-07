@@ -28,6 +28,7 @@ class TrialPeriodUpdate extends Command
 
     public function __construct(PusherHelper $pusherHelper)
     {
+        parent::__construct();
         $this->pusherHelper = $pusherHelper;
     }
     public function handle()
