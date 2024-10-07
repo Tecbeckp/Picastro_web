@@ -26,13 +26,13 @@ class TrialPeriodUpdate extends Command
      */
     public function handle()
     {
-        $users = User::where('trial_periods', '0')->where('trial_period_end', '0')->get();
+        $users = User::where('trial_period_status', '2')->get();
 
         if($users){
             foreach($users as $user){
                 if($user->trial_ends_at <= date('Y-m-d H:i:s')){
                         User::where('id',$user->id)->update([
-                            'trial_period_end' => '1'
+                            'trial_period_status' => '0'
                         ]);
                 }
             }

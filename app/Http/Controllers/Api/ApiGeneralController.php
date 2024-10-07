@@ -927,7 +927,7 @@ class ApiGeneralController extends Controller
         $data = TrialPeriod::first();
         if ($data) {
             $user = User::where('id', auth()->id())->first();
-            if ($user->trial_periods == '1') {
+            if ($user->trial_period_status == '1') {
                 $timeNow = Carbon::now();
                 if ($data->time_period == 'mins') {
                     $time = $timeNow->addMinutes($data->number);
@@ -946,7 +946,7 @@ class ApiGeneralController extends Controller
                 User::where('id', auth()->id())->update([
                     'trial_start_at' => date('Y-m-d H:i:s'),
                     'trial_ends_at'  => $time->format('Y-m-d H:i:s'),
-                    'trial_periods'  => '0'
+                    'trial_period_status'  => '2'
                 ]);
 
                 return $this->success(['Trial period active successfully.'], []);
