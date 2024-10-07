@@ -65,6 +65,12 @@ public function createProduct(){
             'subscription' => '1'
         ]);
 
+       $user = User::where('id',$id)->first();
+        if($user && $user->trial_period_status == '2'){
+            User::where('id',$id)->update([
+                'trial_period_status' => '0'
+            ]);
+        }
         PaypalSubscription::where('user_id',$id)->where('subscription_id',$request->subscription_id)->update([
             'status' => 'Approved'
         ]);
@@ -110,6 +116,12 @@ public function createProduct(){
             'subscription' => '1'
         ]);
 
+        $user = User::where('id',$id)->first();
+        if($user && $user->trial_period_status == '2'){
+            User::where('id',$id)->update([
+                'trial_period_status' => '0'
+            ]);
+        }
         return $this->success(['successfully subscribed'],[]);
     }
 
