@@ -83,7 +83,7 @@
                                                         style="font-family: 'Roboto', sans-serif; color: #878a99; box-sizing: border-box; font-size: 15px; vertical-align: top; margin: 0; padding: 0 0 12px; text-align: center;"
                                                         valign="top">
                                                         <p style="margin-bottom: 13px; line-height: 1.5;">We have
-                                                            recieved a request to access your email <a href="mailto:{{$details['email']}}"
+                                                            received a request to access your email <a href="mailto:{{$details['email']}}"
                                                                 style="font-weight: 500px;">{{$details['email']}}</a>
                                                             account through your email address. Your verification code
                                                             is</p>
