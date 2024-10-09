@@ -881,10 +881,15 @@ class ApiGeneralController extends Controller
     {
         $request->validate([
             'title'   => 'required',
-            'message' => 'required'
+            'message' => 'required',
+            'user_type' => 'required'
         ]);
 
-        $users = User::whereNot('id', '1')->get();
+            if($request->user_type == 'All'){
+                $users = User::whereNot('id', '1')->get();
+            }else{
+                $users = User::whereNot('id', '1')->where('subscription',$request->user_type)->get();
+            }
         if ($users) {
             $success_user = [];
             $faild_user   = [];

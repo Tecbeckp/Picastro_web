@@ -42,6 +42,14 @@
                                         <label for="message" class="form-label">Message</label>
                                         <textarea name="message" class="form-control" id="message" cols="30" rows="10" required></textarea>
                                     </div>
+                                    <div class="mb-3">
+                                        <label for="message" class="form-label">User</label>
+                                        <select class="form-control" name="user_type" id="user_type" required>
+                                            <option value="All" selected>All</option>
+                                            <option value="1">Subscribed</option>
+                                            <option value="0">Unsubscribed</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <button class="btn btn-outline-primary mt-3" type="submit">Send</button>
                             </form>
