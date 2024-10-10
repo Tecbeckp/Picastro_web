@@ -1111,7 +1111,8 @@ class ApiGeneralController extends Controller
         }
 
         if($request->type == '1'){
-
+            $users = User::with('userprofile')->whereAny(['first_name','last_name','username'], 'LIKE', '%' .$request->search. '%')->withCount('TotalStar')->latest()->paginate(100);
+        return $this->success([], $users);
         }else{
             $posts = PostImage::with('user','StarCard.StarCardFilter','ObjectType','Bortle','ObserverLocation','ApproxLunarPhase','Telescope','giveStar','totalStar','Follow','votedTrophy')->whereAny(['post_image_title','description'], 'LIKE', '%'.$request->search . '%')->latest()->paginate(100);
         $trophies = Trophy::select('id','name','icon')->get();
