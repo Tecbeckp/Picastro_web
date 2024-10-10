@@ -1027,7 +1027,7 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followers = FollowerList::with('follower.userprofile.Follow')->where('user_id', $request->user_id);
+        $followers = FollowerList::with('follower.userprofile')->where('user_id', $request->user_id);
         if ($request->search) {
             $search = $request->search;
             // Use where for each condition, orWhere to include multiple columns
@@ -1036,12 +1036,11 @@ class ApiGeneralController extends Controller
             });
         }
 
-       $followers = $followers->paginate(100);
+        $followers = $followers->paginate(100);
         $followers->transform(function ($follower) {
-            return [    
-                'user'    => $follower->follower,
-                'follow'  => $follower->follower->userprofile->Follow ? true : false
-            ];
+            $data = $follower->follower;
+            $data->follow_back = $follower->follower->userprofile->Follow ? true : false;
+            return $data;
         });
         return $this->success(['Get Followers list Successfully'], $followers);
     }
@@ -1056,7 +1055,7 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followings = FollowerList::with('following.userprofile.Follow')->where('follower_id', $request->user_id);
+        $followings = FollowerList::with('following.userprofile')->where('follower_id', $request->user_id);
         if ($request->search) {
             $search = $request->search;
             $followings->whereHas('following', function ($q) use ($search) {
@@ -1067,7 +1066,9 @@ class ApiGeneralController extends Controller
         $followings = $followings->paginate(100);
 
         $followings->getCollection()->transform(function ($following) {
-            return $following->following;
+           $data = $following->following;
+           $data->unfollow = $following->following->userprofile->Following;
+            return $data;
         });
         return $this->success(['Get Following list Successfully'], $followings);
     }
