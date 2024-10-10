@@ -308,6 +308,7 @@ class PostImageController extends Controller
         $troph = Trophy::select('id','name','icon')->get();
         $data = [
             'user' => $user,
+            'posts' => PostImage::where('user_id',auth()->id())->count(),
             'trophies' => $trophies->map(function ($trophy) use ($vote) {
             return [
                 'user_id' => $trophy->id,

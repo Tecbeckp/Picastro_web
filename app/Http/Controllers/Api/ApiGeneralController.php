@@ -1012,4 +1012,38 @@ class ApiGeneralController extends Controller
 
         return redirect()->back()->with('success', 'Updated successfully.');
     }
+
+    public function getFollower(Request $request)
+    {
+        $rules = [
+            'user_id'  => 'required|numeric|exists:users,id',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+
+        $followers = FollowerList::with('follower')->where('user_id', $request->user_id)->paginate(100);
+        $followers->getCollection()->transform(function ($follower) {
+            return $follower->follower;
+        });
+        return $this->success(['Get Followers list Successfully'], $followers);
+    }
+
+    public function getFollowing(Request $request)
+    {
+        $rules = [
+            'user_id'  => 'required|numeric|exists:users,id',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+
+        $followings = FollowerList::with('following')->where('follower_id', $request->user_id)->paginate(100);
+        $followings->getCollection()->transform(function ($following) {
+            return $following->User;
+        });
+        return $this->success(['Get Following list Successfully'], $followings);
+    }
 }
