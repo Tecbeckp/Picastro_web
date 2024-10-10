@@ -1036,7 +1036,7 @@ class ApiGeneralController extends Controller
         }
 
         $followers->where('user_id', $request->user_id)->paginate(100);
-        $followers->getCollection()->transform(function ($follower) {
+        $followers->transform(function ($follower) {
             return $follower->follower;
         });
         return $this->success(['Get Followers list Successfully'], $followers);
@@ -1060,7 +1060,7 @@ class ApiGeneralController extends Controller
             });
         }
         $followings->where('follower_id', $request->user_id)->paginate(100);
-        $followings->getCollection()->transform(function ($following) {
+        $followings->transform(function ($following) {
             return $following->following;
         });
         return $this->success(['Get Following list Successfully'], $followings);
