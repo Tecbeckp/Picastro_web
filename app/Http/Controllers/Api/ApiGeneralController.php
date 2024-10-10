@@ -1038,7 +1038,10 @@ class ApiGeneralController extends Controller
 
        $followers = $followers->paginate(100);
         $followers->transform(function ($follower) {
-            return $follower->follower;
+            return [    
+                'user'    => $follower->follower,
+                'follow'  => $follower->follower->userprofile->Follow ? true : false
+            ];
         });
         return $this->success(['Get Followers list Successfully'], $followers);
     }
