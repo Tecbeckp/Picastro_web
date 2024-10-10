@@ -36,6 +36,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Yajra\DataTables\Facades\DataTables;
 use App\Helpers\PusherHelper;
+
 class ApiGeneralController extends Controller
 {
     use ApiResponseTrait;
@@ -885,11 +886,11 @@ class ApiGeneralController extends Controller
             'user_type' => 'required'
         ]);
 
-            if($request->user_type == 'All'){
-                $users = User::whereNot('id', '1')->get();
-            }else{
-                $users = User::whereNot('id', '1')->where('subscription',$request->user_type)->get();
-            }
+        if ($request->user_type == 'All') {
+            $users = User::whereNot('id', '1')->get();
+        } else {
+            $users = User::whereNot('id', '1')->where('subscription', $request->user_type)->get();
+        }
         if ($users) {
             $success_user = [];
             $faild_user   = [];
@@ -963,7 +964,8 @@ class ApiGeneralController extends Controller
         }
     }
 
-    public function pusherCommonKeys(){
+    public function pusherCommonKeys()
+    {
 
         $data = [
             'key' => env('PUSHER_APP_KEY'),
@@ -972,7 +974,7 @@ class ApiGeneralController extends Controller
             'cluster' => env('PUSHER_APP_CLUSTER')
         ];
 
-        return $this->success(['Successfully.'],$data);
+        return $this->success(['Successfully.'], $data);
     }
 
     public function pusherAuths(Request $request)
@@ -992,13 +994,15 @@ class ApiGeneralController extends Controller
         return response()->json($auth);
     }
 
-    public function trialPeriod(){
+    public function trialPeriod()
+    {
 
-        $data = TrialPeriod::where('id','1')->first();
+        $data = TrialPeriod::where('id', '1')->first();
         return view('admin.trial_period', compact('data'));
     }
 
-    public function storeTrialPeriod(Request $request){
+    public function storeTrialPeriod(Request $request)
+    {
 
         $request->validate([
             'time_number'   => 'required',
@@ -1023,7 +1027,15 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followers = FollowerList::with('follower')->where('user_id', $request->user_id)->paginate(100);
+        $followers = FollowerList::with('follower');
+        if ($request->search) {
+            $search = $request->search;
+            $followers->whereHas('follower', function ($q) use ($search) {
+                $q->whereAny(['first_name','last_name','username'], 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $followers->where('user_id', $request->user_id)->paginate(100);
         $followers->getCollection()->transform(function ($follower) {
             return $follower->follower;
         });
@@ -1040,7 +1052,14 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followings = FollowerList::with('following')->where('follower_id', $request->user_id)->paginate(100);
+        $followings = FollowerList::with('following');
+        if ($request->search) {
+            $search = $request->search;
+            $followings->whereHas('following', function ($q) use ($search) {
+                $q->whereAny(['first_name','last_name','username'], 'LIKE', '%' . $search . '%');
+            });
+        }
+        $followings->where('follower_id', $request->user_id)->paginate(100);
         $followings->getCollection()->transform(function ($following) {
             return $following->following;
         });
