@@ -1027,7 +1027,7 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followers = FollowerList::with('follower')->where('user_id', $request->user_id);
+        $followers = FollowerList::with('follower.userprofile')->where('user_id', $request->user_id);
         if ($request->search) {
             $search = $request->search;
             // Use where for each condition, orWhere to include multiple columns
@@ -1053,7 +1053,7 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followings = FollowerList::with('following')->where('follower_id', $request->user_id);
+        $followings = FollowerList::with('following.userprofile')->where('follower_id', $request->user_id);
         if ($request->search) {
             $search = $request->search;
             $followings->whereHas('following', function ($q) use ($search) {
