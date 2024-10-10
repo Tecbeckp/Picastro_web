@@ -1027,15 +1027,18 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followers = FollowerList::with('follower');
+        $followers = FollowerList::with('follower')->where('user_id', $request->user_id);
         if ($request->search) {
             $search = $request->search;
+            // Use where for each condition, orWhere to include multiple columns
             $followers->whereHas('follower', function ($q) use ($search) {
-                $q->whereAny(['first_name','last_name','username'], 'LIKE', '%' . $search . '%');
+                $q->where('first_name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('last_name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('username', 'LIKE', '%' . $search . '%');
             });
         }
 
-        $followers->where('user_id', $request->user_id)->paginate(100);
+       $followers = $followers->paginate(100);
         $followers->transform(function ($follower) {
             return $follower->follower;
         });
@@ -1052,15 +1055,20 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followings = FollowerList::with('following');
+        $followings = FollowerList::with('following')->where('follower_id', $request->user_id);
         if ($request->search) {
             $search = $request->search;
             $followings->whereHas('following', function ($q) use ($search) {
-                $q->whereAny(['first_name','last_name','username'], 'LIKE', '%' . $search . '%');
+                $q->where('first_name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('last_name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('username', 'LIKE', '%' . $search . '%');
             });
         }
-        $followings->where('follower_id', $request->user_id)->paginate(100);
-        $followings->transform(function ($following) {
+
+        $followings = $followings->paginate(100);
+
+        // Transform the followings to return only the following user data
+        $followings->getCollection()->transform(function ($following) {
             return $following->following;
         });
         return $this->success(['Get Following list Successfully'], $followings);
