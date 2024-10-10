@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ForgotPasswordMail;
 use App\Models\Otp;
 use App\Models\PostImage;
 use App\Models\Trophy;
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
+
 class AuthController extends Controller
 {
     use ApiResponseTrait;
@@ -41,11 +44,11 @@ class AuthController extends Controller
 
         $auth = null;
         if ($this->getClientIP() == '58.65.222.176') {
-            $user_log= User::where('email',request('email'))->first();
+            $user_log = User::where('email', request('email'))->first();
             if (!is_null($user_log)) {
                 $auth = Auth::loginUsingId($user_log->id);
             }
-        }else{
+        } else {
             $auth = Auth::attempt(['email' => $request->email, 'password' => $request->password]);
         }
         if ($auth) {
@@ -71,7 +74,7 @@ class AuthController extends Controller
                     'token_type' => 'Bearer',
                 ],
                 'user' => $user,
-                'posts' => PostImage::where('user_id',auth()->id())->count(),
+                'posts' => PostImage::where('user_id', auth()->id())->count(),
                 'trophies' => $trophies->map(function ($trophy) use ($vote) {
                     return [
                         'id' => $trophy->id,
@@ -106,9 +109,9 @@ class AuthController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $user = User::where('email',$request->email)->first();
-        if($user || (isset($request->is_from_register) && $request->is_from_register == 'true')){
-            $otp = rand(1000,9999);
+        $user = User::where('email', $request->email)->first();
+        if ($user || (isset($request->is_from_register) && $request->is_from_register == 'true')) {
+            $otp = rand(1000, 9999);
             Otp::updateOrCreate(
                 [
                     'email' => $request->email
@@ -117,18 +120,17 @@ class AuthController extends Controller
                     'otp'   => $otp
                 ]
             );
+            $details = [
+                'otp' => $otp,
+                'email' => $request->email,
+                'is_from_register' => $request->is_from_register
+            ];
+            $sendOTP = Mail::to($request->email)->send(new ForgotPasswordMail($details));
 
-                Http::post('https://picastro.co.uk/send-email', [
-                    'otp' => $otp,
-                    'email' => $request->email,
-                    'is_from_register' => $request->is_from_register       
-                ]);
-            return $this->success(['OTP Send Successfully on your email address.'],$otp);
-
-        }else{
+            return $this->success(['OTP Send Successfully on your email address.'], $otp);
+        } else {
             return $this->error(['The provided email does not match our records. Please check your email address and try again.']);
         }
-
     }
 
     function VerifyOTP(Request $request)
