@@ -120,10 +120,10 @@ class AuthController extends Controller
                     'otp'   => $otp
                 ]
             );
-            
+
         $details = [
             'email'             => $request->email,
-            'otp'               => $request->otp,
+            'otp'               => $otp,
             'is_from_register'  => $request->is_from_register,
             'subject'           => $request->is_from_register == 'true' ? 'Picastro Email Verification' : 'Forgot Password'
         ];
