@@ -1065,7 +1065,13 @@ class ApiGeneralController extends Controller
 
         // Transform the followings to return only the following user data
         $followings->getCollection()->transform(function ($following) {
-            return $following->following;
+            return [
+                'id'            => $following->id,
+                'first_name'    => $following->first_name,
+                'last_name'     => $following->last_name,
+                'username'      => $following->username,
+                'profile_image' => $following->userprofile->profile_image,
+            ];
         });
         return $this->success(['Get Following list Successfully'], $followings);
     }
