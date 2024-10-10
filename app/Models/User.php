@@ -78,6 +78,6 @@ class User extends Authenticatable
 
     public function Following()
     {
-        return $this->hasOne(FollowerList::class, 'follower_id', 'id')->where('id', auth()->id());
+        return $this->hasOne(FollowerList::class, 'user_id', 'id')->where('follower_id', auth()->id());
     }
 }
