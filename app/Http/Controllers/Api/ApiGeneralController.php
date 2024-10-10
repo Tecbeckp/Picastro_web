@@ -1055,7 +1055,7 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followings = FollowerList::with('following.userprofile')->where('follower_id', $request->user_id);
+        $followings = FollowerList::with('following.userprofile','following.Following')->where('follower_id', $request->user_id);
         if ($request->search) {
             $search = $request->search;
             $followings->whereHas('following', function ($q) use ($search) {
@@ -1067,7 +1067,7 @@ class ApiGeneralController extends Controller
 
         $followings->getCollection()->transform(function ($following) {
            $data = $following->following;
-           $data->unfollow = $following->following->Following;
+           $data->unfollow = $following->following->Following ? true : false;
             return $data;
         });
         return $this->success(['Get Following list Successfully'], $followings);
