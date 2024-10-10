@@ -1067,7 +1067,7 @@ class ApiGeneralController extends Controller
 
         $followings->getCollection()->transform(function ($following) {
            $data = $following->following;
-           $data->unfollow = $following->following->userprofile->Following;
+           $data->unfollow = $following->following->Following;
             return $data;
         });
         return $this->success(['Get Following list Successfully'], $followings);

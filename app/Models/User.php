@@ -75,4 +75,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(GiveStar::class, 'user_id', 'id');
     }
+
+    public function Following()
+    {
+        return $this->hasOne(FollowerList::class, 'follower_id', 'id')->where('id', auth()->id());
+    }
 }

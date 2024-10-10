@@ -19,5 +19,5 @@ class FollowerList extends Model
     {
       return $this->hasOne(User::class,'id','follower_id')->whereNull('deleted_at');
     }
-    
+ 
 }
