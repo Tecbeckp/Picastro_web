@@ -120,11 +120,13 @@ class AuthController extends Controller
                     'otp'   => $otp
                 ]
             );
-            $details = [
-                'otp' => $otp,
-                'email' => $request->email,
-                'is_from_register' => $request->is_from_register
-            ];
+            
+        $details = [
+            'email'             => $request->email,
+            'otp'               => $request->otp,
+            'is_from_register'  => $request->is_from_register,
+            'subject'           => $request->is_from_register == 'true' ? 'Picastro Email Verification' : 'Forgot Password'
+        ];
             $sendOTP = Mail::to($request->email)->send(new ForgotPasswordMail($details));
 
             return $this->success(['OTP Send Successfully on your email address.'], $otp);
