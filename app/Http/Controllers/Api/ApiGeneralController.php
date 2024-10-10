@@ -1032,9 +1032,7 @@ class ApiGeneralController extends Controller
             $search = $request->search;
             // Use where for each condition, orWhere to include multiple columns
             $followers->whereHas('follower', function ($q) use ($search) {
-                $q->where('first_name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('last_name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('username', 'LIKE', '%' . $search . '%');
+                $q->whereAny(['first_name','last_name','username'], 'LIKE', '%' . $search . '%');
             });
         }
 
@@ -1059,9 +1057,7 @@ class ApiGeneralController extends Controller
         if ($request->search) {
             $search = $request->search;
             $followings->whereHas('following', function ($q) use ($search) {
-                $q->where('first_name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('last_name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('username', 'LIKE', '%' . $search . '%');
+                $q->whereAny(['first_name','last_name','username'], 'LIKE', '%' . $search . '%');
             });
         }
 
