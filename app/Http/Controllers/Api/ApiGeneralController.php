@@ -1083,7 +1083,7 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $data = GiveStar::with('GivenUser')->where('post_image_id',$request->post_id)->where('post_user_id', $request->user_id);
+        $data = GiveStar::with('GivenUser.userprofile')->where('post_image_id',$request->post_id)->where('post_user_id', $request->user_id);
         if ($request->search) {
             $search = $request->search;
             $data->whereHas('GivenUser', function ($q) use ($search) {
