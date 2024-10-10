@@ -1072,4 +1072,30 @@ class ApiGeneralController extends Controller
         });
         return $this->success(['Get Following list Successfully'], $followings);
     }
+
+    public function getGivenStarUser(Request $request){
+        $rules = [
+            'user_id'  => 'required|numeric|exists:users,id',
+            'post_id'  => 'required|numeric|exists:post_images,id',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+
+        $data = GiveStar::with('GivenUser')->where('post_image_id',$request->post_id)->where('post_user_id', $request->user_id);
+        if ($request->search) {
+            $search = $request->search;
+            $data->whereHas('GivenUser', function ($q) use ($search) {
+                $q->whereAny(['first_name','last_name','username'], 'LIKE', '%' . $search . '%');
+            });
+        }
+       $data = $data->paginate(100);
+
+       $data->getCollection()->transform(function ($result) {
+         return $result->GivenUser;
+     });
+     return $this->success(['Get star given list Successfully'], $data);
+
+    }
 }

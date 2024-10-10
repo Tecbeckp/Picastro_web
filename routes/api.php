@@ -100,8 +100,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('get-shared-post', [ApiGeneralController::class, 'getSharedPost']);
     Route::post('send-chat-notifications', [ApiGeneralController::class, 'sendChatNotifications']);
     Route::get('/start-trial-period', [ApiGeneralController::class, 'startTrialPeriod']);
-    Route::get('get-follower', [ApiGeneralController::class, 'getFollower'])->name('follow');
-    Route::get('get-following', [ApiGeneralController::class, 'getFollowing'])->name('follow');
+    Route::get('get-follower', [ApiGeneralController::class, 'getFollower'])->name('getFollower');
+    Route::get('get-following', [ApiGeneralController::class, 'getFollowing'])->name('getFollowing');
+    Route::get('get-given-star-users', [ApiGeneralController::class, 'getGivenStarUser'])->name('getGivenStarUser');
 
     Route::post('add-post-comment', [PostCommentController::class, 'postComment']);
     Route::get('delete-comment', [PostCommentController::class, 'deleteComment']);

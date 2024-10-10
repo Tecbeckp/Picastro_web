@@ -19,4 +19,8 @@ class GiveStar extends Model
     {
       return $this->hasOne(PostImage::class,'id','post_image_id');
     }
+
+    public function GivenUser(){
+      return $this->belongsTo(User::class, 'user_id','id');
+    }
 }
