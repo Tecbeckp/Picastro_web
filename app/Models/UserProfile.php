@@ -11,4 +11,9 @@ class UserProfile extends Model
     use HasFactory, SoftDeletes;
 
     protected $guarded=[];
+
+    public function Follow()
+    {
+        return $this->hasOne(FollowerList::class, 'user_id', 'user_id')->where('follower_id', auth()->id());
+    }
 }
