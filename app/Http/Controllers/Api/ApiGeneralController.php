@@ -1113,7 +1113,7 @@ class ApiGeneralController extends Controller
         if($request->type == '1'){
 
         }else{
-            $posts = PostImage::with('user','StarCard.StarCardFilter','ObjectType','Bortle','ObserverLocation','ApproxLunarPhase','Telescope','giveStar','totalStar','Follow','votedTrophy')->whereAny(['post_image_title','description'], $request->search)->latest()->paginate(100);
+            $posts = PostImage::with('user','StarCard.StarCardFilter','ObjectType','Bortle','ObserverLocation','ApproxLunarPhase','Telescope','giveStar','totalStar','Follow','votedTrophy')->whereAny(['post_image_title','description'], 'LIKE', '%'.$request->search . '%')->latest()->paginate(100);
         $trophies = Trophy::select('id','name','icon')->get();
         $posts->getCollection()->transform(function ($post) use($trophies) {
             return [
