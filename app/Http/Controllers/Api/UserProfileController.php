@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\PostImage;
 use App\Models\Trophy;
 use App\Models\User;
 use App\Models\UserProfile;
@@ -148,6 +149,7 @@ class UserProfileController extends Controller
         
         $data = [
             'user'      => $user,
+            'posts' => PostImage::where('user_id',auth()->id())->count(),
             'trophies' => $trophies->map(function ($trophy) use ($vote) {
                 return [
                     'id' => $trophy->id,

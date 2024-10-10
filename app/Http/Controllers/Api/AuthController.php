@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Otp;
+use App\Models\PostImage;
 use App\Models\Trophy;
 use App\Models\User;
 use App\Models\VoteImage;
@@ -70,6 +71,7 @@ class AuthController extends Controller
                     'token_type' => 'Bearer',
                 ],
                 'user' => $user,
+                'posts' => PostImage::where('user_id',auth()->id())->count(),
                 'trophies' => $trophies->map(function ($trophy) use ($vote) {
                     return [
                         'id' => $trophy->id,
