@@ -1042,7 +1042,7 @@ class ApiGeneralController extends Controller
 
         $followings = FollowerList::with('following')->where('follower_id', $request->user_id)->paginate(100);
         $followings->getCollection()->transform(function ($following) {
-            return $following->User;
+            return $following->following;
         });
         return $this->success(['Get Following list Successfully'], $followings);
     }
