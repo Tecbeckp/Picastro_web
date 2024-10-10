@@ -1098,4 +1098,66 @@ class ApiGeneralController extends Controller
      return $this->success(['Get star given list Successfully'], $data);
 
     }
+
+    public function AllOverSearch(Request $request){
+
+        $rules = [
+            'type'  => 'required|numeric',
+            'search'  => 'required|string'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+
+        if($request->type == '1'){
+
+        }else{
+            $posts = PostImage::with('user','StarCard.StarCardFilter','ObjectType','Bortle','ObserverLocation','ApproxLunarPhase','Telescope','giveStar','totalStar','Follow','votedTrophy')->whereAny(['post_image_title','description'], $request->search)->latest()->paginate(100);
+        $trophies = Trophy::select('id','name','icon')->get();
+        $posts->getCollection()->transform(function ($post) use($trophies) {
+            return [
+                'id'                 => $post->id,
+                'user_id'            => $post->user_id,
+                'post_image_title'   => $post->post_image_title,
+                'image'              => $post->image,
+                'original_image'     => $post->original_image,
+                'description'        => $post->description,
+                'video_length'       => $post->video_length,
+                'number_of_frame'    => $post->number_of_frame,
+                'number_of_video'    => $post->number_of_video,
+                'exposure_time'      => $post->exposure_time,
+                'total_hours'        => $post->total_hours,
+                'additional_minutes' => $post->additional_minutes,
+                'catalogue_number'   => $post->catalogue_number,
+                'object_name'        => $post->object_name,
+                'ir_pass'            => $post->ir_pass,
+                'planet_name'        => $post->planet_name,
+                'location'           => $post->location,
+                'ObjectType'         => $post->ObjectType,
+                'Bortle'             => $post->Bortle,
+                'ObserverLocation'   => $post->ObserverLocation,
+                'ApproxLunarPhase'   => $post->ApproxLunarPhase,
+                'Telescope'          => $post->Telescope,
+                'only_image_and_description' => $post->only_image_and_description,
+                'giveStar'           => $post->giveStar ? true : false,
+                'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
+                'Follow'             => $post->Follow ? true : false,
+                'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                'trophy'             => $trophies,
+                'star_card'           => $post->StarCard,
+                'user'               => [
+                    'id'             => $post->user->id,
+                    'first_name'     => $post->user->first_name,
+                    'last_name'      => $post->user->last_name,
+                    'username'       => $post->user->username,
+                    'profile_image'  => $post->user->userprofile->profile_image,
+                    'fcm_token'      => $post->user->fcm_token,
+                ]
+            ];
+        });
+        return $this->success([], $posts);
+        }
+
+    }
 }

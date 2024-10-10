@@ -103,6 +103,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('get-follower', [ApiGeneralController::class, 'getFollower'])->name('getFollower');
     Route::get('get-following', [ApiGeneralController::class, 'getFollowing'])->name('getFollowing');
     Route::get('get-given-star-users', [ApiGeneralController::class, 'getGivenStarUser'])->name('getGivenStarUser');
+    Route::get('all-over-search', [ApiGeneralController::class, 'AllOverSearch'])->name('AllOverSearch');
 
     Route::post('add-post-comment', [PostCommentController::class, 'postComment']);
     Route::get('delete-comment', [PostCommentController::class, 'deleteComment']);
