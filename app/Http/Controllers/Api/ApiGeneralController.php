@@ -1063,7 +1063,6 @@ class ApiGeneralController extends Controller
 
         $followings = $followings->paginate(100);
 
-        // Transform the followings to return only the following user data
         $followings->getCollection()->transform(function ($following) {
             return $following->following;
         });
