@@ -1039,7 +1039,7 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followers = FollowerList::with('follower.Following')->where('user_id', auth()->id());
+        $followers = FollowerList::with('follower.userprofile','follower.Following')->where('user_id', auth()->id());
         if ($request->search) {
             $search = $request->search;
             $followers->whereHas('follower', function ($q) use ($search) {
