@@ -663,6 +663,7 @@ class ApiGeneralController extends Controller
                 'trophy_id'         => $item->trophy_id,
                 'comment_id'        => $item->comment_id,
                 'reply_comment_id'  => $item->reply_comment_id,
+                'bulk_notification'  => $item->bulk_notification,
             ];
         });
     });
