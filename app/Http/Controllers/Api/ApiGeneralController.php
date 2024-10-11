@@ -907,17 +907,20 @@ class ApiGeneralController extends Controller
             $faild_user   = [];
             foreach ($users as $user) {
                 if ($user->fcm_token) {
-                    $this->notificationService->sendNotification(
-                        $request->title,
-                        $request->message,
-                        $user->fcm_token,
-                        null
-                    );
                     $notification = new Notification();
                     $notification->user_id = $user->id;
                     $notification->type    = $request->title;
                     $notification->notification = $request->message;
+                    $notification->bulk_notification = '1';
                     $notification->save();
+
+                    $this->notificationService->sendNotification(
+                        $request->title,
+                        $request->message,
+                        $user->fcm_token,
+                        json_encode($notification)
+                    );
+                   
                     $success_user[] = $user->id;
                 } else {
                     $faild_user[] = $user->id;
