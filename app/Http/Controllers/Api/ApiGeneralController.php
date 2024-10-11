@@ -910,12 +910,13 @@ class ApiGeneralController extends Controller
                     $notification->notification = $request->message;
                     $notification->bulk_notification = '1';
                     $notification->save();
+                    $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'bulk_notification', 'is_read')->where('id', $notification->id)->first();
 
                     $this->notificationService->sendNotification(
                         $request->title,
                         $request->message,
                         $user->fcm_token,
-                        json_encode($notification)
+                        json_encode($getnotification)
                     );
                    
                     $success_user[] = $user->id;
