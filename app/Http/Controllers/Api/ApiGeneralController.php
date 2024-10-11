@@ -643,23 +643,30 @@ class ApiGeneralController extends Controller
     public function getNotification()
     {
 
-        $notifications = Notification::where('user_id', auth()->id())->where('is_read', '0')->latest()->get();
-        // dd($notifications->count());
-        $groupedNotifications = $notifications->groupBy('type')->map(function ($items) {
-            return $items->map(function ($item) {
-                return [
-                    'id'                => $item->id,
-                    'title'             => $item->type,
-                    'description'       => $item->notification,
-                    'follower_id'       => $item->follower_id,
-                    'post_image_id'     => $item->post_image_id,
-                    'trophy_id'         => $item->trophy_id,
-                    'comment_id'        => $item->comment_id,
-                    'reply_comment_id'  => $item->reply_comment_id,
-
-                ];
-            });
+        $notifications = Notification::where('user_id', auth()->id())
+        ->where('is_read', '0')
+        ->latest()
+        ->get();
+    
+    $groupedNotifications = $notifications->groupBy(function ($item) {
+        // Specify types to group explicitly, or else group them as "Others"
+        $knownTypes = ['New Followers', 'Trophies', 'Stars','Leading Light Rewards', 'Comments', 'Image of the month']; // Adjust these as needed
+        return in_array($item->type, $knownTypes) ? $item->type  :  'Others';
+    })->map(function ($items) {
+        return $items->map(function ($item) {
+            return [
+                'id'                => $item->id,
+                'title'             => $item->type,
+                'description'       => $item->notification,
+                'follower_id'       => $item->follower_id,
+                'post_image_id'     => $item->post_image_id,
+                'trophy_id'         => $item->trophy_id,
+                'comment_id'        => $item->comment_id,
+                'reply_comment_id'  => $item->reply_comment_id,
+            ];
         });
+    });
+    
 
         $responseData = $groupedNotifications->isEmpty() ? null : $groupedNotifications;
         $responseData['total_unread_notifications'] = $notifications->count();
