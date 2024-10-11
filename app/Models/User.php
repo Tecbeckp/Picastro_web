@@ -80,4 +80,5 @@ class User extends Authenticatable
     {
         return $this->hasOne(FollowerList::class, 'user_id', 'id')->where('follower_id', auth()->id());
     }
+    
 }

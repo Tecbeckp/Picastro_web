@@ -1043,7 +1043,7 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followers = FollowerList::with('follower.userprofile')->where('user_id', $request->user_id);
+        $followers = FollowerList::with('follower.Following')->where('user_id', $request->user_id);
         if ($request->search) {
             $search = $request->search;
             // Use where for each condition, orWhere to include multiple columns
@@ -1055,7 +1055,7 @@ class ApiGeneralController extends Controller
         $followers = $followers->paginate(100);
         $followers->transform(function ($follower) {
             $data = $follower->follower;
-            $data->follow_back = $follower->follower->userprofile->Follow ? true : false;
+            $data->follow_back = $follower->follower->Following ? true : false;
             return $data;
         });
         return $this->success(['Get Followers list Successfully'], $followers);
