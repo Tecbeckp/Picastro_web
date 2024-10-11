@@ -1039,19 +1039,21 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followers = FollowerList::with('follower.userprofile')->where('user_id', $request->user_id);
+        $followers = FollowerList::with('follower.Following')->where('user_id', auth()->id());
         if ($request->search) {
             $search = $request->search;
-            // Use where for each condition, orWhere to include multiple columns
             $followers->whereHas('follower', function ($q) use ($search) {
                 $q->whereAny(['first_name','last_name','username'], 'LIKE', '%' . $search . '%');
             });
         }
+        $followers->whereHas('follower', function ($q){
+            $q->whereNull('deleted_at');
+        });
 
         $followers = $followers->paginate(100);
         $followers->transform(function ($follower) {
             $data = $follower->follower;
-            $data->follow_back = $follower->follower->userprofile->Follow ? true : false;
+            $data->follow_back = $follower->follower->Following ? true : false;
             return $data;
         });
         return $this->success(['Get Followers list Successfully'], $followers);
@@ -1067,14 +1069,16 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followings = FollowerList::with('following.userprofile')->where('follower_id', $request->user_id);
+        $followings = FollowerList::with('following.userprofile')->where('follower_id', auth()->id());
         if ($request->search) {
             $search = $request->search;
             $followings->whereHas('following', function ($q) use ($search) {
                 $q->whereAny(['first_name','last_name','username'], 'LIKE', '%' . $search . '%');
             });
         }
-
+        $followings->whereHas('following', function ($q){
+            $q->whereNull('deleted_at');
+        });
         $followings = $followings->paginate(100);
 
         $followings->getCollection()->transform(function ($following) {
