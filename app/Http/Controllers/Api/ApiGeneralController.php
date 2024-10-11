@@ -1043,10 +1043,9 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followers = FollowerList::with('follower.Following')->where('user_id', $request->user_id);
+        $followers = FollowerList::with('follower.Following')->where('user_id', auth()->id());
         if ($request->search) {
             $search = $request->search;
-            // Use where for each condition, orWhere to include multiple columns
             $followers->whereHas('follower', function ($q) use ($search) {
                 $q->whereAny(['first_name','last_name','username'], 'LIKE', '%' . $search . '%');
             });
