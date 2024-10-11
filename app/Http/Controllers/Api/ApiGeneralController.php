@@ -1050,6 +1050,9 @@ class ApiGeneralController extends Controller
                 $q->whereAny(['first_name','last_name','username'], 'LIKE', '%' . $search . '%');
             });
         }
+        $followers->whereHas('follower', function ($q){
+            $q->whereNull('deleted_at');
+        });
 
         $followers = $followers->paginate(100);
         $followers->transform(function ($follower) {
@@ -1070,14 +1073,16 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followings = FollowerList::with('following.userprofile')->where('follower_id', $request->user_id);
+        $followings = FollowerList::with('following.userprofile')->where('follower_id', auth()->id());
         if ($request->search) {
             $search = $request->search;
             $followings->whereHas('following', function ($q) use ($search) {
                 $q->whereAny(['first_name','last_name','username'], 'LIKE', '%' . $search . '%');
             });
         }
-
+        $followings->whereHas('following', function ($q){
+            $q->whereNull('deleted_at');
+        });
         $followings = $followings->paginate(100);
 
         $followings->getCollection()->transform(function ($following) {
