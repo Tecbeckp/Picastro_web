@@ -1193,7 +1193,7 @@ class ApiGeneralController extends Controller
 
         $coupon = Coupon::where('code',$request->coupon_code)->where('status', 'enabled')->first();
 
-        if($coupon && $coupon->isValid()) {
+        if($coupon && $coupon->expires_at >= now()->format('Y-m-d')) {
 
             if($coupon->type == 'percentage'){
                 $discount_price = ($coupon->discount/100)*48;
@@ -1201,7 +1201,7 @@ class ApiGeneralController extends Controller
                 $discount_price = $coupon->discount;
             }
             $data = [
-                'discount_price' => $discount_price
+                'discount_price' => number_format($discount_price,2)
             ];
             return $this->success(['Apply coupon successfully.'],$data);
         }else {

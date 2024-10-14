@@ -5,15 +5,11 @@ namespace App\Helpers;
 
 use App\Models\DuePayments;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Mockery\Exception;
-use PayPal\Core\PayPalHttpConnection;
-use PayPalCheckoutSdk\Core\SandboxEnvironment;
-use PayPalCheckoutSdk\Core\ProductionEnvironment;
-use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
+use Illuminate\Http\Request;
 
 
 class WebPaymentHelper
@@ -283,11 +279,14 @@ class WebPaymentHelper
             $response = Http::withToken($token)->withHeaders([
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
-
                 'Prefer' => 'return=representation',
             ])->post($this->url . '/v1/billing/subscriptions', [
                 "plan_id" => $planId,
                 "quantity" => "1",
+                // "shipping_amount" => [
+                // "currency_code" => "GBP",
+                // "value" => $setupfee
+                // ],
                 "subscriber" => [
                     "name" => [
                         "given_name" => $subscriber->first_name,

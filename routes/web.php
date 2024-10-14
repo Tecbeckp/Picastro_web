@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ApiGeneralController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PostImageController;
 use App\Http\Controllers\StarCampController;
@@ -93,6 +94,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('send-bulk-notification', [ApiGeneralController::class, 'sendBulkNotification'])->name('sendBulkNotification');
     Route::get('trial-period', [ApiGeneralController::class, 'trialPeriod'])->name('trial-period');
     Route::post('store-trial-period', [ApiGeneralController::class, 'storeTrialPeriod'])->name('storeTrialPeriod');
+
+    Route::resource('coupon', CouponController::class);
 
     
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
