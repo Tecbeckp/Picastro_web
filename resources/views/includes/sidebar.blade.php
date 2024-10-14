@@ -123,6 +123,9 @@
                             <li class="nav-item">
                                 <a href="{{route('trial-period')}}" class="nav-link" data-key="t-trial-period">Trial Period</a>
                             </li>
+                            <li class="nav-item">
+                                <a href="{{route('coupon.index')}}" class="nav-link" data-key="t-trial-period">Coupon List</a>
+                            </li>
                         </ul>
                     </div>
                 </li>
@@ -134,7 +137,7 @@
                     <div class="collapse menu-dropdown" id="notificationPages">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
-                                <a href="{{route('getBulkNotification')}}" class="nav-link" data-key="t-term-conditions">Get Notification</a>
+                                <a href="{{route('getBulkNotification')}}" class="nav-link" data-key="t-term-conditions">Notification List</a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{route('createBulkNotification')}}" class="nav-link" data-key="t-term-conditions">Send Notification</a>
