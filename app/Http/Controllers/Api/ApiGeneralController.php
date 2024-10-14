@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\ApproxLunarPhase;
+use App\Models\Coupon;
 use App\Models\AppVersion;
 use App\Models\BlockToUser;
 use App\Models\BulkNotification;
@@ -1176,5 +1176,32 @@ class ApiGeneralController extends Controller
         return $this->success([], $posts);
         }
 
+    }
+
+    public function applyCoupon(Request $request){
+        $rules = [
+            'coupon_code'  => 'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+
+        $data = Coupon::where('code',$request->coupon_code)->where('status', 'enabled')->first();
+
+        if($data->expires_at >= now()->format('Y-m-d')) {
+
+            if($data->type == 'percentage'){
+                $discount_price = ($data->discount/100)*100;
+            }else{
+                $discount_price = $data->discount;
+            }
+            $result = [
+                'discount_price' => $discount_price
+            ];
+            return $this->success(['Apply coupon successfully.'],$result);
+        }else {
+            return $this->error(['This coupon is expire']);
+        }
     }
 }
