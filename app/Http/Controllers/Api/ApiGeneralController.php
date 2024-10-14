@@ -1201,7 +1201,7 @@ class ApiGeneralController extends Controller
                 $discount_price = $coupon->discount;
             }
             $data = [
-                'discount_price' => $discount_price
+                'discount_price' => number_format($discount_price,2)
             ];
             return $this->success(['Apply coupon successfully.'],$data);
         }else {
