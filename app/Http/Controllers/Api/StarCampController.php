@@ -64,13 +64,20 @@ class StarCampController extends Controller
         }else{
             $perPage = $request->get('per_page', 15);
     
-            $combinedQuery = FollowerList::query()->with('follower','following')
-                ->where(function ($query){
-                    $query->where('user_id', auth()->id());
-                })
-                ->orWhere(function ($query){
-                    $query->where('follower_id', auth()->id());
-                });
+            $combinedQuery = FollowerList::query()->with([
+                'follower' => function ($query) {
+                    $query->whereNull('users.deleted_at'); // Ensure soft-deleted users are excluded
+                },
+                'following' => function ($query) {
+                    $query->whereNull('users.deleted_at'); // Ensure soft-deleted users are excluded
+                }
+            ])
+            ->where(function ($query) {
+                $query->where('user_id', auth()->id());
+            })
+            ->orWhere(function ($query) {
+                $query->where('follower_id', auth()->id());
+            });
             $combinedResults = $combinedQuery->latest()->get();
         
             $combinedData = $combinedResults->map(function($member) {
