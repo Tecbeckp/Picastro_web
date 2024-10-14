@@ -12,12 +12,12 @@ class FollowerList extends Model
 
     public function following()
     {
-      return $this->hasOne(User::class,'id','user_id')->whereNull('deleted_at');
+      return $this->hasOne(User::class,'id','user_id')->whereNull('users.deleted_at');
     }
 
     public function follower()
     {
-      return $this->hasOne(User::class,'id','follower_id')->whereNull('deleted_at');
+      return $this->hasOne(User::class,'id','follower_id')->whereNull('users.deleted_at');
     }
  
 }
