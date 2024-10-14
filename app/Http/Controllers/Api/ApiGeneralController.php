@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Coupon;
+use App\Models\Coupons;
 use App\Models\AppVersion;
 use App\Models\BlockToUser;
 use App\Models\BulkNotification;
@@ -1191,7 +1191,7 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $coupon = Coupon::where('code',$request->coupon_code)->where('status', 'enabled')->first();
+        $coupon = Coupons::where('code',$request->coupon_code)->where('status', 'enabled')->first();
 
         if($coupon && $coupon->expires_at >= now()->format('Y-m-d')) {
 
