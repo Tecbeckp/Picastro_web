@@ -12,7 +12,4 @@ class Coupon extends Model
 
     protected $guarded = [];
 
-    public function isValid() {
-        return $this->expires_at ? $this->expires_at->isFuture() : true;
-    }
 }

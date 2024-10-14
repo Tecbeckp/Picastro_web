@@ -36,6 +36,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Yajra\DataTables\Facades\DataTables;
 use App\Helpers\PusherHelper;
+use App\Mail\ContactUsMail;
+use Illuminate\Support\Facades\Mail;
 
 class ApiGeneralController extends Controller
 {
@@ -545,12 +547,14 @@ class ApiGeneralController extends Controller
         $contact->email    = $request->email;
         $contact->message  = $request->message;
         $contact->save();
+        
+        $details = [
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'message'  => $request->message
+        ];
 
-        Http::post('https://picastro.co.uk/contact-us-mail', [
-            'name' => $request->username,
-            'email' => $request->email,
-            'message' => $request->message
-        ]);
+        Mail::to('support@picastroapp.com')->send(new ContactUsMail($details));
 
         return $this->success(['Sent successfully!'], []);
     }
@@ -1189,7 +1193,7 @@ class ApiGeneralController extends Controller
 
         $coupon = Coupon::where('code',$request->coupon_code)->where('status', 'enabled')->first();
 
-        if($coupon && $coupon->isValid()) {
+        if($coupon && $coupon->expires_at >= now()->format('Y-m-d')) {
 
             if($coupon->type == 'percentage'){
                 $discount_price = ($coupon->discount/100)*48;
