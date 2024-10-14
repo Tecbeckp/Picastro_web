@@ -589,7 +589,7 @@ class ApiGeneralController extends Controller
         $data['ios_screenshot'] = IsRegistration::first()->ios_screenshot;
         $data['android_screenshot'] = IsRegistration::first()->android_screenshot;
         $data['trial_period'] = TrialPeriod::first();
-
+        $data['app_under_maintenance'] = false;
         return $this->success([], $data);
     }
 
