@@ -71,29 +71,23 @@ class StarCampController extends Controller
                 ->orWhere(function ($query){
                     $query->where('follower_id', auth()->id());
                 });
-                $combinedQuery->whereHas('follower', function ($q){
-                    $q->whereNull('deleted_at');
-                });
-                $combinedQuery->whereHas('following', function ($q){
-                    $q->whereNull('deleted_at');
-                });
             $combinedResults = $combinedQuery->latest()->get();
         
             $combinedData = $combinedResults->map(function($member) {
                 return $member->user_id == auth()->id() ? [
-                    'id'            => $member->follower->id,
-                    'first_name'    => $member->follower->first_name,
-                    'last_name'     => $member->follower->last_name,
-                    'username'      => $member->follower->username,
-                    'profile_image' => $member->follower->userprofile->profile_image,
-                    'fcm_token'     => $member->follower->fcm_token
+                    'id'            => $member->follower ? $member->follower->id : null,
+                    'first_name'    => $member->follower ? $member->follower->first_name : null,
+                    'last_name'     => $member->follower ? $member->follower->last_name : null,
+                    'username'      => $member->follower ? $member->follower->username : null,
+                    'profile_image' => $member->follower ? $member->follower->userprofile->profile_image : null,
+                    'fcm_token'     => $member->follower ? $member->follower->fcm_token : null
                 ] : [
-                    'id'            => $member->following->id,
-                    'first_name'    => $member->following->first_name,
-                    'last_name'     => $member->following->last_name,
-                    'username'      => $member->following->username,
-                    'profile_image' => $member->following->userprofile->profile_image,
-                    'fcm_token'     => $member->following->fcm_token
+                    'id'            => $member->following ? $member->following->id  : null,
+                    'first_name'    => $member->following ? $member->following->first_name  : null,
+                    'last_name'     => $member->following ? $member->following->last_name  : null,
+                    'username'      => $member->following ? $member->following->username  : null,
+                    'profile_image' => $member->following ? $member->following->userprofile->profile_image  : null,
+                    'fcm_token'     => $member->following ? $member->following->fcm_token : null
                 ];
             })->unique()->values()->toArray();
         
