@@ -103,7 +103,7 @@ class CouponController extends Controller
             $data = Coupon::create([
                 'id'            => $request->code,
                 'duration'      => 'once',
-                'councry'       => 'GBP',
+                'currency'       => 'GBP',
                 $coupon_type    => $request->discount,
                 'redeem_by'     => strtotime($request->expire)
             ]);

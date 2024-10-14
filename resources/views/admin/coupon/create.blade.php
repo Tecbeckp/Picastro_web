@@ -35,7 +35,7 @@
                                 <div class="card-text">
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Coupon Code</label>
-                                        <input type="text" name="code" class="form-control" value="" required />
+                                        <input type="text" name="code" class="form-control" oninput="this.value = this.value.toUpperCase()" required />
                                     </div>
                                     <div class="mb-3">
                                         <label for="coupon_type" class="form-label">Coupon Type</label>
