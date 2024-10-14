@@ -96,6 +96,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('store-trial-period', [ApiGeneralController::class, 'storeTrialPeriod'])->name('storeTrialPeriod');
 
     Route::resource('coupon', CouponController::class);
+    Route::get('get-coupon/{id}', [CouponController::class, 'getCoupon']);
 
     
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');

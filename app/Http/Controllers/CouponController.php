@@ -149,6 +149,27 @@ class CouponController extends Controller
         //
     }
 
+    public function getCoupon($couponId)
+    {
+        // Set the Stripe secret key
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        try {
+            // Retrieve the coupon
+            $coupon = Coupon::retrieve($couponId);
+
+            return response()->json([
+                'success' => true,
+                'coupon' => $coupon
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
     /**
      * Remove the specified resource from storage.
      */
