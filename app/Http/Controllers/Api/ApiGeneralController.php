@@ -1187,19 +1187,19 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $data = Coupon::where('code',$request->coupon_code)->where('status', 'enabled')->first();
+        $coupon = Coupon::where('code',$request->coupon_code)->where('status', 'enabled')->first();
 
-        if($data->expires_at >= now()->format('Y-m-d')) {
+        if($coupon && $coupon->isValid()) {
 
-            if($data->type == 'percentage'){
-                $discount_price = ($data->discount/100)*100;
+            if($coupon->type == 'percentage'){
+                $discount_price = ($coupon->discount/100)*48;
             }else{
-                $discount_price = $data->discount;
+                $discount_price = $coupon->discount;
             }
-            $result = [
+            $data = [
                 'discount_price' => $discount_price
             ];
-            return $this->success(['Apply coupon successfully.'],$result);
+            return $this->success(['Apply coupon successfully.'],$data);
         }else {
             return $this->error(['This coupon is expire']);
         }
