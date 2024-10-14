@@ -64,7 +64,7 @@ class StarCampController extends Controller
         }else{
             $perPage = $request->get('per_page', 15);
     
-            $combinedQuery = FollowerList::query()
+            $combinedQuery = FollowerList::query()->with('follower','following')
                 ->where(function ($query){
                     $query->where('user_id', auth()->id());
                 })
