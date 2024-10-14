@@ -71,7 +71,12 @@ class StarCampController extends Controller
                 ->orWhere(function ($query){
                     $query->where('follower_id', auth()->id());
                 });
-        
+                $combinedQuery->whereHas('follower', function ($q){
+                    $q->whereNull('deleted_at');
+                });
+                $combinedQuery->whereHas('following', function ($q){
+                    $q->whereNull('deleted_at');
+                });
             $combinedResults = $combinedQuery->latest()->get();
         
             $combinedData = $combinedResults->map(function($member) {
