@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Coupons;
+use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Stripe\Stripe;
@@ -11,6 +12,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class CouponController extends Controller
 {
+    use ApiResponseTrait;
     /**
      * Display a listing of the resource.
      */
@@ -47,15 +49,15 @@ class CouponController extends Controller
                     return $status;
                 })
                 ->addColumn('action', function ($row) {
-                    $ID  = Crypt::encrypt($row->id);
+                    $ID  = encrypt($row->id);
                     $btn = '<ul class="list-inline hstack gap-2 mb-0">
                                                     <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="View">
-                                                        <a href="coupon/' . $ID .'" class="text-primary d-inline-block edit-item-btn">
+                                                        <a href="coupon/' . $ID .'/edit" class="text-primary d-inline-block edit-item-btn">
                                                             <i class="ri-eye-fill fs-16"></i>
                                                         </a>
                                                     </li>
                                                     <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Remove">
-                                                        <a class="text-danger d-inline-block remove-item-btn" data-bs-toggle="modal" data-id="' . $ID . '" data-action="coupon/' . $row->id . '" href="#deleteCoupon">
+                                                        <a href="javascript:void(0)" class="text-danger d-inline-block remove-item-btn" onclick="deleteConfirmation(\'' . $ID . '\')">
                                                             <i class="ri-delete-bin-5-fill fs-16"></i>
                                                         </a>
                                                     </li>
@@ -82,14 +84,17 @@ class CouponController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
         $request->validate([
             'code'     => 'required|unique:coupons',
-            'expire' => 'required',
+            'expire'   => ['required', 'date', 'after_or_equal:today'],
             'discount' => 'required',
             'coupon_status' => 'required',
             'coupon_type' => 'required'
+        ], [
+            'expire.after_or_equal' => 'The expiration date must be today or a future date.',
+            'code.unique'           => 'Coupon code has already been taken.'
         ]);
+
         Stripe::setApiKey(config('services.stripe.secret'));
 
         try {
@@ -117,8 +122,7 @@ class CouponController extends Controller
                 'expires_at'  => $request->expire
             ]);
         }
-            // 'max_redemptions' => 10,
-            return redirect()->back()->with('success', 'Created successfully.');
+            return redirect()->route('coupon.index')->with('success', 'Created successfully.');
 
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
@@ -138,7 +142,9 @@ class CouponController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $data = Coupons::find(decrypt($id));
+
+        return view('admin.coupon.edit', compact('data'));
     }
 
     /**
@@ -146,7 +152,38 @@ class CouponController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'code'     => 'required|unique:coupons',
+            'expire'   => ['required', 'date', 'after_or_equal:today'],
+            'discount' => 'required',
+            'coupon_status' => 'required',
+            'coupon_type' => 'required'
+        ], [
+            'expire.after_or_equal' => 'The expiration date must be today or a future date.',
+            'code.unique'           => 'Coupon code has already been taken.'
+        ]);
+
+        dd($request->all());
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        $data = Coupons::where('id',decrypt($id))->first();
+
+         $coupon = Coupon::retrieve($data->code);
+         if($coupon){
+            if($request->coupon_type == 'percentage'){
+                $coupon_type  = 'percent_off';
+            }else{
+                $coupon_type  = 'amount_off'; 
+            }
+
+            $coupon->update([
+                'id'            => $request->code,
+                'duration'      => 'once',
+                'currency'       => 'GBP',
+                $coupon_type    => $request->discount,
+                'redeem_by'     => strtotime($request->expire)
+            ]);
+         }
     }
 
     public function getCoupon($couponId)
@@ -175,6 +212,18 @@ class CouponController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        $data = Coupons::where('id',decrypt($id))->first();
+       
+        if($data){
+            $coupon = Coupon::retrieve($data->code);
+            $coupon->delete();
+            $data->delete();
+            return $this->success('Coupon deleted successfully' ,'');
+        }else{
+            return $this->error('Something went wrong please try again.');
+        }
+       
     }
 }

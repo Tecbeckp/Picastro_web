@@ -30,45 +30,46 @@
                         </div><!-- end card header -->
 
                         <div class="card-body">
-                            <form method="POST" action="{{ route('coupon.store') }}">
+                            <form method="POST" action="{{ route('coupon.update', encrypt($data->id)) }}">
                                 @csrf
+                                @method('PUT')
                                 <div class="card-text">
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Coupon Code</label>
                                         <input type="text" name="code" class="form-control"
-                                        oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/\s/g, '')"  value="{{old('code')}}" required />
+                                        oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/\s/g, '')"  value="{{$data->code}}" required />
                                     </div>
                                     <div class="mb-3">
                                         <label for="coupon_type" class="form-label">Coupon Type</label>
                                         <select name="coupon_type" id="coupon_type" class="form-control"
                                             onchange="updatePlaceholder()" required>
                                             <option value="">Select Option</option>
-                                            <option value="percentage">Percentage</option>
-                                            <option value="fixed">Fixed</option>
+                                            <option value="percentage" @if($data->type == 'percentage') selected @endif>Percentage</option>
+                                            <option value="fixed" @if($data->type == 'fixed') selected @endif>Fixed</option>
 
                                         </select>
                                     </div>
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Discount</label>
                                         <input type="text" id="discount" name="discount" class="form-control"
-                                            oninput="this.value = this.value.replace(/[^0-9]/g, '');" value="{{old('discount')}}"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '');" value="{{$data->discount}}"
                                             placeholder="Enter discount" required />
                                     </div>
                                     <div class="mb-3">
                                         <label for="coupon_status" class="form-label">Status</label>
                                         <select name="coupon_status" id="coupon_status" class="form-control" required>
                                             <option value="">Select Option</option>
-                                            <option value="enabled">Enabled</option>
-                                            <option value="disabled">Disabled</option>
+                                            <option value="enabled" @if($data->status == 'enabled') selected @endif>Enabled</option>
+                                            <option value="disabled" @if($data->status == 'disabled') selected @endif>Disabled</option>
 
                                         </select>
                                     </div>
                                     <div class="mb-3">
                                         <label for="expire" class="form-label">Expire</label>
-                                        <input type="date" name="expire" class="form-control" value="{{old('expire')}}" required />
+                                        <input type="date" name="expire" class="form-control" value="{{ date('Y-m-d', strtotime($data->expires_at)) }}" required />
                                     </div>
                                 </div>
-                                <button class="btn btn-outline-primary mt-3" type="submit">Create</button>
+                                <button class="btn btn-outline-primary mt-3" type="submit">Update</button>
                             </form>
                         </div><!-- end card-body -->
                     </div><!-- end card -->
