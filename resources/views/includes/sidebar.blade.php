@@ -133,7 +133,7 @@
                 </li>  --}}
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{route('coupon.index')}}">
-                        <i class="ri-user-fill"></i> <span data-key="t-users">Coupon List</span>
+                        <i class="ri-file-list-3-line"></i> <span data-key="t-users">Coupon List</span>
                     </a>
                 </li> 
                 <li class="nav-item">
