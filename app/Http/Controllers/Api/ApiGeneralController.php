@@ -548,13 +548,18 @@ class ApiGeneralController extends Controller
         $contact->message  = $request->message;
         $contact->save();
         
-        $details = [
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'message'  => $request->message
-        ];
+        // $details = [
+        //     'name'     => $request->name,
+        //     'email'    => $request->email,
+        //     'message'  => $request->message
+        // ];
 
-        Mail::to('support@picastroapp.com')->send(new ContactUsMail($details));
+        Http::post('https://picastro.co.uk/contact-us-mail', [
+            'name' => $request->username,
+            'email' => $request->email,
+            'message' => $request->message
+        ]);
+
 
         return $this->success(['Sent successfully!'], []);
     }
