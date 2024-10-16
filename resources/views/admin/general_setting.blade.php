@@ -75,11 +75,13 @@
                                         </ol>
                                     </div>
 
-                                    <div class="col-lg-6">
+                                    <div class="col-lg-6 mt-3">
                                         <h4 class="card-title mb-4">Maintenance</h4>
                                         <ol class="breadcrumb m-0">
                                             <li class="breadcrumb-item">
                                                 <div class="form-check form-switch form-switch-right form-switch-md">
+                                                    <label for="android_screenshot"
+                                                    class="form-label text-muted">On/Off</label>
                                                     <input class="form-check-input screenshot"
                                                         @if ($data['app_under_maintenance']->maintenance == '1') checked @endif type="checkbox"
                                                         id="maintenance">
