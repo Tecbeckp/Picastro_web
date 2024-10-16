@@ -53,7 +53,7 @@ class CouponController extends Controller
                     $btn = '<ul class="list-inline hstack gap-2 mb-0">
                                                     <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="View">
                                                         <a href="coupon/' . $ID .'/edit" class="text-primary d-inline-block edit-item-btn">
-                                                            <i class="ri-eye-fill fs-16"></i>
+                                                            <i class="ri-edit-fill fs-16"></i>
                                                         </a>
                                                     </li>
                                                     <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Remove">
@@ -163,7 +163,6 @@ class CouponController extends Controller
             'code.unique'           => 'Coupon code has already been taken.'
         ]);
 
-        dd($request->all());
         Stripe::setApiKey(config('services.stripe.secret'));
 
         $data = Coupons::where('id',decrypt($id))->first();
