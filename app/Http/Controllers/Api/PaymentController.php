@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Traits\ApiResponseTrait;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 use App\Helpers\WebPaymentHelper;
+use App\Models\Coupons;
 use App\Models\PaypalSubscription;
 
 class PaymentController extends Controller
@@ -99,13 +100,22 @@ class PaymentController extends Controller
         $user = User::where('id', $request->user_id)->first();
         // $pll = ''; prod_QjWAuSh9HNzXEc
         // $pll = 'price_1Ps38NICvNFT82L6uSUKhcI4';
+        $coupon = Coupons::where('code', $request->coupon_code)->where('status', 'enabled')->first();
         if ($user) {
-            return $user->newSubscription('prod_QpsdEeUzwiQZeL', 'price_1PyCs1ICvNFT82L6mq4xFwRk')
-                ->withCoupon($request->coupon_code)
-                ->checkout([
-                    'success_url' => url('subscribed/' . $user->id),
-                    'cancel_url' => url('subscription-cancel/' . $user->id)
-                ]);
+            if ($coupon) {
+                if ($coupon->expires_at >= now()->format('Y-m-d')) {
+                    return $user->newSubscription('prod_QpsdEeUzwiQZeL', 'price_1PyCs1ICvNFT82L6mq4xFwRk')
+                        ->withCoupon($request->coupon_code)
+                        ->checkout([
+                            'success_url' => url('subscribed/' . $user->id),
+                            'cancel_url' => url('subscription-cancel/' . $user->id)
+                        ]);
+                } else {
+                    return $this->error(['This coupon is expire']);
+                }
+            } else {
+                return $this->error(['Invalid coupon code.']);
+            }
         } else {
             return $this->error(['User Not Found.']);
         }

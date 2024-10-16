@@ -547,7 +547,7 @@ class ApiGeneralController extends Controller
         $contact->email    = $request->email;
         $contact->message  = $request->message;
         $contact->save();
-        
+
         // $details = [
         //     'name'     => $request->name,
         //     'email'    => $request->email,
@@ -653,30 +653,30 @@ class ApiGeneralController extends Controller
     {
 
         $notifications = Notification::where('user_id', auth()->id())
-        ->where('is_read', '0')
-        ->latest()
-        ->get();
-    
-    $groupedNotifications = $notifications->groupBy(function ($item) {
-        // Specify types to group explicitly, or else group them as "Others"
-        $knownTypes = ['New Followers', 'Trophies', 'Stars','Leading Light Rewards', 'Comments', 'Image of the month']; // Adjust these as needed
-        return in_array($item->type, $knownTypes) ? $item->type  :  'Others';
-    })->map(function ($items) {
-        return $items->map(function ($item) {
-            return [
-                'id'                => $item->id,
-                'title'             => $item->type,
-                'description'       => $item->notification,
-                'follower_id'       => $item->follower_id,
-                'post_image_id'     => $item->post_image_id,
-                'trophy_id'         => $item->trophy_id,
-                'comment_id'        => $item->comment_id,
-                'reply_comment_id'  => $item->reply_comment_id,
-                'bulk_notification'  => $item->bulk_notification,
-            ];
+            ->where('is_read', '0')
+            ->latest()
+            ->get();
+
+        $groupedNotifications = $notifications->groupBy(function ($item) {
+            // Specify types to group explicitly, or else group them as "Others"
+            $knownTypes = ['New Followers', 'Trophies', 'Stars', 'Leading Light Rewards', 'Comments', 'Image of the month']; // Adjust these as needed
+            return in_array($item->type, $knownTypes) ? $item->type  :  'Others';
+        })->map(function ($items) {
+            return $items->map(function ($item) {
+                return [
+                    'id'                => $item->id,
+                    'title'             => $item->type,
+                    'description'       => $item->notification,
+                    'follower_id'       => $item->follower_id,
+                    'post_image_id'     => $item->post_image_id,
+                    'trophy_id'         => $item->trophy_id,
+                    'comment_id'        => $item->comment_id,
+                    'reply_comment_id'  => $item->reply_comment_id,
+                    'bulk_notification'  => $item->bulk_notification,
+                ];
+            });
         });
-    });
-    
+
 
         $responseData = $groupedNotifications->isEmpty() ? null : $groupedNotifications;
         $responseData['total_unread_notifications'] = $notifications->count();
@@ -927,7 +927,7 @@ class ApiGeneralController extends Controller
                         $user->fcm_token,
                         json_encode($getnotification)
                     );
-                   
+
                     $success_user[] = $user->id;
                 } else {
                     $faild_user[] = $user->id;
@@ -1048,14 +1048,14 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followers = FollowerList::with('follower.userprofile','follower.Following')->where('user_id', auth()->id());
+        $followers = FollowerList::with('follower.userprofile', 'follower.Following')->where('user_id', auth()->id());
         if ($request->search) {
             $search = $request->search;
             $followers->whereHas('follower', function ($q) use ($search) {
-                $q->whereAny(['first_name','last_name','username'], 'LIKE', '%' . $search . '%');
+                $q->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $search . '%');
             });
         }
-        $followers->whereHas('follower', function ($q){
+        $followers->whereHas('follower', function ($q) {
             $q->whereNull('deleted_at');
         });
 
@@ -1082,23 +1082,24 @@ class ApiGeneralController extends Controller
         if ($request->search) {
             $search = $request->search;
             $followings->whereHas('following', function ($q) use ($search) {
-                $q->whereAny(['first_name','last_name','username'], 'LIKE', '%' . $search . '%');
+                $q->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $search . '%');
             });
         }
-        $followings->whereHas('following', function ($q){
+        $followings->whereHas('following', function ($q) {
             $q->whereNull('deleted_at');
         });
         $followings = $followings->paginate(100);
 
         $followings->getCollection()->transform(function ($following) {
-           $data = $following->following;
-           $data->unfollow = false;
+            $data = $following->following;
+            $data->unfollow = false;
             return $data;
         });
         return $this->success(['Get Following list Successfully'], $followings);
     }
 
-    public function getGivenStarUser(Request $request){
+    public function getGivenStarUser(Request $request)
+    {
         $rules = [
             'user_id'  => 'required|numeric|exists:users,id',
             'post_id'  => 'required|numeric|exists:post_images,id',
@@ -1108,23 +1109,23 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $data = GiveStar::with('GivenUser.userprofile')->where('post_image_id',$request->post_id)->where('post_user_id', $request->user_id);
+        $data = GiveStar::with('GivenUser.userprofile')->where('post_image_id', $request->post_id)->where('post_user_id', $request->user_id);
         if ($request->search) {
             $search = $request->search;
             $data->whereHas('GivenUser', function ($q) use ($search) {
-                $q->whereAny(['first_name','last_name','username'], 'LIKE', '%' . $search . '%');
+                $q->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $search . '%');
             });
         }
-       $data = $data->paginate(100);
+        $data = $data->paginate(100);
 
-       $data->getCollection()->transform(function ($result) {
-         return $result->GivenUser;
-     });
-     return $this->success(['Get star given list Successfully'], $data);
-
+        $data->getCollection()->transform(function ($result) {
+            return $result->GivenUser;
+        });
+        return $this->success(['Get star given list Successfully'], $data);
     }
 
-    public function AllOverSearch(Request $request){
+    public function AllOverSearch(Request $request)
+    {
 
         $rules = [
             'type'  => 'required|numeric',
@@ -1135,59 +1136,59 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        if($request->type == '1'){
-            $users = User::with('userprofile')->whereAny(['first_name','last_name','username'], 'LIKE', '%' .$request->search. '%')->withCount('TotalStar')->latest()->paginate(100);
-        return $this->success([], $users);
-        }else{
-            $posts = PostImage::with('user','StarCard.StarCardFilter','ObjectType','Bortle','ObserverLocation','ApproxLunarPhase','Telescope','giveStar','totalStar','Follow','votedTrophy')->whereAny(['post_image_title','description'], 'LIKE', '%'.$request->search . '%')->latest()->paginate(100);
-        $trophies = Trophy::select('id','name','icon')->get();
-        $posts->getCollection()->transform(function ($post) use($trophies) {
-            return [
-                'id'                 => $post->id,
-                'user_id'            => $post->user_id,
-                'post_image_title'   => $post->post_image_title,
-                'image'              => $post->image,
-                'original_image'     => $post->original_image,
-                'description'        => $post->description,
-                'video_length'       => $post->video_length,
-                'number_of_frame'    => $post->number_of_frame,
-                'number_of_video'    => $post->number_of_video,
-                'exposure_time'      => $post->exposure_time,
-                'total_hours'        => $post->total_hours,
-                'additional_minutes' => $post->additional_minutes,
-                'catalogue_number'   => $post->catalogue_number,
-                'object_name'        => $post->object_name,
-                'ir_pass'            => $post->ir_pass,
-                'planet_name'        => $post->planet_name,
-                'location'           => $post->location,
-                'ObjectType'         => $post->ObjectType,
-                'Bortle'             => $post->Bortle,
-                'ObserverLocation'   => $post->ObserverLocation,
-                'ApproxLunarPhase'   => $post->ApproxLunarPhase,
-                'Telescope'          => $post->Telescope,
-                'only_image_and_description' => $post->only_image_and_description,
-                'giveStar'           => $post->giveStar ? true : false,
-                'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
-                'Follow'             => $post->Follow ? true : false,
-                'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
-                'trophy'             => $trophies,
-                'star_card'           => $post->StarCard,
-                'user'               => [
-                    'id'             => $post->user->id,
-                    'first_name'     => $post->user->first_name,
-                    'last_name'      => $post->user->last_name,
-                    'username'       => $post->user->username,
-                    'profile_image'  => $post->user->userprofile->profile_image,
-                    'fcm_token'      => $post->user->fcm_token,
-                ]
-            ];
-        });
-        return $this->success([], $posts);
+        if ($request->type == '1') {
+            $users = User::with('userprofile')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->latest()->paginate(100);
+            return $this->success([], $users);
+        } else {
+            $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->whereAny(['post_image_title', 'description'], 'LIKE', '%' . $request->search . '%')->latest()->paginate(100);
+            $trophies = Trophy::select('id', 'name', 'icon')->get();
+            $posts->getCollection()->transform(function ($post) use ($trophies) {
+                return [
+                    'id'                 => $post->id,
+                    'user_id'            => $post->user_id,
+                    'post_image_title'   => $post->post_image_title,
+                    'image'              => $post->image,
+                    'original_image'     => $post->original_image,
+                    'description'        => $post->description,
+                    'video_length'       => $post->video_length,
+                    'number_of_frame'    => $post->number_of_frame,
+                    'number_of_video'    => $post->number_of_video,
+                    'exposure_time'      => $post->exposure_time,
+                    'total_hours'        => $post->total_hours,
+                    'additional_minutes' => $post->additional_minutes,
+                    'catalogue_number'   => $post->catalogue_number,
+                    'object_name'        => $post->object_name,
+                    'ir_pass'            => $post->ir_pass,
+                    'planet_name'        => $post->planet_name,
+                    'location'           => $post->location,
+                    'ObjectType'         => $post->ObjectType,
+                    'Bortle'             => $post->Bortle,
+                    'ObserverLocation'   => $post->ObserverLocation,
+                    'ApproxLunarPhase'   => $post->ApproxLunarPhase,
+                    'Telescope'          => $post->Telescope,
+                    'only_image_and_description' => $post->only_image_and_description,
+                    'giveStar'           => $post->giveStar ? true : false,
+                    'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
+                    'Follow'             => $post->Follow ? true : false,
+                    'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                    'trophy'             => $trophies,
+                    'star_card'           => $post->StarCard,
+                    'user'               => [
+                        'id'             => $post->user->id,
+                        'first_name'     => $post->user->first_name,
+                        'last_name'      => $post->user->last_name,
+                        'username'       => $post->user->username,
+                        'profile_image'  => $post->user->userprofile->profile_image,
+                        'fcm_token'      => $post->user->fcm_token,
+                    ]
+                ];
+            });
+            return $this->success([], $posts);
         }
-
     }
 
-    public function applyCoupon(Request $request){
+    public function applyCoupon(Request $request)
+    {
         $rules = [
             'coupon_code'  => 'required'
         ];
@@ -1196,22 +1197,25 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $coupon = Coupons::where('code',$request->coupon_code)->where('status', 'enabled')->first();
+        $coupon = Coupons::where('code', $request->coupon_code)->where('status', 'enabled')->first();
 
-        if($coupon && $coupon->expires_at >= now()->format('Y-m-d')) {
-
-            if($coupon->type == 'percentage'){
-                $discount_price = ($coupon->discount/100)*48;
-            }else{
-                $discount_price = $coupon->discount;
+        if ($coupon) {
+            if ($coupon->expires_at >= now()->format('Y-m-d')) {
+                if ($coupon->type == 'percentage') {
+                    $discount_price = ($coupon->discount / 100) * 48;
+                } else {
+                    $discount_price = $coupon->discount;
+                }
+                $data = [
+                    'discount_price' => number_format($discount_price, 2),
+                    'updated_price' => number_format('48' - $discount_price, 2)
+                ];
+                return $this->success(['Apply coupon successfully.'], $data);
+            } else {
+                return $this->error(['This coupon is expire']);
             }
-            $data = [
-                'discount_price' => number_format($discount_price,2),
-                'updated_price' => number_format('48' - $discount_price,2)
-            ];
-            return $this->success(['Apply coupon successfully.'],$data);
-        }else {
-            return $this->error(['This coupon is expire']);
+        } else {
+            return $this->error(['Invalid coupon code.']);
         }
     }
 }
