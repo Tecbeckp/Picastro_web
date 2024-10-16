@@ -36,7 +36,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Yajra\DataTables\Facades\DataTables;
 use App\Helpers\PusherHelper;
-use App\Mail\ContactUsMail;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Mail;
 
 class ApiGeneralController extends Controller
@@ -594,7 +594,7 @@ class ApiGeneralController extends Controller
         $data['ios_screenshot'] = IsRegistration::first()->ios_screenshot;
         $data['android_screenshot'] = IsRegistration::first()->android_screenshot;
         $data['trial_period'] = TrialPeriod::first();
-        $data['app_under_maintenance'] = false;
+        $data['app_under_maintenance'] = Setting::where('id', '1')->first()->maintenance;
         return $this->success([], $data);
     }
 
@@ -1217,5 +1217,24 @@ class ApiGeneralController extends Controller
         } else {
             return $this->error(['Invalid coupon code.']);
         }
+    }
+
+    public function generalSetting(){
+        $data = []; 
+        $data['is_registration'] = IsRegistration::where('id', '1')->first();
+        $data['app_under_maintenance'] = Setting::where('id', '1')->first();
+        return view('admin.general_setting', compact('data'));
+    }
+
+    public function maintenance(Request $request){
+        if ($request->status == 'true') {
+            $status = '1';
+        } else {
+            $status = '0';
+        }
+            Setting::where('id', '1')->update([
+                'maintenance' => $status
+            ]);
+        return $this->success(['Successfully'], $status);
     }
 }

@@ -94,6 +94,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('send-bulk-notification', [ApiGeneralController::class, 'sendBulkNotification'])->name('sendBulkNotification');
     Route::get('trial-period', [ApiGeneralController::class, 'trialPeriod'])->name('trial-period');
     Route::post('store-trial-period', [ApiGeneralController::class, 'storeTrialPeriod'])->name('storeTrialPeriod');
+    Route::get('general-setting', [ApiGeneralController::class, 'generalSetting'])->name('generalSetting');
+    Route::post('maintenance', [ApiGeneralController::class, 'maintenance'])->name('maintenance');
 
     Route::resource('coupon', CouponController::class);
     Route::get('get-coupon/{id}', [CouponController::class, 'getCoupon']);

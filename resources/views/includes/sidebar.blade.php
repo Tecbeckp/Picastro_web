@@ -126,11 +126,11 @@
                         </ul>
                     </div>
                 </li>
-                {{-- <li class="nav-item">
-                    <a class="nav-link menu-link" href="{{route('coupon.index')}}">
-                        <i class="ri-user-fill"></i> <span data-key="t-users">General Setting</span>
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="{{route('generalSetting')}}">
+                        <i class="ri-file-list-3-line"></i> <span data-key="t-users">General Settings</span>
                     </a>
-                </li>  --}}
+                </li> 
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{route('coupon.index')}}">
                         <i class="ri-file-list-3-line"></i> <span data-key="t-users">Coupon List</span>
