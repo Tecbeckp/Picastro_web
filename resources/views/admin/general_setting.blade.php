@@ -75,8 +75,8 @@
                                         </ol>
                                     </div>
 
-                                    <div class="col-lg-6 mt-3">
-                                        <h4 class="card-title mb-4">Maintenance</h4>
+                                    <div class="col-lg-6 mt-5">
+                                        <h4 class="card-title mb-2">Maintenance</h4>
                                         <ol class="breadcrumb m-0">
                                             <li class="breadcrumb-item">
                                                 <div class="form-check form-switch form-switch-right form-switch-md">
