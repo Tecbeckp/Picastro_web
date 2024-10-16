@@ -166,7 +166,7 @@ class CouponController extends Controller
         Stripe::setApiKey(config('services.stripe.secret'));
 
         $data = Coupons::where('id',decrypt($id))->first();
-
+        dd('yes');
          $coupon = Coupon::retrieve($data->code);
          if($coupon){
             if($request->coupon_type == 'percentage'){
@@ -183,6 +183,7 @@ class CouponController extends Controller
                 'redeem_by'     => strtotime($request->expire)
             ]);
          }
+         return 
     }
 
     public function getCoupon($couponId)
