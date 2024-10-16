@@ -12,10 +12,10 @@ class Setting extends Model
 
     protected $guarded = [];
 
-    public function getMaintenanceAttribute(){
-        if($this->maintenance == '1'){
+    public function getMaintenanceAttribute($value){
+        if($value == '1'){
             $name = true;
-        }elseif($this->maintenance == '0'){
+        }elseif($value == '0'){
             $name = false;
         }else{
             $name = false;
