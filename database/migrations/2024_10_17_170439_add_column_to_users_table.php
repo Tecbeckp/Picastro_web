@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('gift_subscription',['0','1'])->default('0');
+            $table->unsignedBigInteger('gift_subscription')->nullable();
+            $table->foreign('gift_subscription')->references('id')->on('users')->onDelete('cascade');
+
             $table->enum('is_registration', ['0','1'])->default('1');
         });
     }
