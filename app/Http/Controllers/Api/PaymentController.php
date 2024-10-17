@@ -44,7 +44,11 @@ class PaymentController extends Controller
     public function create(Request $request, string $plan_id = 'P-1075760685626815NM3RO7BI')
     {
         // P-44X84743BV816410HM3GGGUQ
-        $id = $request->user_id;
+        if($request->gifted_plan_user_id){
+            $id = $request->gifted_plan_user_id;
+        }else{
+            $id = $request->user_id;
+        }
         $this->paymentHelper->subscribeToPlan($plan_id, $id);
         $subscriptionResponse =   $this->paymentHelper->getSubscriptionResponse();
         // Get the approval link

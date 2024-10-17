@@ -1138,7 +1138,7 @@ class ApiGeneralController extends Controller
         }
 
         if ($request->type == '1') {
-            $users = User::with('userprofile')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->latest()->paginate(100);
+            $users = User::with('userprofile')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->latest()->paginate(100);
             return $this->success([], $users);
         } else {
             $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->whereAny(['post_image_title', 'description'], 'LIKE', '%' . $request->search . '%')->latest()->paginate(100);
@@ -1251,9 +1251,9 @@ class ApiGeneralController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if($user && $user->is_registration == '0' && $user->subscription == '1'){
-            return $this->error(['This user already has a gifted subscription.']);
+            return $this->error(['This user already has a gifted plan.']);
         }elseif($user && $user->subscription == '1'){
-            return $this->error(['This user already has an active subscription.']);
+            return $this->error(['This user already has an active plan.']);
         }elseif($user && $user->subscription == '0' && ($user->is_registration == '1'  ||$user->is_registration == '0' )){
             return $this->success(['successfully.'], $user);
         }else{

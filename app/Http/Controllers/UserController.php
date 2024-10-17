@@ -29,7 +29,7 @@ class UserController extends Controller
         $date   = $request->date;
         $status = $request->status;
         $subscription = $request->subscription;
-        $users = User::query()->with(['userprofile'])->whereNotIn('id',['1']);
+        $users = User::query()->with(['userprofile'])->whereNotIn('id',['1'])->where('is_registration', '1');
         if($search){
             $users->whereAny(['first_name', 'last_name', 'username','email'], 'LIKE', '%'.$search.'%');
         }
