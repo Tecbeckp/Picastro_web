@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->unsignedBigInteger('gift_subscription')->nullable();
             $table->foreign('gift_subscription')->references('id')->on('users')->onDelete('cascade');
-
             $table->enum('is_registration', ['0','1'])->default('1');
         });
     }
