@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string('type')->nullable();
-            $table->string('notification')->nullable();
+            $table->longText('notification')->nullable();
             $table->integer('follower_id')->nullable();
             $table->integer('post_image_id')->nullable();
             $table->integer('trophy_id')->nullable();
