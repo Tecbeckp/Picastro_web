@@ -50,9 +50,10 @@ class CouponController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     $ID  = encrypt($row->id);
+                    // coupon/' . $ID .'/edit
                     $btn = '<ul class="list-inline hstack gap-2 mb-0">
                                                     <li class="list-inline-item edit" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="View">
-                                                        <a href="coupon/' . $ID .'/edit" class="text-primary d-inline-block edit-item-btn">
+                                                        <a href="" class="text-primary d-inline-block edit-item-btn">
                                                             <i class="ri-edit-fill fs-16"></i>
                                                         </a>
                                                     </li>
