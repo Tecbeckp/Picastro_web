@@ -44,7 +44,7 @@ class HomeController extends Controller
         $data['total_post']  = PostImage::count();
         $data['total_starcamp']  = StarCamp::count();
         $data['total_report']  = Report::count();
-        $data['users'] = User::with('userProfile')->latest()->limit('10')->get();
+        $data['users'] = User::with('userProfile')->latest()->limit('10')->where('is_registration', '1')->get();
         $paypal_subscription = PaypalSubscription::count();
         $stripe_subscription = DB::select('SELECT COUNT(*) as total FROM subscriptions')[0]->total;
         $paypal_cancel_subscription = PaypalSubscription::where('status', 'Cancel')->count();
