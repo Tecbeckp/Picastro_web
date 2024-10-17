@@ -60,7 +60,11 @@ class UserController extends Controller
                return $row->first_name . ' ' . $row->last_name;
             })
             ->addColumn('image', function ($row) {
-                return '<img src="'.$row->userProfile->profile_image.'" alt="" class="avatar-xs rounded-3 me-2 material-shadow" style="border-radius: 50% !important;object-fit: cover;object-position: top;">';
+                if($row->userProfile){
+                    return '<img src="'.$row->userProfile->profile_image.'" alt="" class="avatar-xs rounded-3 me-2 material-shadow" style="border-radius: 50% !important;object-fit: cover;object-position: top;">';
+                }else{
+                    return 'N/A';
+                }
              })
             ->addColumn('username', function ($row) {
                  return $row->username ?? 'N/A';
