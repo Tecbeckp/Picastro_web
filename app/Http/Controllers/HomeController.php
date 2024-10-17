@@ -40,7 +40,7 @@ class HomeController extends Controller
     public function index()
     {
         $data = [];
-        $data['total_users'] = User::whereNotIn('id', ['1'])->count();
+        $data['total_users'] = User::whereNotIn('id', ['1'])->where('is_registration', '1')->count();
         $data['total_post']  = PostImage::count();
         $data['total_starcamp']  = StarCamp::count();
         $data['total_report']  = Report::count();
