@@ -49,7 +49,7 @@
                                                 </tr>
                                                 <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                                     <td class="content-block" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 24px; vertical-align: top; margin: 0; padding: 0 0 10px;  text-align: center;" valign="top">
-                                                        <h4 style="font-family: 'Roboto', sans-serif; margin-bottom: 0px;font-weight: 500; line-height: 1.5;">Good news! Someone special just made your day a whole lot better. 🎉</h5>
+                                                        <h4 style="font-family: 'Roboto', sans-serif; margin-bottom: 0px;font-weight: 500; line-height: 1.5;color: #dcdbdb;">Good news! Someone special just made your day a whole lot better. 🎉</h5>
                                                     </td>
                                                 </tr>
                                                 
@@ -63,11 +63,15 @@
                                                         <p style="margin-bottom: 13px; line-height: 1.5;">Good news! Someone special just made your day a whole lot better. 🎉</p>
                                                     </td>
                                                 </tr>
-                                                
+                                                <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+                                                    <td class="content-block" style="font-family: 'Roboto', sans-serif; color: #878a99; box-sizing: border-box; font-size: 15px; vertical-align: top; margin: 0; padding: 0 0 12px; text-align: center;" valign="top">
+                                                        <p style="margin-bottom: 13px; line-height: 1.5;">Register Now, Download App From</p>
+                                                    </td>
+                                                </tr>
                                                 <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                                     <td class="content-block" itemprop="handler" itemscope itemtype="http://schema.org/HttpActionHandler" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 22px; text-align: center;" valign="top">
-                                                        <a href="https://play.google.com/store/search?q=picastro&c=apps&hl=en" itemprop="url" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: .8125rem; color: #000; text-decoration: none; font-weight: 400; text-align: center; cursor: pointer; display: inline-block; border-radius: .25rem; text-transform: capitalize; background-color: #FFC700; margin: 0; border-color: #FFC700; border-style: solid; border-width: 1px; padding: .5rem .9rem;">Register Now on play store</a>
-                                                        <a href="https://apps.apple.com/pk/app/picastro/id6446713728" itemprop="url" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: .8125rem; color: #000; text-decoration: none; font-weight: 400; text-align: center; cursor: pointer; display: inline-block; border-radius: .25rem; text-transform: capitalize; background-color: #FFC700; margin: 0; border-color: #FFC700; border-style: solid; border-width: 1px; padding: .5rem .9rem;">Register Now on app store</a>
+                                                        <a href="https://play.google.com/store/search?q=picastro&c=apps&hl=en" itemprop="url" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: .8125rem; color: #000; text-decoration: none; font-weight: 400; text-align: center; cursor: pointer; display: inline-block; border-radius: .25rem; text-transform: capitalize; background-color: #FFC700; margin: 0; border-color: #FFC700; border-style: solid; border-width: 1px; padding: .5rem .9rem;">play store</a>
+                                                        <a href="https://apps.apple.com/pk/app/picastro/id6446713728" itemprop="url" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: .8125rem; color: #000; text-decoration: none; font-weight: 400; text-align: center; cursor: pointer; display: inline-block; border-radius: .25rem; text-transform: capitalize; background-color: #FFC700; margin: 0; border-color: #FFC700; border-style: solid; border-width: 1px; padding: .5rem .9rem;">app store</a>
                                                     </td>
                                                 </tr>
 
