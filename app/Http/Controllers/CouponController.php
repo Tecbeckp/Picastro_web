@@ -183,7 +183,6 @@ class CouponController extends Controller
                 'redeem_by'     => strtotime($request->expire)
             ]);
          }
-         return 
     }
 
     public function getCoupon($couponId)
