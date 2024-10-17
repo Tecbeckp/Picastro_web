@@ -8,8 +8,10 @@ use App\Models\User;
 use App\Traits\ApiResponseTrait;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 use App\Helpers\WebPaymentHelper;
+use App\Mail\giftMail;
 use App\Models\Coupons;
 use App\Models\PaypalSubscription;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
@@ -82,6 +84,7 @@ class PaymentController extends Controller
         PaypalSubscription::where('user_id', $id)->where('subscription_id', $request->subscription_id)->update([
             'status' => 'Approved'
         ]);
+        Mail::to($user->email)->send(new giftMail());
         return $this->success(['successfully subscribed'], []);
     }
 
@@ -148,6 +151,8 @@ class PaymentController extends Controller
                 'trial_period_status' => '0'
             ]);
         }
+        Mail::to($user->email)->send(new giftMail());
+
         return $this->success(['successfully subscribed'], []);
     }
 
