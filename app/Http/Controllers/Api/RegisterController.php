@@ -51,7 +51,7 @@ class RegisterController extends Controller
         if ($new_user && $new_user->is_registration == '1') {
             return $this->error(['Email has already been taken.']);
         } elseif ($new_user && $new_user->is_registration == '0') {
-            $user = User::where('email', $request->email)->update([
+             User::where('email', $request->email)->update([
                 'first_name'      => $request->first_name,
                 'last_name'       => $request->last_name,
                 'email'           => $request->email,
@@ -60,6 +60,7 @@ class RegisterController extends Controller
                 'platform_type'   => $request->platform_type,
                 'is_registration' => '1'
             ]);
+           $user = User::where('email', $request->email)->first();
         } else {
             $user = User::create([
                 'first_name'      => $request->first_name,
