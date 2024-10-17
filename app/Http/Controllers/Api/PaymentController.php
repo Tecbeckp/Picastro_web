@@ -96,8 +96,12 @@ class PaymentController extends Controller
 
     public function storeSubscription(Request $request, $plan = 'price_1PyCs1ICvNFT82L6mq4xFwRk')
     {
-
-        $user = User::where('id', $request->user_id)->first();
+        if($request->gifted_plan_user_id){
+            $user_id = $request->gifted_plan_user_id;
+        }else{
+            $user_id = $request->user_id;
+        }
+        $user = User::where('id', $user_id)->first();
         // $pll = ''; prod_QjWAuSh9HNzXEc
         // $pll = 'price_1Ps38NICvNFT82L6uSUKhcI4';
         $coupon = Coupons::where('code', $request->coupon_code)->where('status', 'enabled')->first();
