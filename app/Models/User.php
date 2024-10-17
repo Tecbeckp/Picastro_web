@@ -26,7 +26,9 @@ class User extends Authenticatable
         'status',
         'password',
         'platform_type',
-        'fcm_token'
+        'fcm_token',
+        'is_registration',
+        'gift_subscription'
     ];
 
     /**
