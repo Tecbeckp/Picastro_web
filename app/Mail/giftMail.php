@@ -27,7 +27,7 @@ class giftMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Gift Subscription',
+            subject: "Surprise! You've Been Gifted a Subscription!",
         );
     }
 

@@ -21,7 +21,6 @@
     <div class="container-fluid">
         <!-- Forgot Password Email -->
         <div class="row">
-
             <div class="col-12 mt-3">
                 <table class="body-wrap" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; width: 100%; background-color: transparent; margin: 0;">
                     <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
@@ -34,14 +33,10 @@
                                         <td class="content-wrap" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; color: #495057; font-size: 14px; vertical-align: top; margin: 0;padding: 30px; box-shadow: 0 3px 15px rgba(30,32,37,.06); ;border-radius: 7px; background-color: #000;" valign="top">
                                             <meta itemprop="name" content="Confirm Email" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;" />
                                             <table width="100%" cellpadding="0" cellspacing="0" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
-                                                <tr
-                                                    style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
-                                                    <td class="content-block"
-                                                        style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;"
-                                                        valign="top">
+                                                <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
+                                                    <td class="content-block" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;" valign="top">
                                                         <div style="text-align: center;margin-bottom: 15px;">
-                                                            <img src="https://picastro.co.uk/public/assets/images/PicastroLogo.png" alt=""
-                                                                height="64">
+                                                            <img src="https://picastro.co.uk/public/assets/images/PicastroLogo.png" alt="" height="64">
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -81,7 +76,7 @@
                                                         <h5 style="font-family: 'Roboto', sans-serif; margin-bottom: 5px;font-weight: 500; line-height: 1.5;font-size: 15px;">How to Get Started:</h5>
                                                         <ul style="margin-bottom: 0px;gap: 0.5rem; flex: 1 1 auto;display: flex;flex-direction: column;align-self: stretch;">
                                                             <li>
-                                                                <b>Log in:</b>login with your email to access your new subscription.
+                                                                <b>Log in:</b>Login with your email to access your new subscription.
                                                             </li>
                                                             <li>
                                                                 <b>Explore:</b> Dive into Premium Subscription and discover all the amazing things waiting for you.
@@ -100,8 +95,8 @@
                                 <div style="text-align: center; margin: 28px auto 0px auto;">
                                     <h4>Need Help ?</h4>
                                     <p style="color: #878a99;">Please send feedback or bug info to <a href="mailto:support@picastroapp.com"
-                                            style="font-weight: 500px;">support@picastroapp.com</a></p>
-
+                                        style="font-weight: 500px;">support@picastroapp.com</a></p>
+                                    
                                 </div>
                             </div>
                         </td>
