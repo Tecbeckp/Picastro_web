@@ -74,7 +74,7 @@
                                                 <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                                     <td class="content-block" style="color: #878a99; font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0; padding-top: 5px" valign="top">
                                                         <h5 style="font-family: 'Roboto', sans-serif; margin-bottom: 5px;font-weight: 500; line-height: 1.5;font-size: 15px;">How to Get Started:</h5>
-                                                        <ul style="margin-bottom: 0px;gap: 0.5rem; flex: 1 1 auto;display: flex;flex-direction: column;align-self: stretch;">
+                                                        <ul style="margin-bottom: 0px;gap: 0.5rem;flex-direction: column;align-self: stretch;">
                                                             <li>
                                                                 <b>Log in:</b>Login with your email to access your new subscription.
                                                             </li>
