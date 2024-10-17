@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\ContactUsMail;
 use App\Mail\ForgotPasswordMail;
+use App\Mail\giftMail;
 use App\Models\AppVersion;
 use App\Models\ContactUs;
 use App\Models\Content;
@@ -330,6 +331,13 @@ class HomeController extends Controller
         ];
 
         Mail::to($details['email'])->send(new ForgotPasswordMail($details));
+
+        return response()->json(['message' => 'Email sent successfully.'], 200);
+    }
+    public function giftEmail(Request $request)
+    {
+
+        Mail::to('danyalhassan651@gmail.com')->send(new giftMail());
 
         return response()->json(['message' => 'Email sent successfully.'], 200);
     }

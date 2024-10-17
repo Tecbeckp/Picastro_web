@@ -38,6 +38,7 @@ Route::get('/email', function () {
 
 Route::post('/send-email', [HomeController::class, 'sendEmail'])->name('sendEmail');
 Route::post('/contact-us-mail', [HomeController::class, 'contactUsMail'])->name('contactUsMail');
+Route::get('/gift-email', [HomeController::class, 'giftEmail'])->name('giftEmail');
 
 Route::get('/privacy-and-policy', [HomeController::class, 'viewPrivacy'])->name('privacy-and-policy');
 Route::get('/terms-and-conditions', [HomeController::class, 'viewTerms'])->name('terms-and-conditions');
