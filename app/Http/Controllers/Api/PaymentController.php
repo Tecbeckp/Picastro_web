@@ -106,7 +106,13 @@ class PaymentController extends Controller
         // $pll = 'price_1Ps38NICvNFT82L6uSUKhcI4';
         $coupon = Coupons::where('code', $request->coupon_code)->where('status', 'enabled')->first();
         if ($user) {
-            if ($coupon) {
+            if(is_null($request->coupon_code)){
+                return $user->newSubscription('prod_QpsdEeUzwiQZeL', 'price_1PyCs1ICvNFT82L6mq4xFwRk')
+                ->checkout([
+                    'success_url' => url('subscribed/' . $user->id),
+                    'cancel_url' => url('subscription-cancel/' . $user->id)
+                ]);
+            }elsif ($coupon) {
                 if ($coupon->expires_at >= now()->format('Y-m-d')) {
                     return $user->newSubscription('prod_QpsdEeUzwiQZeL', 'price_1PyCs1ICvNFT82L6mq4xFwRk')
                         ->withCoupon($request->coupon_code)
