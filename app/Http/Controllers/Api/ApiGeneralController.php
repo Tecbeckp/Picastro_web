@@ -1250,7 +1250,7 @@ class ApiGeneralController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if($user && $user->is_registration == '0' && $user->subscription == '0'){
+        if($user && $user->is_registration == '0' && $user->subscription == '1'){
             return $this->error(['This user already has a gifted subscription.']);
         }elseif($user && $user->subscription == '1'){
             return $this->error(['This user already has an active subscription.']);
