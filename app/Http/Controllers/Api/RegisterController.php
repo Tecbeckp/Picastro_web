@@ -24,12 +24,12 @@ class RegisterController extends Controller
             'first_name'        => 'required|string',
             'last_name'         => 'required|string',
             'platform_type'     => 'required|string',
-            'email'             => 'required|email|unique:users',
+            'email'             => 'required|email',
             'password'          => 'required|min:8',
             'confirm_password'  => 'required|same:password'
         ];
-        
-        $validator = Validator::make($request->all(), $rules,[
+
+        $validator = Validator::make($request->all(), $rules, [
             'email.required'             => 'Email Address is required.',
             'email.email'                => 'Please enter a valid email address.',
             'password.required'          => 'Password is required.',
@@ -40,22 +40,36 @@ class RegisterController extends Controller
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-            $is_register = IsRegistration::where('id',1)->first();
-          
-                if(isset($is_register) && $is_register->android == '0' && $request->platform_type == 'android'){
-                    return $this->error(['We are not accepting registrations at the moment.']);
-                }elseif(isset($is_register) && $is_register->ios == '0' && $request->platform_type == 'iOS'){
-                    return $this->error(['We are not accepting registrations at the moment.']);
-                }
-            
-        $user = User::create([
-            'first_name'    => $request->first_name,
-            'last_name'     => $request->last_name,
-            'email'         => $request->email,
-            'password'      => Hash::make($request->password),
-            'fcm_token'     => $request->fcm_token,
-            'platform_type' => $request->platform_type
-        ]);
+        $is_register = IsRegistration::where('id', 1)->first();
+
+        if (isset($is_register) && $is_register->android == '0' && $request->platform_type == 'android') {
+            return $this->error(['We are not accepting registrations at the moment.']);
+        } elseif (isset($is_register) && $is_register->ios == '0' && $request->platform_type == 'iOS') {
+            return $this->error(['We are not accepting registrations at the moment.']);
+        }
+        $new_user = User::where('email', $request->email)->first();
+        if ($new_user && $new_user->is_registration == '1') {
+            return $this->error(['Email has already been taken.']);
+        } elseif ($new_user && $new_user->is_registration == '0') {
+            $user = User::where('email', $request->email)->update([
+                'first_name'      => $request->first_name,
+                'last_name'       => $request->last_name,
+                'email'           => $request->email,
+                'password'        => Hash::make($request->password),
+                'fcm_token'       => $request->fcm_token,
+                'platform_type'   => $request->platform_type,
+                'is_registration' => '1'
+            ]);
+        } else {
+            $user = User::create([
+                'first_name'      => $request->first_name,
+                'last_name'       => $request->last_name,
+                'email'           => $request->email,
+                'password'        => Hash::make($request->password),
+                'fcm_token'       => $request->fcm_token,
+                'platform_type'   => $request->platform_type
+            ]);
+        }
 
         UserProfile::create([
             'user_id'       => $user->id,
@@ -63,21 +77,21 @@ class RegisterController extends Controller
         ]);
 
         $user = User::with('userprofile')->where('id', $user->id)->first();
-            $token = $user->createToken('Picastro')->plainTextToken;
-            $data = [
-                'token' => [
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
-                ],
-                'user' => $user,
-            ];
+        $token = $user->createToken('Picastro')->plainTextToken;
+        $data = [
+            'token' => [
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+            ],
+            'user' => $user,
+        ];
 
-            if ($user->status == 1) {
-                return $this->success(['User Registered Successfully'],$data);
-            }
+        if ($user->status == 1) {
+            return $this->success(['User Registered Successfully'], $data);
+        }
     }
 
- public function signupTest(Request $request)
+    public function signupTest(Request $request)
     {
         $rules = [
             'first_name'        => 'required|string',
@@ -86,8 +100,8 @@ class RegisterController extends Controller
             'password'          => 'required|min:8',
             'confirm_password'  => 'required|same:password'
         ];
-        
-        $validator = Validator::make($request->all(), $rules,[
+
+        $validator = Validator::make($request->all(), $rules, [
             'email.required'             => 'Email Address is required.',
             'email.email'                => 'Please enter a valid email address.',
             'password.required'          => 'Password is required.',
@@ -98,7 +112,7 @@ class RegisterController extends Controller
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-        
+
         $user = User::create([
             'first_name'    => $request->first_name,
             'last_name'     => $request->last_name,
@@ -114,19 +128,17 @@ class RegisterController extends Controller
         ]);
 
         $user = User::with('userprofile')->where('id', $user->id)->first();
-            $token = $user->createToken('Picastro')->plainTextToken;
-            $data = [
-                'token' => [
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
-                ],
-                'user' => $user,
-            ];
+        $token = $user->createToken('Picastro')->plainTextToken;
+        $data = [
+            'token' => [
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+            ],
+            'user' => $user,
+        ];
 
-            if ($user->status == 1) {
-                return $this->success(['User Registered Successfully'],$data);
-            }
+        if ($user->status == 1) {
+            return $this->success(['User Registered Successfully'], $data);
+        }
     }
-
- 
 }
