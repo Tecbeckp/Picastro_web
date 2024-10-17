@@ -38,6 +38,7 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Helpers\PusherHelper;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Hash;
 
 class ApiGeneralController extends Controller
 {
@@ -1236,5 +1237,36 @@ class ApiGeneralController extends Controller
                 'maintenance' => $status
             ]);
         return $this->success(['Successfully'], $status);
+    }
+
+    public function sendGift(Request $request){
+        $rules = [
+            'email'  => 'required|email'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if($user && $user->is_registration == '0'){
+            return $this->error(['This user already has a gifted subscription.']);
+        }elseif($user && $user->subscription == '1'){
+            return $this->error(['This user already has an active subscription.']);
+        }elseif($user && $user->subscription == '0' && $user->is_registration == '1'){
+            return $this->success(['successfully.'], $user);
+        }else{
+            $data = User::create([
+                'first_name'        => $request->email,
+                'last_name'         => $request->email,
+                'email'             => $request->email,
+                'password'          => Hash::make('987654321'),
+                'gift_subscription' => auth()->id(),
+                'is_registration'   => '0'
+            ]);
+            return $this->success(['successfully.'], $data);
+        }
+
     }
 }
