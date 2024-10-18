@@ -49,23 +49,18 @@
                                                 </tr>
                                                 <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                                     <td class="content-block" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 24px; vertical-align: top; margin: 0; padding: 0 0 10px;  text-align: center;" valign="top">
-                                                        <h4 style="font-family: 'Roboto', sans-serif; margin-bottom: 0px;font-weight: 500; line-height: 1.5;color: #dcdbdb;">Good news! Someone special just made your day a whole lot better. 🎉</h5>
+                                                        <h4 style="font-family: 'Roboto', sans-serif; margin-bottom: 0px;font-weight: 500; line-height: 1.5;color: #dcdbdb;">Amazing news! You’ve just been given a Picastro Plan as a gift by someone special to you.</h5>
                                                     </td>
                                                 </tr>
                                                 
                                                 <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                                     <td class="content-block" style="font-family: 'Roboto', sans-serif; color: #878a99; box-sizing: border-box; font-size: 15px; vertical-align: top; margin: 0; padding: 0 0 12px; text-align: center;" valign="top">
-                                                        <p style="margin-bottom: 13px; line-height: 1.5;">You’ve been gifted a Premium subscription, giving you access to [brief mention of the subscription’s main benefits, such as exclusive content, features, or experiences].</p>
+                                                        <p style="margin-bottom: 13px; line-height: 1.5;">You’ve been gifted a premium plan on Picastro - the new home for astronomy and astrophotography image sharing. This gives you access to the platform for a whole year for FREE! It gives you access to new content and all future features as they appear on the platform.</p>
                                                     </td>
                                                 </tr>
                                                 <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                                     <td class="content-block" style="font-family: 'Roboto', sans-serif; color: #878a99; box-sizing: border-box; font-size: 15px; vertical-align: top; margin: 0; padding: 0 0 12px; text-align: center;" valign="top">
-                                                        <p style="margin-bottom: 13px; line-height: 1.5;">Good news! Someone special just made your day a whole lot better. 🎉</p>
-                                                    </td>
-                                                </tr>
-                                                <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
-                                                    <td class="content-block" style="font-family: 'Roboto', sans-serif; color: #878a99; box-sizing: border-box; font-size: 15px; vertical-align: top; margin: 0; padding: 0 0 12px; text-align: center;" valign="top">
-                                                        <p style="margin-bottom: 13px; line-height: 1.5;">Register Now, Download App From</p>
+                                                        <p style="margin-bottom: 13px; line-height: 1.5;">Download the app today using the links below</p>
                                                     </td>
                                                 </tr>
                                                 <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
@@ -80,13 +75,16 @@
                                                         <h5 style="font-family: 'Roboto', sans-serif; margin-bottom: 5px;font-weight: 500; line-height: 1.5;font-size: 15px;">How to Get Started:</h5>
                                                         <ul style="margin-bottom: 0px;gap: 0.5rem;flex-direction: column;align-self: stretch;">
                                                             <li>
-                                                                <b>Log in:</b>Login with your email to access your new subscription.
+                                                                <b>How to see amazing images of space:</b>
                                                             </li>
                                                             <li>
-                                                                <b>Explore:</b> Dive into Premium Subscription and discover all the amazing things waiting for you.
+                                                                <b>Once you have downloaded the app:</b>
                                                             </li>
                                                             <li>
-                                                                <b>Enjoy!</b> Whether it's learning something new, staying entertained, or just getting more out of your day, this subscription is designed to bring joy.
+                                                                <b>Register your account:</b> using the ‘Register Now’ link on the main page when you open the app.
+                                                            </li>
+                                                            <li>
+                                                                <b>Enjoy:</b>upload your amazing space images or content or simple enjoy all of the other amazing space images on the platform.
                                                             </li>
                                                             
                                                         </ul>
