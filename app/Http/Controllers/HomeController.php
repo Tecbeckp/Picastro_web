@@ -337,7 +337,7 @@ class HomeController extends Controller
     public function giftEmail(Request $request)
     {
 
-        Mail::to('maryumakhter35@gmail.com')->send(new giftMail());
+        Mail::to('abdulhanan939@gmail.com')->send(new giftMail());
 
         return response()->json(['message' => 'Email sent successfully.'], 200);
     }
