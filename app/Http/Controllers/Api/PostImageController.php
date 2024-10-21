@@ -126,8 +126,8 @@ class PostImageController extends Controller
             ->unique()
             ->toArray();
     
-        $relatedUserIds[] = $authUserId;  // Add the authenticated user's own id
-    
+        $relatedUserIds[] = $authUserId;
+        $userIdList = implode(separator: ',', $relatedUserIds);
         // Determine observer location based on location input
         $observer_location = null;
         if ($request->location === 'NH') {
@@ -151,8 +151,8 @@ class PostImageController extends Controller
                 'Follow'
             ])
             ->whereDoesntHave('blockToUser')
-            ->whereNot('user_id', $authUserId) // Exclude the user's own posts
-            ->orderByRaw(DB::raw("FIELD(user_id, " . implode(',', $relatedUserIds) . ") DESC, created_at DESC")); // Prioritize followers/following posts
+            ->whereNot('user_id', $authUserId)
+            ->orderByRaw("FIELD(user_id, $userIdList) DESC, created_at DESC");
     
         // Apply filters (location, object type, telescope type, randomizer, etc.)
         if ($observer_location) {
