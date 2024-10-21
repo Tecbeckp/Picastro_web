@@ -193,6 +193,12 @@ return $btn;
         $user = User::find(decrypt($id));
 
         if($user){
+            $user_id = auth()->id();
+            $users = User::where('id', $user_id)->first();
+            User::where('id', $user_id)->update([
+                'email' => 'delete' . $users->count() . $users->email,
+                'username' => 'delete'.$users->count() . $users->username
+            ]);
             $user->delete();
             $post = PostImage::where('user_id',decrypt($id))->delete();
             return $this->success('User deleted successfully!', []);
@@ -269,7 +275,7 @@ return $btn;
     public function stripeSubscription(Request $request){
         if($request->ajax()){
             $data = DB::select('SELECT * FROM subscriptions LEFT JOIN users on users.id = subscriptions.user_id ORDER BY subscriptions.id DESC');
-// dd($data);
+
             return DataTables::of($data)->addIndexColumn()
             ->addColumn('ID', function ($row) {
                 static $rowid = null;
