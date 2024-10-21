@@ -101,7 +101,7 @@ class PostImageController extends Controller
     }
 
     public function allPostImage(Request $request)
-    {         
+    {
         $rules = [
             'location'          => 'nullable',
             'telescope_type_id' => 'nullable|numeric|exists:telescopes,id',
@@ -109,45 +109,80 @@ class PostImageController extends Controller
             'most_recent'       => 'nullable|numeric|exists:object_types,id',
             'randomizer'        => 'nullable|numeric|exists:object_types,id'
         ];
-        
+    
         $validator = Validator::make($request->all(), $rules);
-
+    
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-        $location       = $request->location;
-        $telescope_type = $request->telescope_type_id;
-        $object_type    = $request->object_type_id;
-        $most_recent    = $request->most_recent;
-        $randomizer    = $request->randomizer;
-        if($location && $location == 'NH'){
-          $observer_location = [1, 2, 3, 4, 6];
-        }elseif($location && $location == 'SH'){
-          $observer_location = [5, 7, 8];
-        }else{
-            $observer_location = null;
+    
+        $authUserId = auth()->id();
+    
+        // Get follower and following user ids in one query
+        $relatedUserIds = FollowerList::where('user_id', $authUserId)
+            ->orWhere('follower_id', $authUserId)
+            ->pluck('follower_id', 'user_id')
+            ->flatten()
+            ->unique()
+            ->toArray();
+    
+        // $relatedUserIds[] = $authUserId;
+        $userIdList = implode(',', $relatedUserIds);
+        // Determine observer location based on location input
+        $observer_location = null;
+        if ($request->location === 'NH') {
+            $observer_location = [1, 2, 3, 4, 6];
+        } elseif ($request->location === 'SH') {
+            $observer_location = [5, 7, 8];
         }
-
-        $posts = PostImage::with('user','StarCard.StarCardFilter','ObjectType','Bortle','ObserverLocation','ApproxLunarPhase','Telescope','giveStar','totalStar','Follow','votedTrophy')->whereDoesntHave('blockToUser')->whereNot('user_id',auth()->id());
-        if($observer_location){
-            $posts->whereIn('observer_location_id',$observer_location);
+    
+        // Begin querying posts
+        $postsQuery = PostImage::with([
+                'user:id,first_name,last_name,username',
+                'StarCard.StarCardFilter',
+                'ObjectType',
+                'Bortle',
+                'ObserverLocation',
+                'ApproxLunarPhase',
+                'Telescope',
+                'totalStar',
+                'votedTrophy',
+                'giveStar',
+                'Follow'
+            ])
+            ->whereDoesntHave('blockToUser')
+            ->whereNot('user_id', $authUserId)
+            ->orderByRaw("FIELD(user_id, $userIdList) DESC, created_at DESC");
+    
+        // Apply filters (location, object type, telescope type, randomizer, etc.)
+        if ($observer_location) {
+            $postsQuery->whereIn('observer_location_id', $observer_location);
         }
-        elseif($object_type){
-            $posts->where('object_type_id',$object_type);
+    
+        if ($request->object_type_id) {
+            $postsQuery->where('object_type_id', $request->object_type_id);
         }
-        elseif($telescope_type){
-            $posts->where('telescope_id', $telescope_type);
+    
+        if ($request->telescope_type_id) {
+            $postsQuery->where('telescope_id', $request->telescope_type_id);
         }
-        elseif($randomizer){
-            $posts->where('object_type_id',$randomizer)->inRandomOrder();
+    
+        if ($request->randomizer) {
+            $postsQuery->inRandomOrder();  // Shuffle if randomizer is set
         }
-        elseif($most_recent){
-            $posts->where('object_type_id',$most_recent);
+    
+        if ($request->most_recent) {
+            $postsQuery->orderBy('created_at', 'desc'); // Order by most recent
         }
-       $posts = $posts->latest()->paginate(10);
-        $trophies = Trophy::select('id','name','icon')->get();
+    
+        // Get paginated result
+        $posts = $postsQuery->paginate(10);
+    
+        // Fetch trophies once
+        $trophies = Trophy::select('id', 'name', 'icon')->get();
+    
+        // Transform the post data to the desired structure
         $posts->getCollection()->transform(function ($post) use ($trophies) {
-
             return [
                 'id'                 => $post->id,
                 'user_id'            => $post->user_id,
@@ -188,6 +223,7 @@ class PostImageController extends Controller
                 ]
             ];
         });
+    
         return $this->success([], $posts);
     }
 
