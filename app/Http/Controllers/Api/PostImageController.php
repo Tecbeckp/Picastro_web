@@ -126,8 +126,8 @@ class PostImageController extends Controller
             ->unique()
             ->toArray();
     
-        $relatedUserIds[] = $authUserId;
-        $userIdList = implode(separator: ',', $relatedUserIds);
+        // $relatedUserIds[] = $authUserId;
+        $userIdList = implode(',', $relatedUserIds);
         // Determine observer location based on location input
         $observer_location = null;
         if ($request->location === 'NH') {
