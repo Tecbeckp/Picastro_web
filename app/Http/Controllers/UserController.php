@@ -193,7 +193,7 @@ return $btn;
         $user = User::find(decrypt($id));
 
         if($user){
-            $user_id = auth()->id();
+            $user_id = decrypt($id);
             $users = User::where('id', $user_id)->first();
             User::where('id', $user_id)->update([
                 'email' => 'delete' . $users->count() . $users->email,
