@@ -19,6 +19,7 @@ use App\Models\VoteImage;
 use App\Traits\ApiResponseTrait;
 use App\Traits\UploadImageTrait;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
@@ -115,65 +116,78 @@ class PostImageController extends Controller
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
+
+        $location       = $request->location;
+        $telescope_type = $request->telescope_type_id;
+        $object_type    = $request->object_type_id;
+        $most_recent    = $request->most_recent;
+        $randomizer     = $request->randomizer;
     
-        $authUserId = auth()->id();
-        $relatedUserIds = FollowerList::where('user_id', $authUserId)
-            ->orWhere('follower_id', $authUserId)
-            ->pluck('follower_id', 'user_id')
-            ->flatten()
-            ->unique()
-            ->toArray();
-            
-        // $userIdList = implode(',', $relatedUserIds);
-        $observer_location = null;
-        if ($request->location === 'NH') {
+        // Determine observer location based on location input
+        if ($location && $location == 'NH') {
             $observer_location = [1, 2, 3, 4, 6];
-        } elseif ($request->location === 'SH') {
+        } elseif ($location && $location == 'SH') {
             $observer_location = [5, 7, 8];
+        } else {
+            $observer_location = null;
         }
-        $postsQuery = PostImage::with([
-                'user:id,first_name,last_name,username',
-                'StarCard.StarCardFilter',
-                'ObjectType',
-                'Bortle',
-                'ObserverLocation',
-                'ApproxLunarPhase',
-                'Telescope',
-                'totalStar',
-                'votedTrophy',
-                'giveStar',
-                'Follow'
-            ])
-            ->whereDoesntHave('blockToUser')
-            ->whereNot('user_id', $authUserId)
-            ->orderByRaw("FIELD(user_id, " . implode(',', $relatedUserIds) . ") DESC")
-            ->orderBy('created_at', 'desc');
+
+        $authUserId = auth()->id();
+        $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
+        $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
+    
+        // Combine the follower/following ids along with the current user's id
+        $relatedUserIds = array_unique(array_merge($followers, $following, [$authUserId]));
+
+        $relatedPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
+        ->whereDoesntHave('blockToUser')
+        ->whereIn('user_id', $relatedUserIds)
+        ->whereNot('user_id', $authUserId);
+
+        $otherPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
+        ->whereDoesntHave('blockToUser')
+        ->whereNotIn('user_id', $relatedUserIds);
 
         if ($observer_location) {
-            $postsQuery->whereIn('observer_location_id', $observer_location);
+            $relatedPosts->whereIn('observer_location_id', $observer_location);
+            $otherPosts->whereIn('observer_location_id', $observer_location);
+        }
+    
+        if ($object_type) {
+            $relatedPosts->where('object_type_id', $object_type);
+            $otherPosts->where('object_type_id', $object_type);
+        }
+    
+        if ($telescope_type) {
+            $relatedPosts->where('telescope_id', $telescope_type);
+            $otherPosts->where('telescope_id', $telescope_type);
+        }
+    
+        if ($randomizer) {
+            $relatedPosts->where('object_type_id', $randomizer)->inRandomOrder();
+            $otherPosts->where('object_type_id', $randomizer)->inRandomOrder();
         }
 
-        if ($request->object_type_id) {
-            $postsQuery->where('object_type_id', $request->object_type_id);
+        if ($most_recent) {
+            $relatedPosts->where('object_type_id', $most_recent);
+            $otherPosts->where('object_type_id', $most_recent);
         }
 
-        if ($request->telescope_type_id) {
-            $postsQuery->where('telescope_id', $request->telescope_type_id);
-        }
-
-        if ($request->randomizer) {
-            $postsQuery->inRandomOrder();
-        }
-
-        if ($request->most_recent) {
-            $postsQuery->orderBy('created_at', 'desc');
-        }
-
-        $posts = $postsQuery->paginate(10);
+        $relatedPostsCollection = $relatedPosts->latest()->get();
+        $otherPostsCollection = $otherPosts->latest()->get();
+        $mergedPosts = $relatedPostsCollection->merge($otherPostsCollection);
+    
+        // Paginate the final merged result
+        $perPage = 10;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $currentItems = $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        $paginatedPosts = new LengthAwarePaginator($currentItems, $mergedPosts->count(), $perPage, $currentPage, [
+            'path' => LengthAwarePaginator::resolveCurrentPath()
+        ]);
 
         $trophies = Trophy::select('id', 'name', 'icon')->get();
     
-        $posts->getCollection()->transform(function ($post) use ($trophies) {
+        $paginatedPosts->getCollection()->transform(function ($post) use ($trophies) {
             return [
                 'id'                 => $post->id,
                 'user_id'            => $post->user_id,
@@ -215,7 +229,7 @@ class PostImageController extends Controller
             ];
         });
     
-        return $this->success([], $posts);
+        return $this->success([], $paginatedPosts);
     }
 
     public function allTestPostImage(Request $request){
