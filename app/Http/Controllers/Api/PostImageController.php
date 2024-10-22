@@ -123,7 +123,8 @@ class PostImageController extends Controller
             ->flatten()
             ->unique()
             ->toArray();
-        $userIdList = implode(',', $relatedUserIds);
+            
+        // $userIdList = implode(',', $relatedUserIds);
         $observer_location = null;
         if ($request->location === 'NH') {
             $observer_location = [1, 2, 3, 4, 6];
@@ -145,23 +146,25 @@ class PostImageController extends Controller
             ])
             ->whereDoesntHave('blockToUser')
             ->whereNot('user_id', $authUserId)
-            ->orderByRaw("FIELD(user_id, $userIdList) DESC, created_at DESC");
+            ->orderByRaw("FIELD(user_id, " . implode(',', $relatedUserIds) . ") DESC")
+            ->orderBy('created_at', 'desc');
+
         if ($observer_location) {
             $postsQuery->whereIn('observer_location_id', $observer_location);
         }
-    
+
         if ($request->object_type_id) {
             $postsQuery->where('object_type_id', $request->object_type_id);
         }
-    
+
         if ($request->telescope_type_id) {
             $postsQuery->where('telescope_id', $request->telescope_type_id);
         }
-    
+
         if ($request->randomizer) {
             $postsQuery->inRandomOrder();
         }
-    
+
         if ($request->most_recent) {
             $postsQuery->orderBy('created_at', 'desc');
         }
