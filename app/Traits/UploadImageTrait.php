@@ -17,7 +17,7 @@ trait  UploadImageTrait
     $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
     $filePath = $destinationFolder . time() . '-' . $fileName . '.webp';
 
-    $image = Image::make($file)->encode('webp', 75);
+    $image = Image::read($file)->save('webp', 75);
 
     Storage::disk('s3')->put($filePath, (string) $image);
 
