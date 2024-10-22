@@ -14,22 +14,18 @@ trait  UploadImageTrait
             return null;
         }
     
-        // Define the file name and path
+
         $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
         $localFilePath = public_path($destinationFolder . time() . '-' . $fileName);
-    
-        // Resize and save the image locally with 90% quality
-        $image = Image::make($file)
+
+        $image = Image::read($file)
                       ->resize()
                       ->save($localFilePath, 75);
     
-        // Store the local file on S3
         Storage::disk('s3')->put($destinationFolder . time() . '-' . $fileName, file_get_contents($localFilePath));
     
-        // Get the file URL
         $fileUrl = Storage::disk('s3')->url($destinationFolder . time() . '-' . $fileName);
     
-        // Delete the local file after uploading to S3
         unlink($localFilePath);
     
         return $fileUrl;
