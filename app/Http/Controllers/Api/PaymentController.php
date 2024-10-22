@@ -84,7 +84,9 @@ class PaymentController extends Controller
         PaypalSubscription::where('user_id', $id)->where('subscription_id', $request->subscription_id)->update([
             'status' => 'Approved'
         ]);
-        Mail::to($user->email)->send(new giftMail());
+        if($user->gift_subscription != null){
+            Mail::to($user->email)->send(new giftMail());
+        }
         return $this->success(['successfully subscribed'], []);
     }
 
@@ -151,7 +153,9 @@ class PaymentController extends Controller
                 'trial_period_status' => '0'
             ]);
         }
-        Mail::to($user->email)->send(new giftMail());
+        if($user->gift_subscription != null){
+            Mail::to($user->email)->send(new giftMail());
+        }
 
         return $this->success(['successfully subscribed'], []);
     }
