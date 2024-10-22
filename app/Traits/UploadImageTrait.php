@@ -16,11 +16,11 @@ trait  UploadImageTrait
     
 
         $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
-        $localFilePath = public_path($destinationFolder . time() . '-' . $fileName);
+        $localFilePath = public_path('assets/uploads/postimage/' . time() . '-' . $fileName);
 
         $image = Image::read($file)
                       ->resize()
-                      ->save('assets/uploads/postimage/', 75);
+                      ->save($localFilePath, 75);
     
         Storage::disk('s3')->put($destinationFolder . time() . '-' . $fileName, file_get_contents($localFilePath));
     
