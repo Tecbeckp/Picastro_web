@@ -20,7 +20,7 @@ trait  UploadImageTrait
 
         $image = Image::read($file)
                       ->resize()
-                      ->save($localFilePath, 75);
+                      ->save($localFilePath, 30);
     
         Storage::disk('s3')->put($destinationFolder . time() . '-' . $fileName, file_get_contents($localFilePath));
     
