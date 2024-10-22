@@ -9,23 +9,22 @@ use Illuminate\Support\Facades\Http;
 trait  UploadImageTrait
 {
     public function originalImageUpload($file, $destinationFolder)
-    {
-        if (!$file) {
-            return null;
-        }
-        // Define the file name and path
-        $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-
-        $filePath = $destinationFolder . time() . '-' . $fileName . '.webp';
-
-        // Store the file on S3
-        Storage::disk('s3')->put($filePath, file_get_contents($file));
-
-        // Get the file URL
-        $fileUrl = Storage::disk('s3')->url($filePath);
-
-        return $fileUrl;
+{
+    if (!$file) {
+        return null;
     }
+
+    $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+    $filePath = $destinationFolder . time() . '-' . $fileName . '.webp';
+
+    $image = Image::make($file)->encode('webp', 75);
+
+    Storage::disk('s3')->put($filePath, (string) $image);
+
+    $fileUrl = Storage::disk('s3')->url($filePath);
+
+    return $fileUrl;
+}
 
     public function imageUpload($file, $destinationFolder)
     {
