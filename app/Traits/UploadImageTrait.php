@@ -62,14 +62,11 @@ trait  UploadImageTrait
 
     function getImageFileSizeFromUrl($url)
     {
-        // Fetch headers only (use HEAD request to get the Content-Length)
         $response = Http::head($url);
 
-        // Check if the Content-Length header is present
         if ($response->successful() && $response->header('Content-Length')) {
             $fileSizeInBytes = $response->header('Content-Length');
 
-            // Convert to KB or MB
             $fileSizeInKB = $fileSizeInBytes / 1024;
             $fileSizeInMB = $fileSizeInKB / 1024;
 
@@ -80,6 +77,6 @@ trait  UploadImageTrait
             ];
         }
 
-        return null; // If the file size could not be determined
+        return null;
     }
 }
