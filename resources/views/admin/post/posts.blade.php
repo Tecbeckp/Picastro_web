@@ -47,7 +47,7 @@
 
                         </div>
                         <div class="row gy-3">
-                            <div class="col-4">
+                            {{-- <div class="col-4">
                                 <div>
                                     <p class="text-muted mb-1">Original Image Size</p>
                                     @php
@@ -60,7 +60,7 @@
                                         {{ round($fileSizeMB, 2) . ' MB' }}
                                     </h5>
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="col-4">
                                 <div>
                                     <p class="text-muted mb-1">Thumbnail Size</p>
