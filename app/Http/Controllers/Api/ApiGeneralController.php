@@ -148,12 +148,21 @@ class ApiGeneralController extends Controller
         $save_objects = ObjectType::get();
         $data = [];
         $perPage = $request->input('per_page', 10);
-
+        $searchTerm = $request->input('search', null);
         foreach ($save_objects as $obj) {
 
             $objects = SaveObject::with('user', 'postImage.StarCard.StarCardFilter', 'postImage.ObjectType', 'postImage.Bortle', 'postImage.ObserverLocation', 'postImage.ApproxLunarPhase', 'postImage.Telescope', 'postImage.giveStar', 'postImage.Follow')
                 ->where('user_id', auth()->id())
-                ->where('object_type_id', $obj->id)->get();
+                ->where('object_type_id', $obj->id)
+                ->whereHas('postImage', function ($query) use ($searchTerm) {
+                    if ($searchTerm) {
+                        $query->where('post_image_title', 'like', "%{$searchTerm}%")
+                              ->orWhere('description', 'like', "%{$searchTerm}%")
+                              ->orWhere('catalogue_number', 'like', "%{$searchTerm}%")
+                              ->orWhere('object_name', 'like', "%{$searchTerm}%");
+                    }
+                })
+                ->get();
             // ->paginate($perPage);
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $objects->isNotEmpty() ?
@@ -200,33 +209,6 @@ class ApiGeneralController extends Controller
                             ] : null,
                         ];
                     }),
-                    // 'first_page_url' => $objects->url(1),
-                    // 'from' => $objects->firstItem(),
-                    // 'last_page' => $objects->lastPage(),
-                    // 'last_page_url' => $objects->url($objects->lastPage()),
-                    // 'links' => [
-                    //     [
-                    //         'url' => $objects->previousPageUrl(),
-                    //         'label' => '&laquo; Previous',
-                    //         'active' => $objects->onFirstPage()
-                    //     ],
-                    //     [
-                    //         'url' => $objects->url($objects->currentPage()),
-                    //         'label' => $objects->currentPage(),
-                    //         'active' => true
-                    //     ],
-                    //     [
-                    //         'url' => $objects->nextPageUrl(),
-                    //         'label' => 'Next &raquo;',
-                    //         'active' => !$objects->hasMorePages()
-                    //     ]
-                    // ],
-                    // 'next_page_url' => $objects->nextPageUrl(),
-                    // 'path' => $objects->path(),
-                    // 'per_page' => $objects->perPage(),
-                    // 'prev_page_url' => $objects->previousPageUrl(),
-                    // 'to' => $objects->lastItem(),
-                    // 'total' => $objects->total()
                 ] : $data[$obj->name] = null;
         }
 
