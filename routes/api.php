@@ -107,6 +107,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('all-over-search', [ApiGeneralController::class, 'AllOverSearch'])->name('AllOverSearch');
     Route::get('apply-coupon', [ApiGeneralController::class, 'applyCoupon'])->name('applyCoupon');
     Route::post('send-gift', [ApiGeneralController::class, 'sendGift'])->name('sendGift');
+    Route::get('hide-post', [ApiGeneralController::class, 'HidePost'])->name('HidePost');
 
     Route::post('add-post-comment', [PostCommentController::class, 'postComment']);
     Route::get('delete-comment', [PostCommentController::class, 'deleteComment']);

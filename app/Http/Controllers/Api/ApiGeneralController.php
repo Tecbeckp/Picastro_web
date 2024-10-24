@@ -9,6 +9,7 @@ use App\Models\BlockToUser;
 use App\Models\BulkNotification;
 use App\Models\Content;
 use App\Models\GiveStar;
+use App\Models\HidePost;
 use App\Models\IsRegistration;
 use App\Models\ObjectType;
 use App\Models\Notification;
@@ -1276,6 +1277,25 @@ class ApiGeneralController extends Controller
             ]);
             return $this->success(['successfully.'], $data);
         }
+
+    }
+
+    public function HidePost(Request $request){
+
+        $rules = [
+            'post_id'  => 'required|exists:post_images,id'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+
+        $post = HidePost::create([
+            'user_id' => auth()->id(),
+            'post_id' => $request->post_id
+        ]);
+        return $this->success(['Hide successfully.'], null);
 
     }
 }
