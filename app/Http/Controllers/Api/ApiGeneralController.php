@@ -654,9 +654,10 @@ class ApiGeneralController extends Controller
     {
 
         $notifications = Notification::where('user_id', auth()->id())
-            ->where('is_read', '0')
-            ->latest()
-            ->get();
+            ->where('is_read', '0')->latest()->get();
+
+            $total_notifications = Notification::where('user_id', auth()->id())
+            ->where('is_open', '0')->latest()->get();
 
         $groupedNotifications = $notifications->groupBy(function ($item) {
             // Specify types to group explicitly, or else group them as "Others"
@@ -680,7 +681,7 @@ class ApiGeneralController extends Controller
 
 
         $responseData = $groupedNotifications->isEmpty() ? null : $groupedNotifications;
-        $responseData['total_unread_notifications'] = $notifications->count();
+        $responseData['total_unread_notifications'] = $total_notifications->count();
 
         return $this->success(['Get notification successfully'], $responseData);
     }
@@ -705,6 +706,14 @@ class ApiGeneralController extends Controller
                 'is_read' => '1'
             ]);
         }
+        return $this->success(['Notification read Successfully'], []);
+    }
+
+    public function readAllNotification(Request $request)
+    {
+            Notification::where('user_id', auth()->id())->update([
+                'is_open' => '1'
+            ]);
         return $this->success(['Notification read Successfully'], []);
     }
 
