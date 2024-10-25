@@ -182,7 +182,7 @@
                                                                     <img src="{{$user->follower ? ($user->follower->userprofile ? $user->follower->userprofile->profile_image : 'null') : 'null'}}" alt="" class="img-fluid rounded-circle">
                                                                 </div>
                                                                 <div class="flex-grow-1">
-                                                                    <h5 class="fs-13 mb-0"><a href="#" class="text-body d-block">{{$user->follower ? $user->follower->first_name.' '.$user->follower->last_name}}</a></h5>
+                                                                    <h5 class="fs-13 mb-0"><a href="#" class="text-body d-block">{{$user->follower->first_name.' '.$user->follower->last_name}}</a></h5>
                                                                 </div>
                                                                 
                                                             </div>
