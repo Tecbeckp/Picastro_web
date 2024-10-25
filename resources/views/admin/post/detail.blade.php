@@ -178,7 +178,7 @@
                                                             @forelse ($post->Follower as $user)
                                                             <div class="d-flex align-items-center">
                                                                 <div class="avatar avatar-xs flex-shrink-0 me-3">
-                                                                    <img src="{{$user->follower->userprofile->profile_image}}" alt="" class="img-fluid rounded-circle">
+                                                                    <img src="{{$user->follower->userprofile ? $user->follower->userprofile->profile_image : 'null'}}" alt="" class="img-fluid rounded-circle">
                                                                 </div>
                                                                 <div class="flex-grow-1">
                                                                     <h5 class="fs-13 mb-0"><a href="#" class="text-body d-block">{{$user->follower->first_name.' '.$user->follower->last_name}}</a></h5>
