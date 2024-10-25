@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ContactUsMail;
 use App\Models\Coupons;
 use App\Models\AppVersion;
 use App\Models\BlockToUser;
@@ -532,17 +533,13 @@ class ApiGeneralController extends Controller
         $contact->message  = $request->message;
         $contact->save();
 
-        // $details = [
-        //     'name'     => $request->name,
-        //     'email'    => $request->email,
-        //     'message'  => $request->message
-        // ];
+        $details = [
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'message'  => $request->message
+        ];
 
-        Http::post('https://picastro.co.uk/contact-us-mail', [
-            'name' => $request->username,
-            'email' => $request->email,
-            'message' => $request->message
-        ]);
+        Mail::to('support@picastroapp.com')->send(new ContactUsMail($details));
 
 
         return $this->success(['Sent successfully!'], []);
