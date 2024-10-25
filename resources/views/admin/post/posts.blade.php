@@ -51,14 +51,18 @@
                                 <div>
                                     <p class="text-muted mb-1">Original Image Size</p>
                                     @php
-                                     $parsedUrl = parse_url($post->original_image);
-                                     $s3Key = ltrim($parsedUrl['path'], '/');
-                                     $fileSizeBytes = Storage::disk('s3')->size($s3Key);
-                                     if($fileSizeBytes){
-                                         $fileSizeMB = $fileSizeBytes / (1024 * 1024);
-                                     }else{
-                                        $fileSizeMB = 0;
-                                     }
+                                    try {
+                                            $parsedUrl = parse_url($post->original_image);
+                                            $s3Key = ltrim($parsedUrl['path'], '/');
+                                            $fileSizeBytes = Storage::disk('s3')->size($s3Key);
+                                            if ($fileSizeBytes) {
+                                                $fileSizeMB = $fileSizeBytes / (1024 * 1024);
+                                            } else {
+                                                $fileSizeMB = 0;
+                                            }
+                                        } catch (\Exception $e) {
+                                            $fileSizeMB = 0;
+                                        }
                                     @endphp
                                     <h5 class="fs-14">
                                         {{ round($fileSizeMB, 2) . ' MB' }}
