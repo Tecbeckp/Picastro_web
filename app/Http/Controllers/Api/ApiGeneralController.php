@@ -424,14 +424,14 @@ class ApiGeneralController extends Controller
                         $notification->type          = 'Trophies';
                         $notification->post_image_id = $post_id;
                         $notification->trophy_id     = $trophy_id;
-                        $notification->notification  = auth()->user()->username . ' just awarded you a trophy on your image. Check it out.';
+                        $notification->notification  = 'Someone just awarded you a trophy on your image. Check it out.';
                         $notification->save();
 
                         $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
                         if ($post->user && $post->user->fcm_token) {
                             $this->notificationService->sendNotification(
                                 'Trophies',
-                                auth()->user()->username . ' just awarded you a trophy on your image. Check it out.',
+                                'Someone just awarded you a trophy on your image. Check it out.',
                                 $post->user->fcm_token,
                                 json_encode($getnotification)
                             );
