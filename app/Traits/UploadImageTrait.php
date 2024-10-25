@@ -13,21 +13,20 @@ trait  UploadImageTrait
         if (!$file) {
             return null;
         }
-    
 
         $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
         $localFilePath = public_path('assets/uploads/postimage/' . time() . '-' . $fileName);
-
+        $filePath = $destinationFolder . time() . '-' . $fileName;
         $image = Image::read($file)
                       ->resize()
                       ->save($localFilePath, 100);
     
-        Storage::disk('s3')->put($destinationFolder . time() . '-' . $fileName, file_get_contents($localFilePath));
+        Storage::disk('s3')->put($filePath, file_get_contents($file));
     
-        $fileUrl = Storage::disk('s3')->url($destinationFolder . time() . '-' . $fileName);
-    
+        $fileUrl = Storage::disk('s3')->url($filePath);
+
         unlink($localFilePath);
-    
+
         return $fileUrl;
     }
 
