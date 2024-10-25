@@ -66,6 +66,10 @@ class PostImage extends Model
         return $this->hasOne(BlockToUser::class, 'block_user_id', 'user_id')->where('user_id',auth()->id());
     }
 
+    public function userHidePost(){
+        return $this->hasOne(HidePost::class, 'post_id', 'id')->where('user_id',auth()->id());
+    }
+
     public function getLocationAttribute()
     {
         if(in_array($this->observer_location_id, [1, 2, 3, 4, 6])){

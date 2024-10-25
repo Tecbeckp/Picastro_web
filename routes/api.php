@@ -94,6 +94,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('warning-comment', [ApiGeneralController::class, 'warningComment']);
     Route::get('get-notification', [ApiGeneralController::class, 'getNotification']);
     Route::get('read-notification', [ApiGeneralController::class, 'readNotification']);
+    Route::get('read-all-notification', [ApiGeneralController::class, 'readAllNotification']);
     Route::post('invite-user', [ApiGeneralController::class, 'inviteUser']);
     Route::get('get-user-by-id', [ApiGeneralController::class, 'getUserById']);
     Route::get('generate-post-link', [ApiGeneralController::class, 'generateSharePostLink']);
@@ -106,6 +107,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('all-over-search', [ApiGeneralController::class, 'AllOverSearch'])->name('AllOverSearch');
     Route::get('apply-coupon', [ApiGeneralController::class, 'applyCoupon'])->name('applyCoupon');
     Route::post('send-gift', [ApiGeneralController::class, 'sendGift'])->name('sendGift');
+    Route::get('hide-post', [ApiGeneralController::class, 'HidePost'])->name('HidePost');
 
     Route::post('add-post-comment', [PostCommentController::class, 'postComment']);
     Route::get('delete-comment', [PostCommentController::class, 'deleteComment']);

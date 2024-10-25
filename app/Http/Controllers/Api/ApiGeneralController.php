@@ -9,6 +9,7 @@ use App\Models\BlockToUser;
 use App\Models\BulkNotification;
 use App\Models\Content;
 use App\Models\GiveStar;
+use App\Models\HidePost;
 use App\Models\IsRegistration;
 use App\Models\ObjectType;
 use App\Models\Notification;
@@ -147,12 +148,21 @@ class ApiGeneralController extends Controller
         $save_objects = ObjectType::get();
         $data = [];
         $perPage = $request->input('per_page', 10);
-
+        $searchTerm = $request->input('search', null);
         foreach ($save_objects as $obj) {
 
             $objects = SaveObject::with('user', 'postImage.StarCard.StarCardFilter', 'postImage.ObjectType', 'postImage.Bortle', 'postImage.ObserverLocation', 'postImage.ApproxLunarPhase', 'postImage.Telescope', 'postImage.giveStar', 'postImage.Follow')
                 ->where('user_id', auth()->id())
-                ->where('object_type_id', $obj->id)->get();
+                ->where('object_type_id', $obj->id)
+                ->whereHas('postImage', function ($query) use ($searchTerm) {
+                    if ($searchTerm) {
+                        $query->where('post_image_title', 'like', "%{$searchTerm}%")
+                              ->orWhere('description', 'like', "%{$searchTerm}%")
+                              ->orWhere('catalogue_number', 'like', "%{$searchTerm}%")
+                              ->orWhere('object_name', 'like', "%{$searchTerm}%");
+                    }
+                })
+                ->get();
             // ->paginate($perPage);
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $objects->isNotEmpty() ?
@@ -199,33 +209,6 @@ class ApiGeneralController extends Controller
                             ] : null,
                         ];
                     }),
-                    // 'first_page_url' => $objects->url(1),
-                    // 'from' => $objects->firstItem(),
-                    // 'last_page' => $objects->lastPage(),
-                    // 'last_page_url' => $objects->url($objects->lastPage()),
-                    // 'links' => [
-                    //     [
-                    //         'url' => $objects->previousPageUrl(),
-                    //         'label' => '&laquo; Previous',
-                    //         'active' => $objects->onFirstPage()
-                    //     ],
-                    //     [
-                    //         'url' => $objects->url($objects->currentPage()),
-                    //         'label' => $objects->currentPage(),
-                    //         'active' => true
-                    //     ],
-                    //     [
-                    //         'url' => $objects->nextPageUrl(),
-                    //         'label' => 'Next &raquo;',
-                    //         'active' => !$objects->hasMorePages()
-                    //     ]
-                    // ],
-                    // 'next_page_url' => $objects->nextPageUrl(),
-                    // 'path' => $objects->path(),
-                    // 'per_page' => $objects->perPage(),
-                    // 'prev_page_url' => $objects->previousPageUrl(),
-                    // 'to' => $objects->lastItem(),
-                    // 'total' => $objects->total()
                 ] : $data[$obj->name] = null;
         }
 
@@ -441,14 +424,14 @@ class ApiGeneralController extends Controller
                         $notification->type          = 'Trophies';
                         $notification->post_image_id = $post_id;
                         $notification->trophy_id     = $trophy_id;
-                        $notification->notification  = auth()->user()->username . ' just awarded you a trophy on your image. Check it out.';
+                        $notification->notification  = 'Someone just awarded you a trophy on your image. Check it out.';
                         $notification->save();
 
                         $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
                         if ($post->user && $post->user->fcm_token) {
                             $this->notificationService->sendNotification(
                                 'Trophies',
-                                auth()->user()->username . ' just awarded you a trophy on your image. Check it out.',
+                                'Someone just awarded you a trophy on your image. Check it out.',
                                 $post->user->fcm_token,
                                 json_encode($getnotification)
                             );
@@ -654,9 +637,10 @@ class ApiGeneralController extends Controller
     {
 
         $notifications = Notification::where('user_id', auth()->id())
-            ->where('is_read', '0')
-            ->latest()
-            ->get();
+            ->where('is_read', '0')->latest()->get();
+
+            $total_notifications = Notification::where('user_id', auth()->id())
+            ->where('is_open', '0')->latest()->get();
 
         $groupedNotifications = $notifications->groupBy(function ($item) {
             // Specify types to group explicitly, or else group them as "Others"
@@ -680,7 +664,7 @@ class ApiGeneralController extends Controller
 
 
         $responseData = $groupedNotifications->isEmpty() ? null : $groupedNotifications;
-        $responseData['total_unread_notifications'] = $notifications->count();
+        $responseData['total_unread_notifications'] = $total_notifications->count();
 
         return $this->success(['Get notification successfully'], $responseData);
     }
@@ -705,6 +689,14 @@ class ApiGeneralController extends Controller
                 'is_read' => '1'
             ]);
         }
+        return $this->success(['Notification read Successfully'], []);
+    }
+
+    public function readAllNotification(Request $request)
+    {
+            Notification::where('user_id', auth()->id())->update([
+                'is_open' => '1'
+            ]);
         return $this->success(['Notification read Successfully'], []);
     }
 
@@ -1138,7 +1130,12 @@ class ApiGeneralController extends Controller
         }
 
         if ($request->type == '1') {
-            $users = User::with('userprofile')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->latest()->paginate(100);
+            $users = User::with('userprofile','Following')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->latest()->paginate(100);
+            $users->getCollection()->transform(function ($user) {
+                $data = $user;
+                $data->unfollow = $user->Following ? false : true;
+                return $data;
+            });
             return $this->success([], $users);
         } else {
             $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->whereAny(['post_image_title', 'description'], 'LIKE', '%' . $request->search . '%')->latest()->paginate(100);
@@ -1267,6 +1264,25 @@ class ApiGeneralController extends Controller
             ]);
             return $this->success(['successfully.'], $data);
         }
+
+    }
+
+    public function HidePost(Request $request){
+
+        $rules = [
+            'post_id'  => 'required|exists:post_images,id'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+
+        $post = HidePost::create([
+            'user_id' => auth()->id(),
+            'post_id' => $request->post_id
+        ]);
+        return $this->success(['Hide successfully.'], null);
 
     }
 }

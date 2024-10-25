@@ -54,7 +54,11 @@
                                      $parsedUrl = parse_url($post->original_image);
                                      $s3Key = ltrim($parsedUrl['path'], '/');
                                      $fileSizeBytes = Storage::disk('s3')->size($s3Key);
-                                     $fileSizeMB = $fileSizeBytes / (1024 * 1024);
+                                     if($fileSizeBytes){
+                                         $fileSizeMB = $fileSizeBytes / (1024 * 1024);
+                                     }else{
+                                        $fileSizeMB = 0;
+                                     }
                                     @endphp
                                     <h5 class="fs-14">
                                         {{ round($fileSizeMB, 2) . ' MB' }}
