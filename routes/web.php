@@ -73,7 +73,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/update-payment-status', [HomeController::class, 'updatePaymentStatus'])->name('updatePaymentStatus');
     Route::get('/subscriptions-data', [HomeController::class, 'getSubscriptionData'])->name('SubscriptionData');
     Route::get('/contact-us', [HomeController::class, 'contactUs'])->name('contactUs');
-
+    Route::get('/export-user/{subscription}', [HomeController::class, 'exportUser'])->name('exportUser');
     
     
     Route::get('/get-all-user', [UserController::class, 'getAllUser'])->name('getAllUser');

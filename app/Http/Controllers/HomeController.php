@@ -19,8 +19,8 @@ use App\Models\User;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
-use Carbon\Carbon;
+use App\Exports\UsersExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Mail;
 
 class HomeController extends Controller
@@ -356,7 +356,12 @@ class HomeController extends Controller
         return response()->json(['message' => 'Email sent successfully.'], 200);
     }
 
-    //  public function updateStatus(){
-    //     $user = Subscription::where('stripe_status','incomplete')
-    //  }
+     public function exportUser($subscription){
+        if($subscription == '1'){
+            $file_name = 'PaidUser.csv';
+        }else{
+            $file_name = 'UnpaidUser.csv';
+        }
+        return Excel::download(new UsersExport($subscription), $file_name);
+     }
 }
