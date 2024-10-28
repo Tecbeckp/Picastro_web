@@ -143,7 +143,8 @@ class PostImageController extends Controller
             ->whereDoesntHave('blockToUser')
             ->whereDoesntHave('userHidePost')
             ->whereIn('user_id', $relatedUserIds)
-            ->whereNot('user_id', $authUserId);
+            ->whereNot('user_id', $authUserId)
+            ->inRandomOrder();
 
         $otherPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
             ->whereDoesntHave('blockToUser')
