@@ -243,7 +243,7 @@
                                                             class="badge bg-success-subtle text-success text-uppercase">Active</span>
                                                     @else
                                                         <span
-                                                            class="badge bg-warning-subtle text-warning text-uppercase">Blocked</span>
+                                                            class="badge bg-warning-subtle text-warning text-uppercase">In Active</span>
                                                     @endif
                                                 </td>
                                             </tr><!-- end tr -->
