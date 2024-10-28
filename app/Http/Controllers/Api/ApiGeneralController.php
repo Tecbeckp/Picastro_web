@@ -1304,7 +1304,7 @@ class ApiGeneralController extends Controller
         if ($data->isNotEmpty()) {
             $data->transform(function ($post) {
                 return [
-                    'week'                   => date('D M Y', strtotime( $post->created_at)),
+                    'week'                   => date('d M, Y', strtotime( $post->created_at)),
                     'object_type'            => $post->postImage->ObjectType ? $post->postImage->ObjectType->name : 'Other',
                     'post_image'             => [
                         'id'                 => $post->postImage->id,
