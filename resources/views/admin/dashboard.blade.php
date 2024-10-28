@@ -216,7 +216,7 @@
                                             <th scope="col">Name</th>
                                             <th scope="col">Email</th>
                                             <th scope="col">Username</th>
-                                            <th scope="col">Status</th>
+                                            <th scope="col">Subscription Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -238,7 +238,7 @@
                                                     {{ $user->username ?? 'N/A' }}
                                                 </td>
                                                 <td>
-                                                    @if ($user->status == '1')
+                                                    @if ($user->subscription == '1')
                                                         <span
                                                             class="badge bg-success-subtle text-success text-uppercase">Active</span>
                                                     @else
