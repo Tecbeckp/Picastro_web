@@ -149,7 +149,8 @@ class PostImageController extends Controller
         $otherPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
             ->whereDoesntHave('blockToUser')
             ->whereDoesntHave('userHidePost')
-            ->whereNotIn('user_id', $relatedUserIds);
+            ->whereNotIn('user_id', $relatedUserIds)
+            ->inRandomOrder();
 
         if ($observer_location) {
             $relatedPosts->whereIn('observer_location_id', $observer_location);
