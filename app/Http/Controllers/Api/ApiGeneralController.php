@@ -544,7 +544,7 @@ class ApiGeneralController extends Controller
         return $this->success(['Sent successfully!'], []);
     }
 
-    public function getContent()
+    public function getContent(Request $request)
     {
         $contents = Content::all();
         $data = $contents->mapWithKeys(function ($content) {
@@ -575,6 +575,18 @@ class ApiGeneralController extends Controller
         $data['android_screenshot'] = IsRegistration::first()->android_screenshot;
         $data['trial_period'] = TrialPeriod::first();
         $data['app_under_maintenance'] = Setting::where('id', '1')->first()->maintenance;
+
+        $user_trial = User::where('id',$request->user_id)->where('trial_period_status','2')->first();
+        if($user_trial){
+            $current_time = date('d-m-Y H:i:s');
+            $end_time = $user_trial->trial_ends_at;
+            $current_timestamp = strtotime($current_time);
+            $end_timestamp = strtotime($end_time);
+            $remaining_time_in_seconds = $end_timestamp - $current_timestamp;
+            $data['remaining_trail_time'] = $remaining_time_in_seconds;
+        }else{
+            $data['remaining_trail_time'] = null;
+        }
         return $this->success([], $data);
     }
 
