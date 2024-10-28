@@ -583,7 +583,7 @@ class ApiGeneralController extends Controller
             $current_timestamp = strtotime($current_time);
             $end_timestamp = strtotime($end_time);
             $remaining_time_in_seconds = $end_timestamp - $current_timestamp;
-            $data['remaining_trail_time'] = $remaining_time_in_seconds;
+            $data['remaining_trail_time'] = "$remaining_time_in_seconds";
         }else{
             $data['remaining_trail_time'] = null;
         }
