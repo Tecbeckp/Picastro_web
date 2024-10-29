@@ -295,6 +295,7 @@ class ApiGeneralController extends Controller
                     $q->whereNull('deleted_at');
                 })
                 ->where('trophy_id', '1')
+                ->whereNotIn('user_id',['41','43'])
                 ->where('month', $currentMonth)
                 ->groupBy('month', 'post_image_id')
                 ->orderBy('post_count', 'desc')
