@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Stripe\Customer;
 use Stripe\Stripe;
+
 class PaymentController extends Controller
 {
     use ApiResponseTrait;
@@ -48,9 +49,9 @@ class PaymentController extends Controller
     public function create(Request $request, string $plan_id = 'P-1075760685626815NM3RO7BI')
     {
         // P-44X84743BV816410HM3GGGUQ
-        if($request->gifted_plan_user_id){
+        if ($request->gifted_plan_user_id) {
             $id = $request->gifted_plan_user_id;
-        }else{
+        } else {
             $id = $request->user_id;
         }
         $this->paymentHelper->subscribeToPlan($plan_id, $id);
@@ -86,7 +87,7 @@ class PaymentController extends Controller
         PaypalSubscription::where('user_id', $id)->where('subscription_id', $request->subscription_id)->update([
             'status' => 'Approved'
         ]);
-        if($user->gift_subscription != null){
+        if ($user->gift_subscription != null) {
             Mail::to($user->email)->send(new giftMail());
         }
         return $this->success(['successfully subscribed'], []);
@@ -107,9 +108,9 @@ class PaymentController extends Controller
 
     public function storeSubscription(Request $request, $plan = 'price_1PyCs1ICvNFT82L6mq4xFwRk')
     {
-        if($request->gifted_plan_user_id){
+        if ($request->gifted_plan_user_id) {
             $user_id = $request->gifted_plan_user_id;
-        }else{
+        } else {
             $user_id = $request->user_id;
         }
         Stripe::setApiKey(config('services.stripe.secret'));
@@ -117,55 +118,56 @@ class PaymentController extends Controller
         $user = User::where('id', $user_id)->first();
 
         if ($user) {
-        // $pll = ''; prod_QjWAuSh9HNzXEc
-        // $pll = 'price_1Ps38NICvNFT82L6uSUKhcI4';
-        $customer = $user->stripe_id 
-        ? Customer::retrieve($user->stripe_id) 
-        : Customer::create([
-            'email' => $user->email,
-        ]);
+            // $pll = ''; prod_QjWAuSh9HNzXEc
+            // $pll = 'price_1Ps38NICvNFT82L6uSUKhcI4';
+            $customer = $user->stripe_id
+                ? Customer::retrieve($user->stripe_id)
+                : Customer::create([
+                    'email' => $user->email,
+                ]);
+                
+            User::where('id', $user_id)->update([
+                'stripe_id' => $customer->id
+            ]);
 
-    $user->update(['stripe_id' => $customer->id]);
+            $successUrl = url('subscribed/' . $user->id);
+            $cancelUrl  = url('subscription-cancel/' . $user->id);
 
-    $successUrl = url('subscribed/' . $user->id);
-    $cancelUrl  = url('subscription-cancel/' . $user->id);
-
-    $checkoutSessionData = [
-        'customer' => $customer->id,
-        'payment_method_types' => [
-            'card',
-        ],
-        'line_items' => [[
-            'price' => 'price_1Ps38NICvNFT82L6uSUKhcI4',
-            'quantity' => 1,
-        ]],
-        'mode' => 'subscription',
-        'success_url' => $successUrl,
-        'cancel_url' => $cancelUrl,
-    ];
-
-    if ($request->filled('coupon_code')) {
-        $coupon = Coupons::where('code', $request->coupon_code)->where('status', 'enabled')->first();
-      
-        if ($coupon) {
-            if ($coupon->expires_at >= now()->format('Y-m-d')) {
-            $checkoutSessionData['discounts'] = [
-                ['promotion_code' => $request->coupon_code]
+            $checkoutSessionData = [
+                'customer' => $customer->id,
+                'payment_method_types' => [
+                    'card',
+                ],
+                'line_items' => [[
+                    'price' => 'price_1Ps38NICvNFT82L6uSUKhcI4',
+                    'quantity' => 1,
+                ]],
+                'mode' => 'subscription',
+                'success_url' => $successUrl,
+                'cancel_url' => $cancelUrl,
             ];
+
+            if ($request->filled('coupon_code')) {
+                $coupon = Coupons::where('code', $request->coupon_code)->where('status', 'enabled')->first();
+
+                if ($coupon) {
+                    if ($coupon->expires_at >= now()->format('Y-m-d')) {
+                        $checkoutSessionData['discounts'] = [
+                            ['promotion_code' => $request->coupon_code]
+                        ];
+                    } else {
+                        return $this->error(['This coupon is expire']);
+                    }
+                } else {
+                    return $this->error(['Invalid coupon code.']);
+                }
+            }
+
+            $checkoutSession = \Stripe\Checkout\Session::create($checkoutSessionData);
+            return Redirect::to($checkoutSession->url);
         } else {
-            return $this->error(['This coupon is expire']);
+            return $this->error(['User Not Found.']);
         }
-    }else {
-        return $this->error(['Invalid coupon code.']);
-    }
-    }
-
-    $checkoutSession = \Stripe\Checkout\Session::create($checkoutSessionData);
-    return Redirect::to($checkoutSession->url);
-
-} else {
-    return $this->error(['User Not Found.']);
-}
     }
 
     public function subscribed($id)
@@ -181,7 +183,7 @@ class PaymentController extends Controller
                 'trial_period_status' => '0'
             ]);
         }
-        if($user->gift_subscription != null){
+        if ($user->gift_subscription != null) {
             Mail::to($user->email)->send(new giftMail());
         }
 
