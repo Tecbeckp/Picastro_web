@@ -51,7 +51,7 @@
                                 <div>
                                     <p class="text-muted mb-1">Original Image Size</p>
                                     @php
-                                    try {
+                                        try {
                                             $parsedUrl = parse_url($post->original_image);
                                             $s3Key = ltrim($parsedUrl['path'], '/');
                                             $fileSizeBytes = Storage::disk('s3')->size($s3Key);

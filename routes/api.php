@@ -108,6 +108,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('apply-coupon', [ApiGeneralController::class, 'applyCoupon'])->name('applyCoupon');
     Route::post('send-gift', [ApiGeneralController::class, 'sendGift'])->name('sendGift');
     Route::get('hide-post', [ApiGeneralController::class, 'HidePost'])->name('HidePost');
+    Route::get('image-of-week', [ApiGeneralController::class, 'imageOfweek']);
+
 
     Route::post('add-post-comment', [PostCommentController::class, 'postComment']);
     Route::get('delete-comment', [PostCommentController::class, 'deleteComment']);

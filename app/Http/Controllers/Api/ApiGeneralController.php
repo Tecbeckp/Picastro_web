@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ContactUsMail;
 use App\Models\Coupons;
 use App\Models\AppVersion;
 use App\Models\BlockToUser;
@@ -10,6 +11,7 @@ use App\Models\BulkNotification;
 use App\Models\Content;
 use App\Models\GiveStar;
 use App\Models\HidePost;
+use App\Models\ImageOfWeek;
 use App\Models\IsRegistration;
 use App\Models\ObjectType;
 use App\Models\Notification;
@@ -157,9 +159,9 @@ class ApiGeneralController extends Controller
                 ->whereHas('postImage', function ($query) use ($searchTerm) {
                     if ($searchTerm) {
                         $query->where('post_image_title', 'like', "%{$searchTerm}%")
-                              ->orWhere('description', 'like', "%{$searchTerm}%")
-                              ->orWhere('catalogue_number', 'like', "%{$searchTerm}%")
-                              ->orWhere('object_name', 'like', "%{$searchTerm}%");
+                            ->orWhere('description', 'like', "%{$searchTerm}%")
+                            ->orWhere('catalogue_number', 'like', "%{$searchTerm}%")
+                            ->orWhere('object_name', 'like', "%{$searchTerm}%");
                     }
                 })
                 ->get();
@@ -287,15 +289,14 @@ class ApiGeneralController extends Controller
 
         $currentMonth = Carbon::now()->format('m-Y');
         $currentDay = Carbon::now()->day;
-        // dd($currentMonth);
-        // Check if the current day is the 28th
         if ($currentDay == 28) {
             $data = VoteImage::select('post_image_id', 'month', DB::raw('count(id) as post_count'))
                 ->whereHas('postImage', function ($q) {
                     $q->whereNull('deleted_at');
                 })
                 ->where('trophy_id', '1')
-                ->where('month', $currentMonth) // Filter by the current month
+                ->whereNotIn('user_id', ['41', '43'])
+                ->where('month', $currentMonth)
                 ->groupBy('month', 'post_image_id')
                 ->orderBy('post_count', 'desc')
                 ->get()
@@ -532,23 +533,19 @@ class ApiGeneralController extends Controller
         $contact->message  = $request->message;
         $contact->save();
 
-        // $details = [
-        //     'name'     => $request->name,
-        //     'email'    => $request->email,
-        //     'message'  => $request->message
-        // ];
+        $details = [
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'message'  => $request->message
+        ];
 
-        Http::post('https://picastro.co.uk/contact-us-mail', [
-            'name' => $request->username,
-            'email' => $request->email,
-            'message' => $request->message
-        ]);
+        Mail::to('support@picastroapp.com')->send(new ContactUsMail($details));
 
 
         return $this->success(['Sent successfully!'], []);
     }
 
-    public function getContent()
+    public function getContent(Request $request)
     {
         $contents = Content::all();
         $data = $contents->mapWithKeys(function ($content) {
@@ -579,6 +576,18 @@ class ApiGeneralController extends Controller
         $data['android_screenshot'] = IsRegistration::first()->android_screenshot;
         $data['trial_period'] = TrialPeriod::first();
         $data['app_under_maintenance'] = Setting::where('id', '1')->first()->maintenance;
+
+        $user_trial = User::where('id', $request->user_id)->where('trial_period_status', '2')->first();
+        if ($user_trial) {
+            $current_time = date('d-m-Y H:i:s');
+            $end_time = $user_trial->trial_ends_at;
+            $current_timestamp = strtotime($current_time);
+            $end_timestamp = strtotime($end_time);
+            $remaining_time_in_seconds = $end_timestamp - $current_timestamp;
+            $data['remaining_trail_time'] = "$remaining_time_in_seconds";
+        } else {
+            $data['remaining_trail_time'] = null;
+        }
         return $this->success([], $data);
     }
 
@@ -639,7 +648,7 @@ class ApiGeneralController extends Controller
         $notifications = Notification::where('user_id', auth()->id())
             ->where('is_read', '0')->latest()->get();
 
-            $total_notifications = Notification::where('user_id', auth()->id())
+        $total_notifications = Notification::where('user_id', auth()->id())
             ->where('is_open', '0')->latest()->get();
 
         $groupedNotifications = $notifications->groupBy(function ($item) {
@@ -694,9 +703,9 @@ class ApiGeneralController extends Controller
 
     public function readAllNotification(Request $request)
     {
-            Notification::where('user_id', auth()->id())->update([
-                'is_open' => '1'
-            ]);
+        Notification::where('user_id', auth()->id())->update([
+            'is_open' => '1'
+        ]);
         return $this->success(['Notification read Successfully'], []);
     }
 
@@ -1121,7 +1130,7 @@ class ApiGeneralController extends Controller
     {
 
         $rules = [
-            'type'  => 'required|numeric',
+            'type'    => 'required|numeric',
             'search'  => 'required|string'
         ];
         $validator = Validator::make($request->all(), $rules);
@@ -1130,7 +1139,7 @@ class ApiGeneralController extends Controller
         }
 
         if ($request->type == '1') {
-            $users = User::with('userprofile','Following')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->latest()->paginate(100);
+            $users = User::with('userprofile', 'Following')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->latest()->paginate(100);
             $users->getCollection()->transform(function ($user) {
                 $data = $user;
                 $data->unfollow = $user->Following ? false : true;
@@ -1138,7 +1147,19 @@ class ApiGeneralController extends Controller
             });
             return $this->success([], $users);
         } else {
-            $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->whereAny(['post_image_title', 'description'], 'LIKE', '%' . $request->search . '%')->latest()->paginate(100);
+            $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
+                ->whereNot('user_id', auth()->id())
+                ->where(function ($query) use ($request) {
+                    $query->where('post_image_title', 'LIKE', '%' . $request->search . '%')
+                        ->orWhere('description', 'LIKE', '%' . $request->search . '%')
+                        ->orWhereHas('ObjectType', function ($q) use ($request) {
+                            $q->where('name', 'LIKE', '%' . $request->search . '%');
+                        })
+                        ->orWhereHas('Telescope', function ($q) use ($request) {
+                            $q->where('name', 'LIKE', '%' . $request->search . '%');
+                        });
+                })
+                ->latest()->paginate(100);
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $posts->getCollection()->transform(function ($post) use ($trophies) {
                 return [
@@ -1217,26 +1238,29 @@ class ApiGeneralController extends Controller
         }
     }
 
-    public function generalSetting(){
-        $data = []; 
+    public function generalSetting()
+    {
+        $data = [];
         $data['is_registration'] = IsRegistration::where('id', '1')->first();
         $data['app_under_maintenance'] = Setting::where('id', '1')->first();
         return view('admin.general_setting', compact('data'));
     }
 
-    public function maintenance(Request $request){
+    public function maintenance(Request $request)
+    {
         if ($request->status == 'true') {
             $status = '1';
         } else {
             $status = '0';
         }
-            Setting::where('id', '1')->update([
-                'maintenance' => $status
-            ]);
+        Setting::where('id', '1')->update([
+            'maintenance' => $status
+        ]);
         return $this->success(['Successfully'], $status);
     }
 
-    public function sendGift(Request $request){
+    public function sendGift(Request $request)
+    {
         $rules = [
             'email'  => 'required|email'
         ];
@@ -1247,13 +1271,13 @@ class ApiGeneralController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if($user && $user->is_registration == '0' && $user->subscription == '1'){
+        if ($user && $user->is_registration == '0' && $user->subscription == '1') {
             return $this->error(['This user already has a gifted plan.']);
-        }elseif($user && $user->subscription == '1'){
+        } elseif ($user && $user->subscription == '1') {
             return $this->error(['This user already has an active plan.']);
-        }elseif($user && $user->subscription == '0' && ($user->is_registration == '1'  ||$user->is_registration == '0' )){
+        } elseif ($user && $user->subscription == '0' && ($user->is_registration == '1'  || $user->is_registration == '0')) {
             return $this->success(['successfully.'], $user);
-        }else{
+        } else {
             $data = User::create([
                 'first_name'        => $request->email,
                 'last_name'         => $request->email,
@@ -1264,10 +1288,10 @@ class ApiGeneralController extends Controller
             ]);
             return $this->success(['successfully.'], $data);
         }
-
     }
 
-    public function HidePost(Request $request){
+    public function HidePost(Request $request)
+    {
 
         $rules = [
             'post_id'  => 'required|exists:post_images,id'
@@ -1283,6 +1307,73 @@ class ApiGeneralController extends Controller
             'post_id' => $request->post_id
         ]);
         return $this->success(['Hide successfully.'], null);
+    }
 
+    public function imageOfweek(Request $request)
+    {
+        $data = ImageOfWeek::with([
+            'postImage.user',
+            'postImage.StarCard.StarCardFilter',
+            'postImage.ObjectType',
+            'postImage.Bortle',
+            'postImage.ObserverLocation',
+            'postImage.ApproxLunarPhase',
+            'postImage.Telescope',
+            'postImage.giveStar',
+            'postImage.totalStar',
+            'postImage.Follow',
+            'postImage.votedTrophy'
+        ])->whereHas('postImage', function ($q) {
+            $q->whereNull('deleted_at');
+        })->get();
+        if ($data->isNotEmpty()) {
+            $data->transform(function ($post) {
+                return [
+                    'week'                   => date('d M, Y', strtotime($post->created_at)),
+                    'object_type'            => $post->postImage->ObjectType ? $post->postImage->ObjectType->name : 'Other',
+                    'post_image'             => [
+                        'id'                 => $post->postImage->id,
+                        'user_id'            => $post->postImage->user_id,
+                        'post_image_title'   => $post->postImage->post_image_title,
+                        'image'              => $post->postImage->image,
+                        'original_image'     => $post->postImage->original_image,
+                        'description'        => $post->postImage->description,
+                        'video_length'       => $post->postImage->video_length,
+                        'number_of_frame'    => $post->postImage->number_of_frame,
+                        'number_of_video'    => $post->postImage->number_of_video,
+                        'exposure_time'      => $post->postImage->exposure_time,
+                        'total_hours'        => $post->postImage->total_hours,
+                        'additional_minutes' => $post->postImage->additional_minutes,
+                        'catalogue_number'   => $post->postImage->catalogue_number,
+                        'object_name'        => $post->postImage->object_name,
+                        'ir_pass'            => $post->postImage->ir_pass,
+                        'planet_name'        => $post->postImage->planet_name,
+                        'ObjectType'         => $post->postImage->ObjectType,
+                        'Bortle'             => $post->postImage->Bortle,
+                        'ObserverLocation'   => $post->postImage->ObserverLocation,
+                        'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
+                        'location'           => $post->postImage->location,
+                        'Telescope'          => $post->postImage->Telescope,
+                        'giveStar'           => $post->postImage->giveStar ? true : false,
+                        'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
+                        'Follow'             => $post->postImage->Follow ? true : false,
+                        'voted_trophy_id'    => $post->postImage->votedTrophy ? $post->postImage->votedTrophy->trophy_id : null,
+                        'star_card'          => $post->postImage->StarCard,
+                        'user'               => [
+                            'id'             => $post->postImage->user->id,
+                            'first_name'     => $post->postImage->user->first_name,
+                            'last_name'      => $post->postImage->user->last_name,
+                            'username'       => $post->postImage->user->username,
+                            'profile_image'  => $post->postImage->user->userprofile->profile_image,
+                            'fcm_token'      => $post->postImage->user->fcm_token,
+                        ]
+                    ]
+                ];
+            });
+
+            return $this->success(['Get Image of week successfully!'], $data);
+        } else {
+            return $this->error(['No data found']);
+        }
     }
 }

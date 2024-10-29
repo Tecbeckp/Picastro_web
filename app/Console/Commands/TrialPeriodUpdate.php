@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\PusherHelper;
 use App\Models\User;
 use Illuminate\Console\Command;
-use App\Helpers\PusherHelper;
 class TrialPeriodUpdate extends Command
 {
     /**
@@ -24,15 +24,9 @@ class TrialPeriodUpdate extends Command
     /**
      * Execute the console command.
      */
-    protected $pusherHelper;
-
-    public function __construct(PusherHelper $pusherHelper)
-    {
-        parent::__construct();
-        $this->pusherHelper = $pusherHelper;
-    }
     public function handle()
     {
+        $pusherHelper = new PusherHelper();
         $users = User::where('trial_period_status', '2')->get();
 
         if($users){
@@ -41,7 +35,7 @@ class TrialPeriodUpdate extends Command
                         User::where('id',$user->id)->update([
                             'trial_period_status' => '0'
                         ]);
-            $this->pusherHelper->sendEvent('picastro-real-time-services','user_trial_period_end_'.$user->id , null);
+            $pusherHelper->sendEvent('picastro-real-time-services','user_trial_period_end_'.$user->id , null);
 
                 }
             }

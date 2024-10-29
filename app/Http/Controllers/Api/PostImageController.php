@@ -112,7 +112,7 @@ class PostImageController extends Controller
         ];
 
         $validator = Validator::make($request->all(), $rules);
-    
+
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
@@ -144,7 +144,6 @@ class PostImageController extends Controller
             ->whereDoesntHave('userHidePost')
             ->whereIn('user_id', $relatedUserIds)
             ->whereNot('user_id', $authUserId);
-
         $otherPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
             ->whereDoesntHave('blockToUser')
             ->whereDoesntHave('userHidePost')
