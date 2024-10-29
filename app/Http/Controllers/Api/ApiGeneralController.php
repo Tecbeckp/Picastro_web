@@ -295,7 +295,7 @@ class ApiGeneralController extends Controller
                     $q->whereNull('deleted_at');
                 })
                 ->where('trophy_id', '1')
-                ->whereNotIn('user_id',['41','43'])
+                ->whereNotIn('user_id', ['41', '43'])
                 ->where('month', $currentMonth)
                 ->groupBy('month', 'post_image_id')
                 ->orderBy('post_count', 'desc')
@@ -577,15 +577,15 @@ class ApiGeneralController extends Controller
         $data['trial_period'] = TrialPeriod::first();
         $data['app_under_maintenance'] = Setting::where('id', '1')->first()->maintenance;
 
-        $user_trial = User::where('id',$request->user_id)->where('trial_period_status','2')->first();
-        if($user_trial){
+        $user_trial = User::where('id', $request->user_id)->where('trial_period_status', '2')->first();
+        if ($user_trial) {
             $current_time = date('d-m-Y H:i:s');
             $end_time = $user_trial->trial_ends_at;
             $current_timestamp = strtotime($current_time);
             $end_timestamp = strtotime($end_time);
             $remaining_time_in_seconds = $end_timestamp - $current_timestamp;
             $data['remaining_trail_time'] = "$remaining_time_in_seconds";
-        }else{
+        } else {
             $data['remaining_trail_time'] = null;
         }
         return $this->success([], $data);
@@ -1130,7 +1130,7 @@ class ApiGeneralController extends Controller
     {
 
         $rules = [
-            'type'  => 'required|numeric',
+            'type'    => 'required|numeric',
             'search'  => 'required|string'
         ];
         $validator = Validator::make($request->all(), $rules);
@@ -1147,7 +1147,19 @@ class ApiGeneralController extends Controller
             });
             return $this->success([], $users);
         } else {
-            $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->whereAny(['post_image_title', 'description'], 'LIKE', '%' . $request->search . '%')->latest()->paginate(100);
+            $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
+                ->whereNot('user_id', auth()->id())
+                ->where(function ($query) use ($request) {
+                    $query->where('post_image_title', 'LIKE', '%' . $request->search . '%')
+                        ->orWhere('description', 'LIKE', '%' . $request->search . '%')
+                        ->orWhereHas('ObjectType', function ($q) use ($request) {
+                            $q->where('name', 'LIKE', '%' . $request->search . '%');
+                        })
+                        ->orWhereHas('Telescope', function ($q) use ($request) {
+                            $q->where('name', 'LIKE', '%' . $request->search . '%');
+                        });
+                })
+                ->latest()->paginate(100);
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $posts->getCollection()->transform(function ($post) use ($trophies) {
                 return [
@@ -1312,12 +1324,12 @@ class ApiGeneralController extends Controller
             'postImage.Follow',
             'postImage.votedTrophy'
         ])->whereHas('postImage', function ($q) {
-                $q->whereNull('deleted_at');
-            })->get();
+            $q->whereNull('deleted_at');
+        })->get();
         if ($data->isNotEmpty()) {
             $data->transform(function ($post) {
                 return [
-                    'week'                   => date('d M, Y', strtotime( $post->created_at)),
+                    'week'                   => date('d M, Y', strtotime($post->created_at)),
                     'object_type'            => $post->postImage->ObjectType ? $post->postImage->ObjectType->name : 'Other',
                     'post_image'             => [
                         'id'                 => $post->postImage->id,
