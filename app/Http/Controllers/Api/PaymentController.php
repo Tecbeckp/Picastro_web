@@ -119,7 +119,7 @@ class PaymentController extends Controller
         $coupon = Coupons::where('code', $request->coupon_code)->where('status', 'enabled')->first();
         if ($user) {
             if(is_null($request->coupon_code)){
-                return $user->newSubscription('prod_QpsdEeUzwiQZeL', 'price_1PyCs1ICvNFT82L6mq4xFwRk')
+                return $user->newSubscription('prod_QjWAuSh9HNzXEc', 'price_1Ps38NICvNFT82L6uSUKhcI4')
                 ->checkout([
                     'success_url' => url('subscribed/' . $user->id),
                     'cancel_url' => url('subscription-cancel/' . $user->id)
