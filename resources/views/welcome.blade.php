@@ -10,17 +10,18 @@
     <title>Post | Picastro</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @php
-    use Illuminate\Support\Facades\DB;
-    $id = request('id');
-    $results = DB::table('post_images')->where('id',decrypt($id))->first();
-@endphp
-@if ($results)
-<meta property="og:url" content="https://picastro.co.uk/Post" />
-<meta property="og:image" content="{{ asset({{$results->image}}) }}" />
-    <meta property="og:type" content="Post Image" />
-    <meta property="og:title" content="{{$requests->post_image_title ?? $requests->catalogue_number}}" />
-    <meta property="og:description" content="{{$request->description}}" />
-@endif
+        use Illuminate\Support\Facades\DB;
+        $id = request('id');
+        $results = DB::table('post_images')->where('id', base64_decode($id))->first();
+
+    @endphp
+    @if ($results)
+        <meta property="og:url" content="https://picastro.co.uk/Post" />
+        <meta property="og:image" content="{{ asset($results->image) }}" />
+        <meta property="og:type" content="Post Image" />
+        <meta property="og:title" content="{{ $results->post_image_title ?? $results->catalogue_number }}" />
+        <meta property="og:description" content="{{ $results->description }}" />
+    @endif
 
     @include('includes.style')
 
@@ -35,7 +36,7 @@
         <div class="row">
 
             <div class="col-12 mt-3">
-             <h1>Download Picastro app to see this post</h1>
+                <h1>Download Picastro app to see this post</h1>
                 <!-- end table -->
             </div>
         </div>
