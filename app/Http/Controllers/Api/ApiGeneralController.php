@@ -1032,12 +1032,14 @@ class ApiGeneralController extends Controller
 
         $request->validate([
             'time_number'   => 'required',
-            'period'        => 'required'
+            'period'        => 'required',
+            'reminder_time' => 'required'
         ]);
 
         TrialPeriod::where('id', 1)->update([
-            'number'      => $request->time_number,
-            'time_period' => $request->period
+            'number'        => $request->time_number,
+            'time_period'   => $request->period,
+            'reminder_time' => $request->reminder_time,
         ]);
 
         return redirect()->back()->with('success', 'Updated successfully.');

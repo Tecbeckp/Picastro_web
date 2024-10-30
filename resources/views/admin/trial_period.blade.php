@@ -51,6 +51,11 @@
                                             
                                         </select>
                                     </div>
+                                    <div class="mb-3">
+                                        <label for="reminder_time" class="form-label">Reminder time</label>
+                                        <input type="number" name="reminder_time" id="reminder_time"
+                                            class="form-control" placeholder="Reminder time in minutes" min="1" value="{{$data->reminder_time}}" required />
+                                    </div>
                                 </div>
                                 <button class="btn btn-outline-primary mt-3" type="submit">Update</button>
                             </form>
