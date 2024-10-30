@@ -181,6 +181,7 @@ class PostImageController extends Controller
         $otherPostsCollection = $otherPosts->latest()->get();
         $mergedPosts = $relatedPostsCollection->merge($otherPostsCollection);
 
+
         // Paginate the final merged result
         $perPage = 10;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -189,6 +190,19 @@ class PostImageController extends Controller
             'path' => LengthAwarePaginator::resolveCurrentPath()
         ]);
 
+        $filteredPosts = collect();
+        $previousUserId = null;
+
+        foreach ($paginatedPosts->getCollection() as $post) {
+            if ($post->user_id !== $previousUserId) {
+                $filteredPosts->push($post);
+                $previousUserId = $post->user_id;
+            } else {
+                $filteredPosts->push($post);
+            }
+        }
+        $filteredPosts = $filteredPosts->shuffle();
+        $paginatedPosts->setCollection($filteredPosts);
         $trophies = Trophy::select('id', 'name', 'icon')->get();
 
         $paginatedPosts->getCollection()->transform(function ($post) use ($trophies) {
