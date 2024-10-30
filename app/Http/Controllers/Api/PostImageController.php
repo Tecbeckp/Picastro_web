@@ -356,7 +356,7 @@ class PostImageController extends Controller
         }
 
 
-        $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('user_id', $request->user_id)->latest()->get();
+        $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('user_id', $request->user_id)->whereDoesntHave('userHidePost')->latest()->get();
         $troph = Trophy::select('id', 'name', 'icon')->get();
         $data = [
             'user' => $user,
