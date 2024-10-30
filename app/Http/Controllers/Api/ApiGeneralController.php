@@ -588,8 +588,10 @@ class ApiGeneralController extends Controller
             $end_timestamp = strtotime($end_time);
             $remaining_time_in_seconds = $end_timestamp - $current_timestamp;
             $data['remaining_trail_time'] = "$remaining_time_in_seconds";
+            $data['trail_end_time'] = date('d/m/y H:i',strtotime($user_trial->trial_ends_at));
         } else {
             $data['remaining_trail_time'] = null;
+            $data['trail_end_time'] = null;
         }
         return $this->success([], $data);
     }
