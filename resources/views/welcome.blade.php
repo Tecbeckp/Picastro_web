@@ -14,7 +14,7 @@
     $id = request('id');
     $results = DB::table('post_images')->where('id',decrypt($id))->first();
 @endphp
-@if ($_SERVER['REQUEST_URI'] == '/post')
+@if ($results)
 <meta property="og:url" content="https://picastro.co.uk/Post" />
 <meta property="og:image" content="{{ asset({{$results->image}}) }}" />
     <meta property="og:type" content="Post Image" />
