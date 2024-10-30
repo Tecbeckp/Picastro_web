@@ -36,7 +36,7 @@
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Time</label>
                                         <input type="number" name="time_number"
-                                            class="form-control" placeholder="15" min="0" value="{{$data->number}}" required />
+                                            class="form-control" placeholder="15" min="1" value="{{$data->number}}" required />
                                     </div>
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Period</label>
