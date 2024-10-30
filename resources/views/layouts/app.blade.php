@@ -9,7 +9,8 @@
     <title>@yield('title')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-   
+    <meta property="og:url" content="http://picastro.co.uk/" />
+    <meta property="og:image" content="{{asset('assets/images/picastro.png')}}" />
     @include('includes.style')
     @include('includes.dtstyle')
     @stack('style')

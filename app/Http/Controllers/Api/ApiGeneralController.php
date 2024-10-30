@@ -334,7 +334,7 @@ class ApiGeneralController extends Controller
             ->whereHas('postImage', function ($q) {
                 $q->whereNull('deleted_at');
             })->where('IOT', '1')
-            ->get();
+            ->latest()->get();
         if ($data->isNotEmpty()) {
             $data->transform(function ($post) {
                 return [
@@ -367,6 +367,9 @@ class ApiGeneralController extends Controller
                         'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
                         'Follow'             => $post->postImage->Follow ? true : false,
                         'voted_trophy_id'    => $post->postImage->votedTrophy ? $post->postImage->votedTrophy->trophy_id : null,
+                        'gold_trophy'        => $post->postImage->gold_trophy,
+                        'silver_trophy'      => $post->postImage->silver_trophy,
+                        'bronze_trophy'      => $post->postImage->bronze_trophy,
                         'star_card'          => $post->postImage->StarCard,
                         'user'               => [
                             'id'             => $post->postImage->user->id,
@@ -1139,7 +1142,7 @@ class ApiGeneralController extends Controller
         }
 
         if ($request->type == '1') {
-            $users = User::with('userprofile', 'Following')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->latest()->paginate(100);
+            $users = User::with('userprofile', 'Following')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->whereNot('id', auth()->id())->latest()->paginate(100);
             $users->getCollection()->transform(function ($user) {
                 $data = $user;
                 $data->unfollow = $user->Following ? false : true;
@@ -1190,6 +1193,9 @@ class ApiGeneralController extends Controller
                     'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
                     'Follow'             => $post->Follow ? true : false,
                     'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                    'gold_trophy'        => $post->gold_trophy,
+                    'silver_trophy'      => $post->silver_trophy,
+                    'bronze_trophy'      => $post->bronze_trophy,
                     'trophy'             => $trophies,
                     'star_card'           => $post->StarCard,
                     'user'               => [
