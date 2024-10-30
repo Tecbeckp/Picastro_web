@@ -217,6 +217,9 @@ class PostImageController extends Controller
                 'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
                 'Follow'             => $post->Follow ? true : false,
                 'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                'gold_trophy'        => $post->gold_trophy,
+                'silver_trophy'      => $post->silver_trophy,
+                'bronze_trophy'      => $post->bronze_trophy,
                 'trophy'             => $trophies,
                 'star_card'          => $post->StarCard,
                 'user'               => [
