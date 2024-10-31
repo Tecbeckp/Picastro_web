@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Mail\ForgotPasswordMail;
+use App\Models\NotificationSetting;
 use App\Models\Otp;
 use App\Models\PostImage;
 use App\Models\Trophy;
@@ -82,7 +83,8 @@ class AuthController extends Controller
                         'icon' => $trophy->icon,
                         'total_trophy' => $vote[$trophy->id] ?? 0
                     ];
-                })
+                }),
+            'notification_setting' => NotificationSetting::where('user_id',auth()->id())->first()
             ];
 
             if ($user->status == 1) {
