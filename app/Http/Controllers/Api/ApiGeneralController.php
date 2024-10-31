@@ -267,14 +267,17 @@ class ApiGeneralController extends Controller
                         $notification->notification = 'You just received a star from ' . auth()->user()->username . '. Check it out.';
                         $notification->save();
 
-                        $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
-                        if ($post->user && $post->user->fcm_token) {
-                            $this->notificationService->sendNotification(
-                                'Stars',
-                                'You just received a star from ' . auth()->user()->username . '. Check it out.',
-                                $post->user->fcm_token,
-                                json_encode($getnotification)
-                            );
+                        $user_notification_setting = NotificationSetting::where('user_id', $post->user->id)->first();
+                        if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->star == true)) {
+                            $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
+                            if ($post->user && $post->user->fcm_token) {
+                                $this->notificationService->sendNotification(
+                                    'Stars',
+                                    'You just received a star from ' . auth()->user()->username . '. Check it out.',
+                                    $post->user->fcm_token,
+                                    json_encode($getnotification)
+                                );
+                            }
                         }
                     }
 
@@ -436,7 +439,7 @@ class ApiGeneralController extends Controller
                         $notification->save();
 
                         $user_notification_setting = NotificationSetting::where('user_id', $post->user->id)->first();
-                        if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->follow == true)) {
+                        if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->trophy == true)) {
                             $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
                             if ($post->user && $post->user->fcm_token) {
                                 $this->notificationService->sendNotification(
