@@ -11,65 +11,73 @@ class NotificationSetting extends Model
 
     protected $guarded = [];
 
-    public function getFollowAttribute($value){
-        if($value == '1'){
+    public function getFollowAttribute($value)
+    {
+        if ($value == '1') {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    public function getPostAttribute($value){
-        if($value == '1'){
+    public function getPostAttribute($value)
+    {
+        if ($value == '1') {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    public function getTrophyAttribute($value){
-        if($value == '1'){
+    public function getTrophyAttribute($value)
+    {
+        if ($value == '1') {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    public function getStarAttribute($value){
-        if($value == '1'){
+    public function getStarAttribute($value)
+    {
+        if ($value == '1') {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    public function getCommentAttribute($value){
-        if($value == '1'){
+    public function getCommentAttribute($value)
+    {
+        if ($value == '1') {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    public function getCommentReplyAttribute($value){
-        if($value == '1'){
+    public function getCommentReplyAttribute($value)
+    {
+        if ($value == '1') {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    public function getLikeCommentAttribute($value){
-        if($value == '1'){
+    public function getLikeCommentAttribute($value)
+    {
+        if ($value == '1') {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
-    public function getOtherAttribute($value){
-        if($value == '1'){
+    public function getOtherAttribute($value)
+    {
+        if ($value == '1') {
             return true;
-        }else{
+        } else {
             return false;
         }
     }

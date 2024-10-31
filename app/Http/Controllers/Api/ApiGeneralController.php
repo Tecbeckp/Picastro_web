@@ -71,6 +71,7 @@ class ApiGeneralController extends Controller
         $follower = Auth::user();
 
         $user = User::where('id', $request->id)->whereNot('id', '1')->first();
+        $user_notification_setting = NotificationSetting::where('user_id', $request->id)->first();
         if ($user) {
             if ($follower->id === $user->id) {
                 return $this->error(['You cannot follow yourself']);
@@ -96,15 +97,17 @@ class ApiGeneralController extends Controller
                 $notification->follower_id  = $follower_id;
                 $notification->save();
 
-                $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
-                $targetToken = $user->fcm_token;
-                if ($targetToken) {
-                    $this->notificationService->sendNotification(
-                        'New Followers',
-                        $description,
-                        $targetToken,
-                        json_encode($getnotification)
-                    );
+                if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->follow == true)) {
+                    $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
+                    $targetToken = $user->fcm_token;
+                    if ($targetToken) {
+                        $this->notificationService->sendNotification(
+                            'New Followers',
+                            $description,
+                            $targetToken,
+                            json_encode($getnotification)
+                        );
+                    }
                 }
                 return $this->success(['Followed successfully.'], []);
             } elseif ($follower->followings()->where('user_id', $user->id)->exists()) {
@@ -432,14 +435,17 @@ class ApiGeneralController extends Controller
                         $notification->notification  = 'Someone just awarded you a trophy on your image. Check it out.';
                         $notification->save();
 
-                        $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
-                        if ($post->user && $post->user->fcm_token) {
-                            $this->notificationService->sendNotification(
-                                'Trophies',
-                                'Someone just awarded you a trophy on your image. Check it out.',
-                                $post->user->fcm_token,
-                                json_encode($getnotification)
-                            );
+                        $user_notification_setting = NotificationSetting::where('user_id', $post->user->id)->first();
+                        if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->follow == true)) {
+                            $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
+                            if ($post->user && $post->user->fcm_token) {
+                                $this->notificationService->sendNotification(
+                                    'Trophies',
+                                    'Someone just awarded you a trophy on your image. Check it out.',
+                                    $post->user->fcm_token,
+                                    json_encode($getnotification)
+                                );
+                            }
                         }
                     }
                     return $this->success(['Vote added successfully!'], []);
@@ -1423,9 +1429,9 @@ class ApiGeneralController extends Controller
             ]
         );
 
-        if($data){
+        if ($data) {
             return $this->success(['Updated successfully.'], $data);
-        }else{
+        } else {
             return $this->error(['Something went wrong please try again.']);
         }
     }
