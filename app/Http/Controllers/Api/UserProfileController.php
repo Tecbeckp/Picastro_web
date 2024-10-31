@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\NotificationSetting;
 use App\Models\PostImage;
 use App\Models\Trophy;
 use App\Models\User;
@@ -149,15 +150,16 @@ class UserProfileController extends Controller
         
         $data = [
             'user'      => $user,
-            'posts' => PostImage::where('user_id',auth()->id())->count(),
-            'trophies' => $trophies->map(function ($trophy) use ($vote) {
+            'posts'     => PostImage::where('user_id',auth()->id())->count(),
+            'trophies'  => $trophies->map(function ($trophy) use ($vote) {
                 return [
                     'id' => $trophy->id,
                     'name' => $trophy->name,
                     'icon' => $trophy->icon,
                     'total_trophy' => $vote[$trophy->id] ?? 0
                 ];
-            })
+            }),
+            'notification_setting' => NotificationSetting::where('user_id',auth()->id())->first()
         ];
 
         if($user){
