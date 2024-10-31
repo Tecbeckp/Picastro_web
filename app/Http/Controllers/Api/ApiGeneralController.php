@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\Http;
 use Yajra\DataTables\Facades\DataTables;
 use App\Helpers\PusherHelper;
 use App\Models\Setting;
+use App\Models\NotificationSetting;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 
@@ -588,7 +589,7 @@ class ApiGeneralController extends Controller
             $end_timestamp = strtotime($end_time);
             $remaining_time_in_seconds = $end_timestamp - $current_timestamp;
             $data['remaining_trail_time'] = "$remaining_time_in_seconds";
-            $data['trail_end_time'] = date('d/m/y H:i',strtotime($user_trial->trial_ends_at));
+            $data['trail_end_time'] = date('d/m/y H:i', strtotime($user_trial->trial_ends_at));
         } else {
             $data['remaining_trail_time'] = null;
             $data['trail_end_time'] = null;
@@ -1385,6 +1386,47 @@ class ApiGeneralController extends Controller
             return $this->success(['Get Image of week successfully!'], $data);
         } else {
             return $this->error(['No data found']);
+        }
+    }
+
+    public function UpdateNotificationSetting(Request $request)
+    {
+        $rules = [
+            'follow'        => 'required|in:0,1',
+            'post'          => 'required|in:0,1',
+            'trophy'        => 'required|in:0,1',
+            'star'          => 'required|in:0,1',
+            'comment'       => 'required|in:0,1',
+            'comment_reply' => 'required|in:0,1',
+            'like_comment'  => 'required|in:0,1',
+            'other'         => 'required|in:0,1'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+
+        $data = NotificationSetting::updateOrCreate(
+            [
+                'user_id' => auth()->id()
+            ],
+            [
+                'follow'        => $request->follow,
+                'post'          => $request->post,
+                'trophy'        => $request->trophy,
+                'star'          => $request->star,
+                'comment'       => $request->comment,
+                'comment_reply' => $request->comment_reply,
+                'like_comment'  => $request->like_comment,
+                'other'         => $request->other
+            ]
+        );
+
+        if($data){
+            return $this->success(['Updated successfully.'], $data);
+        }else{
+            return $this->error(['Something went wrong please try again.']);
         }
     }
 }

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->enum('comment',['1','0'])->default('1');
             $table->enum('comment_reply',['1','0'])->default('1');
             $table->enum('like_comment',['1','0'])->default('1');
+            $table->enum('other',['1','0'])->default('1');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
