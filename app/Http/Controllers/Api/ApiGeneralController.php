@@ -43,7 +43,7 @@ use App\Models\Setting;
 use App\Models\NotificationSetting;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
-
+use App\Jobs\TrialPeriodEndReminderJob;
 class ApiGeneralController extends Controller
 {
     use ApiResponseTrait;
@@ -997,6 +997,14 @@ class ApiGeneralController extends Controller
                     'trial_period_status'  => '2'
                 ]);
 
+                // $targetDateTime  = new DateTime($user->trial_ends_at);
+                // $currentDateTime = new DateTime();
+                // $interval        = $currentDateTime->diff($targetDateTime);
+                // $remainingMinutes = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
+                //  $data->reminder_time == $remainingMinutes;
+                //  $dateTime = Carbon::parse('2024-11-01 15:00:00');
+                // dispatch(new TrialPeriodEndReminderJob($this->notificationService))->delay($dateTime);
+
                 return $this->success(['Trial period active successfully.'], []);
             } else {
                 return $this->error(['Your trial period has ended.']);
@@ -1173,15 +1181,33 @@ class ApiGeneralController extends Controller
                 ->whereDoesntHave('userHidePost')
                 ->where(function ($query) use ($request) {
                     $query->where('post_image_title', 'LIKE', '%' . $request->search . '%')
-                        ->orWhere('description', 'LIKE', '%' . $request->search . '%')
-                        ->orWhereHas('ObjectType', function ($q) use ($request) {
-                            $q->where('name', 'LIKE', '%' . $request->search . '%');
-                        })
-                        ->orWhereHas('Telescope', function ($q) use ($request) {
-                            $q->where('name', 'LIKE', '%' . $request->search . '%');
-                        });
-                })
-                ->latest()->paginate(100);
+                        ->orWhere('description', 'LIKE', '%' . $request->search . '%');
+                });
+
+                if($request->location){
+                    if ($request->location == 'NH') {
+                        $observer_location = [1, 2, 3, 4, 6];
+                    } elseif ($request->location == 'SH') {
+                        $observer_location = [5, 7, 8];
+                    } else {
+                        $observer_location = null;
+                    }
+                    $posts->whereIn('observer_location_id', $observer_location);
+                }
+
+                if($request->object_type){
+                    $posts->where('object_type_id', $request->object_type);
+                }
+                if($request->camera_type){
+                    $posts->whereHas('StarCard', function($q) use($request){
+                        $q->where('camera_type', $request->camera_type);
+                    });
+                }
+                if ($request->telescope_type) {
+                    $posts->where('telescope_id', $request->telescope_type);
+                }
+
+                $posts->latest()->paginate(100);
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $posts->getCollection()->transform(function ($post) use ($trophies) {
                 return [
