@@ -1207,7 +1207,7 @@ class ApiGeneralController extends Controller
                     $posts->where('telescope_id', $request->telescope_type);
                 }
 
-                $posts->latest()->paginate(100);
+               $posts = $posts->latest()->paginate(100);
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $posts->getCollection()->transform(function ($post) use ($trophies) {
                 return [
