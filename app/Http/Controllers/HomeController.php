@@ -207,8 +207,8 @@ class HomeController extends Controller
             ]);
             $data = IsRegistration::select('ios_screenshot', 'android_screenshot')->where('id', '1')->first();
             $data = [
-                'android' => $data->android_screenshot == '1' ? true : false,
-                'ios'     => $data->ios_screenshot   == '1' ? true : false
+                'android' => $data->android_screenshot == '0' ? true : false,
+                'ios'     => $data->ios_screenshot   == '0' ? true : false
             ];
             $this->pusherHelper->sendEvent('picastro-real-time-services', 'turn_on_off_screen_shots', $data);
         } elseif ($request->platform_type == 'android_screenshot') {
@@ -222,8 +222,8 @@ class HomeController extends Controller
             ]);
             $data = IsRegistration::select('ios_screenshot', 'android_screenshot')->where('id', '1')->first();
             $data = [
-                'android' => $data->android_screenshot == '1' ? true : false,
-                'ios'     => $data->ios_screenshot   == '1' ? true : false
+                'android' => $data->android_screenshot == '0' ? true : false,
+                'ios'     => $data->ios_screenshot   == '0' ? true : false
             ];
             $this->pusherHelper->sendEvent('picastro-real-time-services', 'turn_on_off_screen_shots', $data);
         }
