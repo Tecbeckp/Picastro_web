@@ -444,7 +444,7 @@ class PostImageController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'image'                 => 'required|mimes:jpg,jpeg,png,webp,tif|min:1024|max:153600',
+            'image'                 => 'required|mimes:jpg,jpeg,png,webp,tif|max:153600',
             'description'           => 'required',
             'object_type'           => 'required_if:only_image_and_description,false',
             'bortle_number'         => 'required_if:only_image_and_description,false',
@@ -693,7 +693,7 @@ class PostImageController extends Controller
     public function update(Request $request)
     {
         $rules = [
-            'image'                 => 'nullable|mimes:jpg,jpeg,png,webp,tiff|min:1024|max:153600',
+            'image'                 => 'nullable|mimes:jpg,jpeg,png,webp,tiff|max:153600',
             'description'           => 'required',
             'object_type'           => 'required_if:only_image_and_description,false',
             'bortle_number'         => 'required_if:only_image_and_description,false',
