@@ -1248,7 +1248,7 @@ class ApiGeneralController extends Controller
 
         $rules = [
             'type'    => 'required|numeric',
-            'search'  => 'required|string'
+            'search'  => 'nullable|string'
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
