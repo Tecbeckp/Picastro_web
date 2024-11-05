@@ -870,7 +870,7 @@ class ApiGeneralController extends Controller
             }
     
     
-            $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('user_id', $request->user_id)->whereDoesntHave('userHidePost')->latest()->get();
+            $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('user_id', $user_id)->whereDoesntHave('userHidePost')->latest()->get();
             $troph = Trophy::select('id', 'name', 'icon')->get();
             $result = [
                 'user' => $user,
