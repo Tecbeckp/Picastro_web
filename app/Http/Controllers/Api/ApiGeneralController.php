@@ -865,7 +865,7 @@ class ApiGeneralController extends Controller
             $vote = [];
             foreach ($trophies as $trophy) {
                 $vote[$trophy->id] = VoteImage::where('trophy_id', $trophy->id)
-                    ->where('post_user_id', $request->user_id)
+                    ->where('post_user_id', $user_id)
                     ->count();
             }
     
@@ -1256,12 +1256,28 @@ class ApiGeneralController extends Controller
         }
 
         if ($request->type == '1') {
-            $users = User::with('userprofile', 'Following')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->whereNot('id', auth()->id())->latest()->paginate(100);
-            $users->getCollection()->transform(function ($user) {
-                $data = $user;
-                $data->unfollow = $user->Following ? false : true;
-                return $data;
-            });
+            if($request->search){
+                $users = User::with('userprofile', 'Following')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->whereNot('id', auth()->id())->latest()->paginate(100);
+                $users->getCollection()->transform(function ($user) {
+                    $data = $user;
+                    $data->unfollow = $user->Following ? false : true;
+                    return $data;
+                });
+            }else{
+                $authUserId = auth()->id();
+                $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
+                $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
+        
+                $relatedUserIds = array_unique(array_merge($followers, $following));
+
+                $users = User::with('userprofile', 'Following')->whereIn('id',$relatedUserIds)->withCount('TotalStar')->where('is_registration', '1')->whereNot('id', auth()->id())->latest()->paginate(100);
+                $users->getCollection()->transform(function ($user) {
+                    $data = $user;
+                    $data->unfollow = $user->Following ? false : true;
+                    return $data;
+                });
+            }
+            
             return $this->success([], $users);
         } else {
             $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
