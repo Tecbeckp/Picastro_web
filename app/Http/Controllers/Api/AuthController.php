@@ -10,6 +10,7 @@ use App\Models\PostImage;
 use App\Models\Trophy;
 use App\Models\User;
 use App\Models\VoteImage;
+use App\Rules\ValidEmail;
 use App\Traits\ApiResponseTrait;
 use App\Traits\MailTrait;
 use Carbon\Carbon;
@@ -27,13 +28,12 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $rules = [
-            'email'             => 'required|email',
+            'email' => ['required', 'email', new ValidEmail],
             'password'          => 'required|min:8'
         ];
 
         $validator = Validator::make($request->all(), $rules, [
             'email.required'     => 'Email Address is required.',
-            'email.email'        => 'Please enter a valid email address.',
             'password.required'  => 'Password is required.',
             'password.min'       => 'Password must be atleast 8 characters long.'
 
@@ -100,17 +100,16 @@ class AuthController extends Controller
 
     public function forgotPassword(Request $request)
     {
-        $rules = [
-            'email'             => 'required|email',
-        ];
-        $validator = Validator::make($request->all(), $rules, [
-            'email.required'  => 'Email Address is required.',
-            'email.email'     => 'Please enter a valid email address.'
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'email', new ValidEmail],
+        ], [
+            'email.required' => 'Email Address is required.'
         ]);
+    
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-
+    
         $user = User::where('email', $request->email)->first();
         if ($user || (isset($request->is_from_register) && $request->is_from_register == 'true')) {
             $otp = rand(1000, 9999);
@@ -129,6 +128,7 @@ class AuthController extends Controller
             'is_from_register'  => $request->is_from_register,
             'subject'           => $request->is_from_register == 'true' ? 'Picastro Email Verification' : 'Forgot Password'
         ];
+
         Mail::to($details['email'])->send(new ForgotPasswordMail($details));
 
     return $this->success(['OTP Send Successfully on your email address.'],$otp);

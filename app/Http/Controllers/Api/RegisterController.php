@@ -7,6 +7,7 @@ use App\Models\IsRegistration;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserProfile;
+use App\Rules\ValidEmail;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -97,14 +98,13 @@ class RegisterController extends Controller
         $rules = [
             'first_name'        => 'required|string',
             'last_name'         => 'required|string',
-            'email'             => 'required|email|unique:users',
+            'email' => ['required', 'email', new ValidEmail, 'unique:users'],
             'password'          => 'required|min:8',
             'confirm_password'  => 'required|same:password'
         ];
 
         $validator = Validator::make($request->all(), $rules, [
             'email.required'             => 'Email Address is required.',
-            'email.email'                => 'Please enter a valid email address.',
             'password.required'          => 'Password is required.',
             'confirm_password.required'  => 'confirm password is required.',
             'password.min'               => 'Password must be atleast 8 characters long.',
