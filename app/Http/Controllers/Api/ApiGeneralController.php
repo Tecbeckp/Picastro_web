@@ -44,6 +44,8 @@ use App\Models\NotificationSetting;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use App\Jobs\TrialPeriodEndReminderJob;
+use DateTime;
+
 class ApiGeneralController extends Controller
 {
     use ApiResponseTrait;
@@ -781,7 +783,12 @@ class ApiGeneralController extends Controller
     {
         try {
             $post_id = $request->post_id;
-            $share_post_link = route('post', base64_encode($post_id));
+            $user_id = $request->user_id;
+            if($post_id){
+                $share_post_link = route('post', base64_encode($post_id));
+            }else{
+                $share_post_link = route('profile', base64_encode($user_id));
+            }
             return $this->success(['Request Proccessed Successfully'], $share_post_link);
         } catch (\Throwable $th) {
             return $this->error(['Internal Server Error']);
@@ -799,58 +806,132 @@ class ApiGeneralController extends Controller
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-        if (explode('/', $request->url) && isset(explode('/', $request->url)[4])) {
-            $id = explode('/', $request->url)[4];
+        $baseUrl = url('');
+        $dee = str_replace($baseUrl, '', $request->url);
+        // dd(explode('/', $dee));
+        if (explode('/', $dee)[1] == 'post') {
+            $postId = explode('/', $dee)[2];
+            $post_id = base64_decode($postId);
+
+            $result = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('id', $post_id)->get();
+            $trophies = Trophy::select('id', 'name', 'icon')->get();
+            $result->transform(function ($post) use ($trophies) {
+                return [
+                    'id'                 => $post->id,
+                    'user_id'            => $post->user_id,
+                    'post_image_title'   => $post->post_image_title,
+                    'image'              => $post->image,
+                    'original_image'      => $post->original_image,
+                    'description'        => $post->description,
+                    'video_length'       => $post->video_length,
+                    'number_of_frame'    => $post->number_of_frame,
+                    'number_of_video'    => $post->number_of_video,
+                    'exposure_time'      => $post->exposure_time,
+                    'total_hours'        => $post->total_hours,
+                    'additional_minutes' => $post->additional_minutes,
+                    'catalogue_number'   => $post->catalogue_number,
+                    'object_name'        => $post->object_name,
+                    'ir_pass'            => $post->ir_pass,
+                    'planet_name'        => $post->planet_name,
+                    'location'           => $post->location,
+                    'ObjectType'         => $post->ObjectType,
+                    'Bortle'             => $post->Bortle,
+                    'ObserverLocation'   => $post->ObserverLocation,
+                    'ApproxLunarPhase'   => $post->ApproxLunarPhase,
+                    'Telescope'          => $post->Telescope,
+                    'only_image_and_description' => $post->only_image_and_description,
+                    'giveStar'           => $post->giveStar ? true : false,
+                    'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
+                    'Follow'             => $post->Follow ? true : false,
+                    'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                    'trophy'             => $trophies,
+                    'star_card'           => $post->StarCard,
+                    'user'               => [
+                        'id'             => $post->user->id,
+                        'first_name'     => $post->user->first_name,
+                        'last_name'      => $post->user->last_name,
+                        'username'       => $post->user->username,
+                        'profile_image'  => $post->user->userprofile->profile_image,
+                        'fcm_token'      => $post->user->fcm_token,
+                    ]
+                ];
+            });
         } else {
-            $id = null;
+            $userId = explode('/', $dee)[2];
+            $user_id = base64_decode($userId);
+
+            $user = User::with('userprofile')->withCount('TotalStar')->where('id', $user_id)->first();
+            $trophies = Trophy::select('id', 'name', 'icon')->get();
+            $vote = [];
+            foreach ($trophies as $trophy) {
+                $vote[$trophy->id] = VoteImage::where('trophy_id', $trophy->id)
+                    ->where('post_user_id', $request->user_id)
+                    ->count();
+            }
+    
+    
+            $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('user_id', $request->user_id)->whereDoesntHave('userHidePost')->latest()->get();
+            $troph = Trophy::select('id', 'name', 'icon')->get();
+            $result = [
+                'user' => $user,
+                'posts' => $posts->count(),
+                'trophies' => $trophies->map(function ($trophy) use ($vote) {
+                    return [
+                        'user_id' => $trophy->id,
+                        'user_name' => $trophy->name,
+                        'user_icon' => $trophy->icon,
+                        'user_total_trophy' => $vote[$trophy->id] ?? 0
+                    ];
+                }),
+                'user_post' => $posts->transform(function ($post) use ($troph) {
+                    return [
+                        'id'                 => $post->id,
+                        'user_id'            => $post->user_id,
+                        'post_image_title'   => $post->post_image_title,
+                        'image'              => $post->image,
+                        'original_image'     => $post->original_image,
+                        'description'        => $post->description,
+                        'video_length'       => $post->video_length,
+                        'number_of_frame'    => $post->number_of_frame,
+                        'number_of_video'    => $post->number_of_video,
+                        'exposure_time'      => $post->exposure_time,
+                        'total_hours'        => $post->total_hours,
+                        'additional_minutes' => $post->additional_minutes,
+                        'catalogue_number'   => $post->catalogue_number,
+                        'object_name'        => $post->object_name,
+                        'ir_pass'            => $post->ir_pass,
+                        'planet_name'        => $post->planet_name,
+                        'location'           => $post->location,
+                        'ObjectType'         => $post->ObjectType,
+                        'Bortle'             => $post->Bortle,
+                        'ObserverLocation'   => $post->ObserverLocation,
+                        'ApproxLunarPhase'   => $post->ApproxLunarPhase,
+                        'Telescope'          => $post->Telescope,
+                        'only_image_and_description' => $post->only_image_and_description,
+                        'giveStar'           => $post->giveStar ? true : false,
+                        'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
+                        'Follow'             => $post->Follow ? true : false,
+                        'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                        'gold_trophy'        => $post->gold_trophy,
+                        'silver_trophy'      => $post->silver_trophy,
+                        'bronze_trophy'      => $post->bronze_trophy,
+                        'trophy'             => $troph,
+                        'star_card'          => $post->StarCard,
+                        'user'               => [
+                            'id'             => $post->user->id,
+                            'first_name'     => $post->user->first_name,
+                            'last_name'      => $post->user->last_name,
+                            'username'       => $post->user->username,
+                            'profile_image'  => $post->user->userprofile->profile_image,
+                            'fcm_token'      => $post->user->fcm_token,
+                        ]
+                    ];
+                })
+            ];
         }
 
-        $post_id = base64_decode($id);
-
-        $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('id', $post_id)->get();
-        $trophies = Trophy::select('id', 'name', 'icon')->get();
-        $posts->transform(function ($post) use ($trophies) {
-            return [
-                'id'                 => $post->id,
-                'user_id'            => $post->user_id,
-                'post_image_title'   => $post->post_image_title,
-                'image'              => $post->image,
-                'original_image'      => $post->original_image,
-                'description'        => $post->description,
-                'video_length'       => $post->video_length,
-                'number_of_frame'    => $post->number_of_frame,
-                'number_of_video'    => $post->number_of_video,
-                'exposure_time'      => $post->exposure_time,
-                'total_hours'        => $post->total_hours,
-                'additional_minutes' => $post->additional_minutes,
-                'catalogue_number'   => $post->catalogue_number,
-                'object_name'        => $post->object_name,
-                'ir_pass'            => $post->ir_pass,
-                'planet_name'        => $post->planet_name,
-                'location'           => $post->location,
-                'ObjectType'         => $post->ObjectType,
-                'Bortle'             => $post->Bortle,
-                'ObserverLocation'   => $post->ObserverLocation,
-                'ApproxLunarPhase'   => $post->ApproxLunarPhase,
-                'Telescope'          => $post->Telescope,
-                'only_image_and_description' => $post->only_image_and_description,
-                'giveStar'           => $post->giveStar ? true : false,
-                'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
-                'Follow'             => $post->Follow ? true : false,
-                'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
-                'trophy'             => $trophies,
-                'star_card'           => $post->StarCard,
-                'user'               => [
-                    'id'             => $post->user->id,
-                    'first_name'     => $post->user->first_name,
-                    'last_name'      => $post->user->last_name,
-                    'username'       => $post->user->username,
-                    'profile_image'  => $post->user->userprofile->profile_image,
-                    'fcm_token'      => $post->user->fcm_token,
-                ]
-            ];
-        });
-        return $this->success([], $posts);
+       
+        return $this->success([], $result);
     }
 
     public function sendChatNotifications(Request $request)
@@ -990,6 +1071,18 @@ class ApiGeneralController extends Controller
                 } elseif ($data->time_period == 'year') {
                     $time = $timeNow->addYears($data->number);
                 }
+                // $targetDateTime  = new DateTime($time->format('Y-m-d H:i:s'));
+                // $reminder_time = $targetDateTime->sub(new DateInterval('PT15M')); 
+                // $currentDateTime = new DateTime();
+                // $interval        = $currentDateTime->diff($targetDateTime);
+                // $remainingMinutes = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
+                //  $data->reminder_time == $remainingMinutes;
+                //  dd($remainingMinutes- $data->reminder_time,$targetDateTime,$reminder_time);
+                //  $dateTime = Carbon::parse('2024-11-01 15:00:00');
+                // $time_rem = $data->reminder_time;
+
+                // $min_time = Carbon::createFromFormat('Y-m-d H:i:s', $time->format('Y-m-d H:i:s'));
+                // $dateTime = $min_time->subMinutes($data->reminder_time);
 
                 User::where('id', auth()->id())->update([
                     'trial_start_at' => date('Y-m-d H:i:s'),
@@ -997,13 +1090,8 @@ class ApiGeneralController extends Controller
                     'trial_period_status'  => '2'
                 ]);
 
-                // $targetDateTime  = new DateTime($user->trial_ends_at);
-                // $currentDateTime = new DateTime();
-                // $interval        = $currentDateTime->diff($targetDateTime);
-                // $remainingMinutes = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
-                //  $data->reminder_time == $remainingMinutes;
-                //  $dateTime = Carbon::parse('2024-11-01 15:00:00');
-                // dispatch(new TrialPeriodEndReminderJob($this->notificationService))->delay($dateTime);
+
+                // dispatch(new TrialPeriodEndReminderJob($this->notificationService, auth()->id(), $time_rem))->delay($dateTime);
 
                 return $this->success(['Trial period active successfully.'], []);
             } else {
@@ -1184,30 +1272,30 @@ class ApiGeneralController extends Controller
                         ->orWhere('description', 'LIKE', '%' . $request->search . '%');
                 });
 
-                if($request->location){
-                    if ($request->location == 'NH') {
-                        $observer_location = [1, 2, 3, 4, 6];
-                    } elseif ($request->location == 'SH') {
-                        $observer_location = [5, 7, 8];
-                    } else {
-                        $observer_location = null;
-                    }
-                    $posts->whereIn('observer_location_id', $observer_location);
+            if ($request->location) {
+                if ($request->location == 'NH') {
+                    $observer_location = [1, 2, 3, 4, 6];
+                } elseif ($request->location == 'SH') {
+                    $observer_location = [5, 7, 8];
+                } else {
+                    $observer_location = null;
                 }
+                $posts->whereIn('observer_location_id', $observer_location);
+            }
 
-                if($request->object_type){
-                    $posts->where('object_type_id', $request->object_type);
-                }
-                if($request->camera_type){
-                    $posts->whereHas('StarCard', function($q) use($request){
-                        $q->where('camera_type', $request->camera_type);
-                    });
-                }
-                if ($request->telescope_type) {
-                    $posts->where('telescope_id', $request->telescope_type);
-                }
+            if ($request->object_type) {
+                $posts->where('object_type_id', $request->object_type);
+            }
+            if ($request->camera_type) {
+                $posts->whereHas('StarCard', function ($q) use ($request) {
+                    $q->where('camera_type', $request->camera_type);
+                });
+            }
+            if ($request->telescope_type) {
+                $posts->where('telescope_id', $request->telescope_type);
+            }
 
-               $posts = $posts->latest()->paginate(100);
+            $posts = $posts->latest()->paginate(100);
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $posts->getCollection()->transform(function ($post) use ($trophies) {
                 return [
