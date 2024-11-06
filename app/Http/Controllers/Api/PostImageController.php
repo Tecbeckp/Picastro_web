@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendNotificationJob;
 use App\Models\ApproxLunarPhase;
 use App\Models\Bortle;
 use App\Models\MainSetup;
@@ -16,6 +17,7 @@ use App\Models\Telescope;
 use App\Models\Trophy;
 use App\Models\User;
 use App\Models\VoteImage;
+use App\Services\NotificationService;
 use App\Traits\ApiResponseTrait;
 use App\Traits\UploadImageTrait;
 use Illuminate\Http\Request;
@@ -29,6 +31,13 @@ class PostImageController extends Controller
 {
     use ApiResponseTrait;
     use UploadImageTrait;
+
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -621,6 +630,7 @@ class PostImageController extends Controller
                 }
             }
 
+            dispatch(new SendNotificationJob($this->notificationService, auth()->id()));
             return $this->success(['Post uploaded successfully!'], []);
         } catch (ValidationException $e) {
             return $this->error($e->errors());
