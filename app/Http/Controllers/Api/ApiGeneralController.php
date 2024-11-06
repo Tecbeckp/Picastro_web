@@ -670,7 +670,7 @@ class ApiGeneralController extends Controller
 
         $groupedNotifications = $notifications->groupBy(function ($item) {
             // Specify types to group explicitly, or else group them as "Others"
-            $knownTypes = ['New Followers', 'Trophies', 'Stars', 'Leading Light Rewards', 'Comments', 'Image of the month']; // Adjust these as needed
+            $knownTypes = ['New Followers', 'Trophies', 'Stars', 'Leading Light Rewards', 'Comments', 'Image of the month', 'New Post']; // Adjust these as needed
             return in_array($item->type, $knownTypes) ? $item->type  :  'Others';
         })->map(function ($items) {
             return $items->map(function ($item) {
