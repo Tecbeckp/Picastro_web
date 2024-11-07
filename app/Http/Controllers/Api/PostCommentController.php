@@ -8,6 +8,7 @@ use App\Models\Notification;
 use App\Models\NotificationSetting;
 use App\Models\PostComment;
 use App\Models\PostImage;
+use App\Models\User;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -134,11 +135,11 @@ class PostCommentController extends Controller
                 }
             }
         } elseif ($post->user_id != auth()->id()) {
-            $notification               = new Notification();
-            $notification->user_id      = $post->user_id;
-            $notification->type         = 'Comments';
-            $notification->post_image_id  = $request->post_image_id;
-            $notification->comment_id  = $comment->id;
+            $notification                  = new Notification();
+            $notification->user_id         = $post->user_id;
+            $notification->type            = 'Comments';
+            $notification->post_image_id   = $request->post_image_id;
+            $notification->comment_id      = $comment->id;
             $notification->notification = auth()->user()->username . ' just commented on your post.';
             $notification->save();
 
@@ -153,6 +154,36 @@ class PostCommentController extends Controller
                         $post->user->fcm_token,
                         json_encode($getnotification)
                     );
+                }
+            }
+        }
+
+        if ($request->user_ids) {
+            $tag_user_id = explode(',', $request->user_ids);
+            $tag_users = User::select('id', 'username', 'fcm_token')->whereIn('id', $tag_user_id)->get();
+
+            if ($tag_users) {
+                foreach ($tag_users as $tagUser) {
+
+                    $notification                  = new Notification();
+                    $notification->user_id         = $tag_users->id;
+                    $notification->type            = 'Comments';
+                    $notification->post_image_id   = $request->post_image_id;
+                    $notification->comment_id      = $comment->id;
+                    $notification->tag_user        = $request->user_ids;
+                    $notification->notification = auth()->user()->username . ' mentioned you in a comment.';
+                    $notification->save();
+
+                    $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'comment_id', 'reply_comment_id', 'is_read')->where('id', $notification->id)->first();
+
+                    if ($tagUser && $tagUser->fcm_token) {
+                        $this->notificationService->sendNotification(
+                            'Comments',
+                            auth()->user()->username . ' mentioned you in a comment.',
+                            $tagUser->fcm_token,
+                            json_encode($getnotification)
+                        );
+                    }
                 }
             }
         }
