@@ -360,7 +360,8 @@ class PostImageController extends Controller
     public function userPostImage(Request $request)
     {
         $rules = [
-            'user_id'   => 'required|numeric|exists:users,id',
+            'user_id'   => 'nullable|numeric|exists:users,id',
+            'username'  => 'nullable|exists:users,username',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -369,17 +370,21 @@ class PostImageController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $user = User::with('userprofile')->withCount('TotalStar')->where('id', $request->user_id)->first();
+        if($request->user_id){
+            $user = User::with('userprofile')->withCount('TotalStar')->where('id', $request->user_id)->first();
+        }else{
+            $user = User::with('userprofile')->withCount('TotalStar')->where('username', $request->username)->first();
+        }
         $trophies = Trophy::select('id', 'name', 'icon')->get();
         $vote = [];
         foreach ($trophies as $trophy) {
             $vote[$trophy->id] = VoteImage::where('trophy_id', $trophy->id)
-                ->where('post_user_id', $request->user_id)
+                ->where('post_user_id', $user->id)
                 ->count();
         }
 
 
-        $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('user_id', $request->user_id)->whereDoesntHave('userHidePost')->latest()->get();
+        $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('user_id', $user->id)->whereDoesntHave('userHidePost')->latest()->get();
         $troph = Trophy::select('id', 'name', 'icon')->get();
         $data = [
             'user' => $user,
