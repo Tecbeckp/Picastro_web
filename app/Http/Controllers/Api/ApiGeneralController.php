@@ -1257,7 +1257,7 @@ class ApiGeneralController extends Controller
 
         if ($request->type == '1') {
             if($request->search){
-                $users = User::with('userprofile', 'Following')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->whereNot('id', auth()->id())->latest()->paginate(100);
+                $users = User::with('userprofile', 'Following')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->whereNotNull('username')->whereNot('id', auth()->id())->latest()->paginate(100);
                 $users->getCollection()->transform(function ($user) {
                     $data = $user;
                     $data->unfollow = $user->Following ? false : true;
