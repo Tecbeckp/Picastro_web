@@ -16,13 +16,15 @@
             ->join('user_profiles', 'users.id', '=', 'user_profiles.user_id')
             ->where('users.id', base64_decode($id))
             ->first();
+            
+            
     @endphp
     @if ($results)
         <meta property="og:url" content="https://picastro.co.uk/profile/{{ $id }}" />
-        <meta property="og:image" content="{{$results->user_profiles->profile_image }}" />
+        <meta property="og:image" content="{{$results->profile_image }}" />
         <meta property="og:type" content="User Profile" />
         <meta property="og:title" content="{{ $results->username }}" />
-        <meta property="og:description" content="{{ $results->user_profiles->bio  ?? $results->first_name .' '. $results->last_name }}" />
+        <meta property="og:description" content="{{ $results->bio  ?? $results->first_name .' '. $results->last_name }}" />
     @endif
 
     @include('includes.style')
