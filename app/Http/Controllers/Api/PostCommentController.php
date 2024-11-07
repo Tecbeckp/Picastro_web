@@ -166,7 +166,7 @@ class PostCommentController extends Controller
                 foreach ($tag_users as $tagUser) {
 
                     $notification                  = new Notification();
-                    $notification->user_id         = $tag_users->id;
+                    $notification->user_id         = $tagUser->id;
                     $notification->type            = 'Comments';
                     $notification->post_image_id   = $request->post_image_id;
                     $notification->comment_id      = $comment->id;
