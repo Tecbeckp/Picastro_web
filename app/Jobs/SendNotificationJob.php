@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\FollowerList;
 use App\Models\Notification;
+use App\Models\NotificationSetting;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -40,23 +41,26 @@ class SendNotificationJob implements ShouldQueue
         $relatedUserIds = array_unique(array_merge($followers, $following));
 
         $users = User::select('id', 'fcm_token')->whereIn('id', $relatedUserIds)->get();
-        $loginUser = User::where('id',$authUserId)->first();
+        $loginUser = User::where('id', $authUserId)->first();
         if ($users) {
             foreach ($users as $user) {
+                $user_notification_setting = NotificationSetting::where('user_id', $user->id)->first();
+
                 $notification = new Notification();
                 $notification->user_id = $user->id;
                 $notification->type    = 'New Post';
                 $notification->post_image_id    = $this->post->id;
-                $notification->notification = $loginUser->username .' added a new post';
+                $notification->notification = $loginUser->username . ' added a new post';
                 $notification->save();
                 $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
-
-                $this->notificationService->sendNotification(
-                    'New Post',
-                    $loginUser->username . ' added a new post',
-                    $user->fcm_token,
-                    json_encode($getnotification)
-                );
+                if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->post == true)) {
+                    $this->notificationService->sendNotification(
+                        'New Post',
+                        $loginUser->username . ' added a new post',
+                        $user->fcm_token,
+                        json_encode($getnotification)
+                    );
+                }
             }
         }
     }
