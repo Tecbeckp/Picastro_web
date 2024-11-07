@@ -12,7 +12,7 @@
     @php
         use Illuminate\Support\Facades\DB;
         $id = request('id');
-        $result = DB::table('users')
+        $results = DB::table('users')
             ->join('user_profiles', 'users.id', '=', 'user_profiles.user_id')
             ->where('users.id', base64_decode($id))
             ->first();
