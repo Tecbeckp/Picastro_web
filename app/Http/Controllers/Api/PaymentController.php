@@ -80,11 +80,11 @@ class PaymentController extends Controller
         
     }
 
-    public function paypalSubscribed(Request $request, $id)
+    public function paypalSubscribed(Request $request, $id, $plan_id)
     {
-
         User::where('id', $id)->update([
-            'subscription' => '1'
+            'subscription' => '1',
+            'subscription_id' => $plan_id
         ]);
 
         $user = User::where('id', $id)->first();
@@ -179,11 +179,12 @@ class PaymentController extends Controller
         }
     }
 
-    public function subscribed($id)
+    public function subscribed($id, $plan_id)
     {
 
         User::where('id', $id)->update([
-            'subscription' => '1'
+            'subscription' => '1',
+            'subscription_id' => $plan_id
         ]);
 
         $user = User::where('id', $id)->first();

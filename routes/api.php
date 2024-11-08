@@ -37,10 +37,10 @@ Route::get('/get-content', [ApiGeneralController::class, 'getContent']);
 Route::get('/get-payment-method-status', [ApiGeneralController::class, 'getPaymentMethodStatus']);
 
 Route::get('/subscription', [PaymentController::class, 'storeSubscription']);
-Route::get('/subscribed/{id}', [PaymentController::class, 'Subscribed'])->name('subscribed');
+Route::get('/subscribed/{id}/{plan_id}', [PaymentController::class, 'Subscribed'])->name('subscribed');
 Route::get('/subscription-cancel/{id}', [PaymentController::class, 'subscriptionCancel'])->name('subscriptionCancel');
 Route::get('/paypal-subscription', [PaymentController::class, 'create']);
-Route::get('/paypal-subscribed/{id}', [PaymentController::class, 'paypalSubscribed']);
+Route::get('/paypal-subscribed/{id}/{plan_id}', [PaymentController::class, 'paypalSubscribed']);
 Route::get('/paypal-subscription-cancel/{id}', [PaymentController::class, 'paypalsubscriptionCancel']);
 Route::get('/create-plan', [PaymentController::class, 'createPlan']);
 Route::get('get-all-test-post-image', [PostImageController::class, 'allTestPostImage']);
