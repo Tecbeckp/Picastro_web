@@ -23,11 +23,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [LoginController::class, 'showLoginForm'])->middleware('guest')->name('userLogin');
-    Route::get('/post/{id}', function(){
-    return json_encode([
-        'message' => 'Download Picastro app to see this post'
-    ]);
+Route::get('/post/{id}', function ($id) {
+    return view('welcome', compact('id'));
 })->name('post');
+Route::get('/profile/{id}', function ($id) {
+    return view('profile', compact('id'));
+})->name('profile');
 Route::get('/otp', function () {
     return view('otp');
 })->name('otp');
@@ -50,7 +51,7 @@ Route::get('/paypal-subscribed/{id}', [PaymentController::class, 'paypalSubscrib
 Route::get('/paypal-subscription-cancel/{id}', [PaymentController::class, 'paypalsubscriptionCancel']);
 Route::get('/create-web-hook', [PaymentController::class, 'createWebHook']);
 Route::get('/create-plan', [PaymentController::class, 'createPlan']);
-Route::get('/create-product', [PaymentController::class, 'createProduct']);
+Route::get('/create-product/{id}', [PaymentController::class, 'createProduct']);
 Route::post('stripe/webhook', '\Laravel\Cashier\Http\Controllers\WebhookController@handleWebhook');
 Route::post('/paypal/webhook', [PaymentController::class, 'paypalWebhook'])->name('paypal.subscription.webhook');
 Route::post('login', [LoginController::class, 'login'])->name('login');
@@ -74,8 +75,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/subscriptions-data', [HomeController::class, 'getSubscriptionData'])->name('SubscriptionData');
     Route::get('/contact-us', [HomeController::class, 'contactUs'])->name('contactUs');
     Route::get('/export-user/{subscription}', [HomeController::class, 'exportUser'])->name('exportUser');
-    
-    
+
+
     Route::get('/get-all-user', [UserController::class, 'getAllUser'])->name('getAllUser');
     Route::get('/get-user-starcamp', [UserController::class, 'getUserStarCamp'])->name('getUserStarCamp');
     Route::get('/block-user/{id}', [UserController::class, 'blockUser'])->name('blockUser');
@@ -101,6 +102,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('coupon', CouponController::class);
     Route::get('get-coupon/{id}', [CouponController::class, 'getCoupon']);
 
-    
+
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 });

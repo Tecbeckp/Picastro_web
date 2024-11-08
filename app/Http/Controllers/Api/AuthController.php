@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Mail\ForgotPasswordMail;
+use App\Models\NotificationSetting;
 use App\Models\Otp;
 use App\Models\PostImage;
 use App\Models\Trophy;
 use App\Models\User;
 use App\Models\VoteImage;
+use App\Rules\ValidEmail;
 use App\Traits\ApiResponseTrait;
 use App\Traits\MailTrait;
 use Carbon\Carbon;
@@ -26,13 +28,12 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $rules = [
-            'email'             => 'required|email',
+            'email' => ['required', 'email', new ValidEmail],
             'password'          => 'required|min:8'
         ];
 
         $validator = Validator::make($request->all(), $rules, [
             'email.required'     => 'Email Address is required.',
-            'email.email'        => 'Please enter a valid email address.',
             'password.required'  => 'Password is required.',
             'password.min'       => 'Password must be atleast 8 characters long.'
 
@@ -82,7 +83,8 @@ class AuthController extends Controller
                         'icon' => $trophy->icon,
                         'total_trophy' => $vote[$trophy->id] ?? 0
                     ];
-                })
+                }),
+            'notification_setting' => NotificationSetting::where('user_id',auth()->id())->first()
             ];
 
             if ($user->status == 1) {
@@ -98,17 +100,16 @@ class AuthController extends Controller
 
     public function forgotPassword(Request $request)
     {
-        $rules = [
-            'email'             => 'required|email',
-        ];
-        $validator = Validator::make($request->all(), $rules, [
-            'email.required'  => 'Email Address is required.',
-            'email.email'     => 'Please enter a valid email address.'
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'email', new ValidEmail],
+        ], [
+            'email.required' => 'Email Address is required.'
         ]);
+    
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-
+    
         $user = User::where('email', $request->email)->first();
         if ($user || (isset($request->is_from_register) && $request->is_from_register == 'true')) {
             $otp = rand(1000, 9999);

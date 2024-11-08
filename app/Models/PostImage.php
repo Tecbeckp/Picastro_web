@@ -13,6 +13,11 @@ class PostImage extends Model
 
     protected $guarded=[];
 
+    protected $appends = [
+        'gold_trophy',
+        'silver_trophy',
+        'bronze_trophy',
+    ];
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -95,6 +100,34 @@ class PostImage extends Model
             return false;
         }else{
             return true;
+        }
+    }
+
+    public function getGoldTrophyAttribute(){
+        $data = VoteImage::where('trophy_id', 1)->where('post_image_id', $this->id)->first();
+        if($data){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public function getSilverTrophyAttribute(){
+        $data = VoteImage::where('trophy_id', 2)->where('post_image_id', $this->id)->first();
+        if($data){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+
+    public function getBronzeTrophyAttribute(){
+        $data = VoteImage::where('trophy_id', 3)->where('post_image_id', $this->id)->first();
+        if($data){
+            return true;
+        }else{
+            return false;
         }
     }
 

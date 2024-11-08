@@ -7,20 +7,24 @@
 <head>
 
     <meta charset="utf-8" />
-    <title>Post | Picastro</title>
+    <title>User Profile | Picastro</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @php
         use Illuminate\Support\Facades\DB;
         $id = request('id');
-        $results = DB::table('post_images')->where('id', base64_decode($id))->first();
-
+        $results = DB::table('users')
+            ->join('user_profiles', 'users.id', '=', 'user_profiles.user_id')
+            ->where('users.id', base64_decode($id))
+            ->first();
+            
+            
     @endphp
     @if ($results)
-        <meta property="og:url" content="https://picastro.co.uk/post/{{$id}}" />
-        <meta property="og:image" content="{{ asset($results->image) }}" />
-        <meta property="og:type" content="Post Image" />
-        <meta property="og:title" content="{{ $results->post_image_title ?? $results->catalogue_number }}" />
-        <meta property="og:description" content="{{ $results->description }}" />
+        <meta property="og:url" content="https://picastro.co.uk/profile/{{ $id }}" />
+        <meta property="og:image" content="{{$results->profile_image }}" />
+        <meta property="og:type" content="User Profile" />
+        <meta property="og:title" content="{{ $results->username }}" />
+        <meta property="og:description" content="{{ $results->bio  ?? $results->first_name .' '. $results->last_name }}" />
     @endif
 
     @include('includes.style')

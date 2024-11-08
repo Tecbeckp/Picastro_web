@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendNotificationJob;
 use App\Models\ApproxLunarPhase;
 use App\Models\Bortle;
 use App\Models\MainSetup;
@@ -16,6 +17,7 @@ use App\Models\Telescope;
 use App\Models\Trophy;
 use App\Models\User;
 use App\Models\VoteImage;
+use App\Services\NotificationService;
 use App\Traits\ApiResponseTrait;
 use App\Traits\UploadImageTrait;
 use Illuminate\Http\Request;
@@ -29,6 +31,13 @@ class PostImageController extends Controller
 {
     use ApiResponseTrait;
     use UploadImageTrait;
+
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -86,6 +95,9 @@ class PostImageController extends Controller
                 'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
                 'Follow'             => $post->Follow ? true : false,
                 'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                'gold_trophy'        => $post->gold_trophy,
+                'silver_trophy'      => $post->silver_trophy,
+                'bronze_trophy'      => $post->bronze_trophy,
                 'trophy'             => $trophies,
                 'star_card'           => $post->StarCard,
                 'user'               => [
@@ -178,6 +190,7 @@ class PostImageController extends Controller
         $otherPostsCollection = $otherPosts->latest()->get();
         $mergedPosts = $relatedPostsCollection->merge($otherPostsCollection);
 
+
         // Paginate the final merged result
         $perPage = 10;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -186,6 +199,19 @@ class PostImageController extends Controller
             'path' => LengthAwarePaginator::resolveCurrentPath()
         ]);
 
+        $filteredPosts = collect();
+        $previousUserId = null;
+
+        foreach ($paginatedPosts->getCollection() as $post) {
+            if ($post->user_id !== $previousUserId) {
+                $filteredPosts->push($post);
+                $previousUserId = $post->user_id;
+            } else {
+                $filteredPosts->push($post);
+            }
+        }
+        $filteredPosts = $filteredPosts->shuffle();
+        $paginatedPosts->setCollection($filteredPosts);
         $trophies = Trophy::select('id', 'name', 'icon')->get();
 
         $paginatedPosts->getCollection()->transform(function ($post) use ($trophies) {
@@ -217,6 +243,9 @@ class PostImageController extends Controller
                 'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
                 'Follow'             => $post->Follow ? true : false,
                 'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                'gold_trophy'        => $post->gold_trophy,
+                'silver_trophy'      => $post->silver_trophy,
+                'bronze_trophy'      => $post->bronze_trophy,
                 'trophy'             => $trophies,
                 'star_card'          => $post->StarCard,
                 'user'               => [
@@ -309,6 +338,9 @@ class PostImageController extends Controller
                 'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
                 'Follow'             => $post->Follow ? true : false,
                 'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                'gold_trophy'        => $post->gold_trophy,
+                'silver_trophy'      => $post->silver_trophy,
+                'bronze_trophy'      => $post->bronze_trophy,
                 'trophy'             => $trophies,
                 'star_card'          => $post->StarCard,
                 'user'               => [
@@ -328,7 +360,8 @@ class PostImageController extends Controller
     public function userPostImage(Request $request)
     {
         $rules = [
-            'user_id'   => 'required|numeric|exists:users,id',
+            'user_id'   => 'nullable|numeric|exists:users,id',
+            'username'  => 'nullable|exists:users,username',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -337,17 +370,21 @@ class PostImageController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $user = User::with('userprofile')->withCount('TotalStar')->where('id', $request->user_id)->first();
+        if($request->user_id){
+            $user = User::with('userprofile')->withCount('TotalStar')->where('id', $request->user_id)->first();
+        }else{
+            $user = User::with('userprofile')->withCount('TotalStar')->where('username', $request->username)->first();
+        }
         $trophies = Trophy::select('id', 'name', 'icon')->get();
         $vote = [];
         foreach ($trophies as $trophy) {
             $vote[$trophy->id] = VoteImage::where('trophy_id', $trophy->id)
-                ->where('post_user_id', $request->user_id)
+                ->where('post_user_id', $user->id)
                 ->count();
         }
 
 
-        $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('user_id', $request->user_id)->latest()->get();
+        $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('user_id', $user->id)->whereDoesntHave('userHidePost')->latest()->get();
         $troph = Trophy::select('id', 'name', 'icon')->get();
         $data = [
             'user' => $user,
@@ -389,6 +426,9 @@ class PostImageController extends Controller
                     'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
                     'Follow'             => $post->Follow ? true : false,
                     'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                    'gold_trophy'        => $post->gold_trophy,
+                    'silver_trophy'      => $post->silver_trophy,
+                    'bronze_trophy'      => $post->bronze_trophy,
                     'trophy'             => $troph,
                     'star_card'          => $post->StarCard,
                     'user'               => [
@@ -595,6 +635,7 @@ class PostImageController extends Controller
                 }
             }
 
+            dispatch(new SendNotificationJob($this->notificationService, auth()->id(), $postImage));
             return $this->success(['Post uploaded successfully!'], []);
         } catch (ValidationException $e) {
             return $this->error($e->errors());

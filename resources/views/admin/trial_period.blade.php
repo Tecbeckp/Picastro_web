@@ -36,7 +36,7 @@
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Time</label>
                                         <input type="number" name="time_number"
-                                            class="form-control" placeholder="15" min="0" value="{{$data->number}}" required />
+                                            class="form-control" placeholder="15" min="1" value="{{$data->number}}" required />
                                     </div>
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Period</label>
@@ -50,6 +50,11 @@
                                             <option value="year" @if($data->time_period == 'year') Selected @endif>Year</option>
                                             
                                         </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="reminder_time" class="form-label">Reminder time</label>
+                                        <input type="number" name="reminder_time" id="reminder_time"
+                                            class="form-control" placeholder="Reminder time in minutes" min="1" value="{{$data->reminder_time}}" required />
                                     </div>
                                 </div>
                                 <button class="btn btn-outline-primary mt-3" type="submit">Update</button>

@@ -29,15 +29,16 @@ class PaymentController extends Controller
         $this->provider->setApiCredentials(config('paypal'));
     }
 
-    public function createProduct()
+    public function createProduct($name)
     {
-        $data = $this->paymentHelper->createProduct('picastro');
+        $data = $this->paymentHelper->createProduct($name);
         dd($data);
     }
 
-    public function createPlan()
+    public function createPlan(Request $request)
     {
-        $data = $this->paymentHelper->createPlan('PROD-75576855AV455634B', 'picastro', '48');
+        
+        $data = $this->paymentHelper->createPlan($request->product_id, $request->product_name, $request->product_price);
         dd($data);
     }
 

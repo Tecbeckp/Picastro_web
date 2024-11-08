@@ -40,8 +40,11 @@ use Illuminate\Support\Facades\Http;
 use Yajra\DataTables\Facades\DataTables;
 use App\Helpers\PusherHelper;
 use App\Models\Setting;
+use App\Models\NotificationSetting;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
+use App\Jobs\TrialPeriodEndReminderJob;
+use DateTime;
 
 class ApiGeneralController extends Controller
 {
@@ -70,6 +73,7 @@ class ApiGeneralController extends Controller
         $follower = Auth::user();
 
         $user = User::where('id', $request->id)->whereNot('id', '1')->first();
+        $user_notification_setting = NotificationSetting::where('user_id', $request->id)->first();
         if ($user) {
             if ($follower->id === $user->id) {
                 return $this->error(['You cannot follow yourself']);
@@ -95,15 +99,17 @@ class ApiGeneralController extends Controller
                 $notification->follower_id  = $follower_id;
                 $notification->save();
 
-                $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
-                $targetToken = $user->fcm_token;
-                if ($targetToken) {
-                    $this->notificationService->sendNotification(
-                        'New Followers',
-                        $description,
-                        $targetToken,
-                        json_encode($getnotification)
-                    );
+                if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->follow == true)) {
+                    $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
+                    $targetToken = $user->fcm_token;
+                    if ($targetToken) {
+                        $this->notificationService->sendNotification(
+                            'New Followers',
+                            $description,
+                            $targetToken,
+                            json_encode($getnotification)
+                        );
+                    }
                 }
                 return $this->success(['Followed successfully.'], []);
             } elseif ($follower->followings()->where('user_id', $user->id)->exists()) {
@@ -263,14 +269,17 @@ class ApiGeneralController extends Controller
                         $notification->notification = 'You just received a star from ' . auth()->user()->username . '. Check it out.';
                         $notification->save();
 
-                        $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
-                        if ($post->user && $post->user->fcm_token) {
-                            $this->notificationService->sendNotification(
-                                'Stars',
-                                'You just received a star from ' . auth()->user()->username . '. Check it out.',
-                                $post->user->fcm_token,
-                                json_encode($getnotification)
-                            );
+                        $user_notification_setting = NotificationSetting::where('user_id', $post->user->id)->first();
+                        if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->star == true)) {
+                            $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
+                            if ($post->user && $post->user->fcm_token) {
+                                $this->notificationService->sendNotification(
+                                    'Stars',
+                                    'You just received a star from ' . auth()->user()->username . '. Check it out.',
+                                    $post->user->fcm_token,
+                                    json_encode($getnotification)
+                                );
+                            }
                         }
                     }
 
@@ -334,7 +343,7 @@ class ApiGeneralController extends Controller
             ->whereHas('postImage', function ($q) {
                 $q->whereNull('deleted_at');
             })->where('IOT', '1')
-            ->get();
+            ->latest()->get();
         if ($data->isNotEmpty()) {
             $data->transform(function ($post) {
                 return [
@@ -367,6 +376,9 @@ class ApiGeneralController extends Controller
                         'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
                         'Follow'             => $post->postImage->Follow ? true : false,
                         'voted_trophy_id'    => $post->postImage->votedTrophy ? $post->postImage->votedTrophy->trophy_id : null,
+                        'gold_trophy'        => $post->postImage->gold_trophy,
+                        'silver_trophy'      => $post->postImage->silver_trophy,
+                        'bronze_trophy'      => $post->postImage->bronze_trophy,
                         'star_card'          => $post->postImage->StarCard,
                         'user'               => [
                             'id'             => $post->postImage->user->id,
@@ -428,14 +440,17 @@ class ApiGeneralController extends Controller
                         $notification->notification  = 'Someone just awarded you a trophy on your image. Check it out.';
                         $notification->save();
 
-                        $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
-                        if ($post->user && $post->user->fcm_token) {
-                            $this->notificationService->sendNotification(
-                                'Trophies',
-                                'Someone just awarded you a trophy on your image. Check it out.',
-                                $post->user->fcm_token,
-                                json_encode($getnotification)
-                            );
+                        $user_notification_setting = NotificationSetting::where('user_id', $post->user->id)->first();
+                        if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->trophy == true)) {
+                            $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
+                            if ($post->user && $post->user->fcm_token) {
+                                $this->notificationService->sendNotification(
+                                    'Trophies',
+                                    'Someone just awarded you a trophy on your image. Check it out.',
+                                    $post->user->fcm_token,
+                                    json_encode($getnotification)
+                                );
+                            }
                         }
                     }
                     return $this->success(['Vote added successfully!'], []);
@@ -587,8 +602,10 @@ class ApiGeneralController extends Controller
             $end_timestamp = strtotime($end_time);
             $remaining_time_in_seconds = $end_timestamp - $current_timestamp;
             $data['remaining_trail_time'] = "$remaining_time_in_seconds";
+            $data['trail_end_time'] = date('d/m/y H:i', strtotime($user_trial->trial_ends_at));
         } else {
             $data['remaining_trail_time'] = null;
+            $data['trail_end_time'] = null;
         }
         return $this->success([], $data);
     }
@@ -655,7 +672,7 @@ class ApiGeneralController extends Controller
 
         $groupedNotifications = $notifications->groupBy(function ($item) {
             // Specify types to group explicitly, or else group them as "Others"
-            $knownTypes = ['New Followers', 'Trophies', 'Stars', 'Leading Light Rewards', 'Comments', 'Image of the month']; // Adjust these as needed
+            $knownTypes = ['New Followers', 'Trophies', 'Stars', 'Leading Light Rewards', 'Comments', 'Image of the month', 'New Post']; // Adjust these as needed
             return in_array($item->type, $knownTypes) ? $item->type  :  'Others';
         })->map(function ($items) {
             return $items->map(function ($item) {
@@ -768,7 +785,12 @@ class ApiGeneralController extends Controller
     {
         try {
             $post_id = $request->post_id;
-            $share_post_link = route('post', base64_encode($post_id));
+            $user_id = $request->user_id;
+            if($post_id){
+                $share_post_link = route('post', base64_encode($post_id));
+            }else{
+                $share_post_link = route('profile', base64_encode($user_id));
+            }
             return $this->success(['Request Proccessed Successfully'], $share_post_link);
         } catch (\Throwable $th) {
             return $this->error(['Internal Server Error']);
@@ -786,58 +808,132 @@ class ApiGeneralController extends Controller
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-        if (explode('/', $request->url) && isset(explode('/', $request->url)[4])) {
-            $id = explode('/', $request->url)[4];
+        $baseUrl = url('');
+        $dee = str_replace($baseUrl, '', $request->url);
+        // dd(explode('/', $dee));
+        if (explode('/', $dee)[1] == 'post') {
+            $postId = explode('/', $dee)[2];
+            $post_id = base64_decode($postId);
+
+            $result = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('id', $post_id)->get();
+            $trophies = Trophy::select('id', 'name', 'icon')->get();
+            $result->transform(function ($post) use ($trophies) {
+                return [
+                    'id'                 => $post->id,
+                    'user_id'            => $post->user_id,
+                    'post_image_title'   => $post->post_image_title,
+                    'image'              => $post->image,
+                    'original_image'      => $post->original_image,
+                    'description'        => $post->description,
+                    'video_length'       => $post->video_length,
+                    'number_of_frame'    => $post->number_of_frame,
+                    'number_of_video'    => $post->number_of_video,
+                    'exposure_time'      => $post->exposure_time,
+                    'total_hours'        => $post->total_hours,
+                    'additional_minutes' => $post->additional_minutes,
+                    'catalogue_number'   => $post->catalogue_number,
+                    'object_name'        => $post->object_name,
+                    'ir_pass'            => $post->ir_pass,
+                    'planet_name'        => $post->planet_name,
+                    'location'           => $post->location,
+                    'ObjectType'         => $post->ObjectType,
+                    'Bortle'             => $post->Bortle,
+                    'ObserverLocation'   => $post->ObserverLocation,
+                    'ApproxLunarPhase'   => $post->ApproxLunarPhase,
+                    'Telescope'          => $post->Telescope,
+                    'only_image_and_description' => $post->only_image_and_description,
+                    'giveStar'           => $post->giveStar ? true : false,
+                    'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
+                    'Follow'             => $post->Follow ? true : false,
+                    'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                    'trophy'             => $trophies,
+                    'star_card'           => $post->StarCard,
+                    'user'               => [
+                        'id'             => $post->user->id,
+                        'first_name'     => $post->user->first_name,
+                        'last_name'      => $post->user->last_name,
+                        'username'       => $post->user->username,
+                        'profile_image'  => $post->user->userprofile->profile_image,
+                        'fcm_token'      => $post->user->fcm_token,
+                    ]
+                ];
+            });
         } else {
-            $id = null;
+            $userId = explode('/', $dee)[2];
+            $user_id = base64_decode($userId);
+
+            $user = User::with('userprofile')->withCount('TotalStar')->where('id', $user_id)->first();
+            $trophies = Trophy::select('id', 'name', 'icon')->get();
+            $vote = [];
+            foreach ($trophies as $trophy) {
+                $vote[$trophy->id] = VoteImage::where('trophy_id', $trophy->id)
+                    ->where('post_user_id', $user_id)
+                    ->count();
+            }
+    
+    
+            $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('user_id', $user_id)->whereDoesntHave('userHidePost')->latest()->get();
+            $troph = Trophy::select('id', 'name', 'icon')->get();
+            $result = [
+                'user' => $user,
+                'posts' => $posts->count(),
+                'trophies' => $trophies->map(function ($trophy) use ($vote) {
+                    return [
+                        'user_id' => $trophy->id,
+                        'user_name' => $trophy->name,
+                        'user_icon' => $trophy->icon,
+                        'user_total_trophy' => $vote[$trophy->id] ?? 0
+                    ];
+                }),
+                'user_post' => $posts->transform(function ($post) use ($troph) {
+                    return [
+                        'id'                 => $post->id,
+                        'user_id'            => $post->user_id,
+                        'post_image_title'   => $post->post_image_title,
+                        'image'              => $post->image,
+                        'original_image'     => $post->original_image,
+                        'description'        => $post->description,
+                        'video_length'       => $post->video_length,
+                        'number_of_frame'    => $post->number_of_frame,
+                        'number_of_video'    => $post->number_of_video,
+                        'exposure_time'      => $post->exposure_time,
+                        'total_hours'        => $post->total_hours,
+                        'additional_minutes' => $post->additional_minutes,
+                        'catalogue_number'   => $post->catalogue_number,
+                        'object_name'        => $post->object_name,
+                        'ir_pass'            => $post->ir_pass,
+                        'planet_name'        => $post->planet_name,
+                        'location'           => $post->location,
+                        'ObjectType'         => $post->ObjectType,
+                        'Bortle'             => $post->Bortle,
+                        'ObserverLocation'   => $post->ObserverLocation,
+                        'ApproxLunarPhase'   => $post->ApproxLunarPhase,
+                        'Telescope'          => $post->Telescope,
+                        'only_image_and_description' => $post->only_image_and_description,
+                        'giveStar'           => $post->giveStar ? true : false,
+                        'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
+                        'Follow'             => $post->Follow ? true : false,
+                        'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                        'gold_trophy'        => $post->gold_trophy,
+                        'silver_trophy'      => $post->silver_trophy,
+                        'bronze_trophy'      => $post->bronze_trophy,
+                        'trophy'             => $troph,
+                        'star_card'          => $post->StarCard,
+                        'user'               => [
+                            'id'             => $post->user->id,
+                            'first_name'     => $post->user->first_name,
+                            'last_name'      => $post->user->last_name,
+                            'username'       => $post->user->username,
+                            'profile_image'  => $post->user->userprofile->profile_image,
+                            'fcm_token'      => $post->user->fcm_token,
+                        ]
+                    ];
+                })
+            ];
         }
 
-        $post_id = base64_decode($id);
-
-        $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('id', $post_id)->get();
-        $trophies = Trophy::select('id', 'name', 'icon')->get();
-        $posts->transform(function ($post) use ($trophies) {
-            return [
-                'id'                 => $post->id,
-                'user_id'            => $post->user_id,
-                'post_image_title'   => $post->post_image_title,
-                'image'              => $post->image,
-                'original_image'      => $post->original_image,
-                'description'        => $post->description,
-                'video_length'       => $post->video_length,
-                'number_of_frame'    => $post->number_of_frame,
-                'number_of_video'    => $post->number_of_video,
-                'exposure_time'      => $post->exposure_time,
-                'total_hours'        => $post->total_hours,
-                'additional_minutes' => $post->additional_minutes,
-                'catalogue_number'   => $post->catalogue_number,
-                'object_name'        => $post->object_name,
-                'ir_pass'            => $post->ir_pass,
-                'planet_name'        => $post->planet_name,
-                'location'           => $post->location,
-                'ObjectType'         => $post->ObjectType,
-                'Bortle'             => $post->Bortle,
-                'ObserverLocation'   => $post->ObserverLocation,
-                'ApproxLunarPhase'   => $post->ApproxLunarPhase,
-                'Telescope'          => $post->Telescope,
-                'only_image_and_description' => $post->only_image_and_description,
-                'giveStar'           => $post->giveStar ? true : false,
-                'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
-                'Follow'             => $post->Follow ? true : false,
-                'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
-                'trophy'             => $trophies,
-                'star_card'           => $post->StarCard,
-                'user'               => [
-                    'id'             => $post->user->id,
-                    'first_name'     => $post->user->first_name,
-                    'last_name'      => $post->user->last_name,
-                    'username'       => $post->user->username,
-                    'profile_image'  => $post->user->userprofile->profile_image,
-                    'fcm_token'      => $post->user->fcm_token,
-                ]
-            ];
-        });
-        return $this->success([], $posts);
+       
+        return $this->success([], $result);
     }
 
     public function sendChatNotifications(Request $request)
@@ -923,15 +1019,19 @@ class ApiGeneralController extends Controller
                     $notification->notification = $request->message;
                     $notification->bulk_notification = '1';
                     $notification->save();
-                    $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'bulk_notification', 'is_read')->where('id', $notification->id)->first();
 
-                    $this->notificationService->sendNotification(
-                        $request->title,
-                        $request->message,
-                        $user->fcm_token,
-                        json_encode($getnotification)
-                    );
+                    $user_notification_setting = NotificationSetting::where('user_id', $user->id)->first();
+                    if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->other == true)) {
 
+                        $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'bulk_notification', 'is_read')->where('id', $notification->id)->first();
+
+                        $this->notificationService->sendNotification(
+                            $request->title,
+                            $request->message,
+                            $user->fcm_token,
+                            json_encode($getnotification)
+                        );
+                    }
                     $success_user[] = $user->id;
                 } else {
                     $faild_user[] = $user->id;
@@ -973,12 +1073,27 @@ class ApiGeneralController extends Controller
                 } elseif ($data->time_period == 'year') {
                     $time = $timeNow->addYears($data->number);
                 }
+                // $targetDateTime  = new DateTime($time->format('Y-m-d H:i:s'));
+                // $reminder_time = $targetDateTime->sub(new DateInterval('PT15M')); 
+                // $currentDateTime = new DateTime();
+                // $interval        = $currentDateTime->diff($targetDateTime);
+                // $remainingMinutes = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
+                //  $data->reminder_time == $remainingMinutes;
+                //  dd($remainingMinutes- $data->reminder_time,$targetDateTime,$reminder_time);
+                //  $dateTime = Carbon::parse('2024-11-01 15:00:00');
+                // $time_rem = $data->reminder_time;
+
+                // $min_time = Carbon::createFromFormat('Y-m-d H:i:s', $time->format('Y-m-d H:i:s'));
+                // $dateTime = $min_time->subMinutes($data->reminder_time);
 
                 User::where('id', auth()->id())->update([
                     'trial_start_at' => date('Y-m-d H:i:s'),
                     'trial_ends_at'  => $time->format('Y-m-d H:i:s'),
                     'trial_period_status'  => '2'
                 ]);
+
+
+                // dispatch(new TrialPeriodEndReminderJob($this->notificationService, auth()->id(), $time_rem))->delay($dateTime);
 
                 return $this->success(['Trial period active successfully.'], []);
             } else {
@@ -1031,12 +1146,14 @@ class ApiGeneralController extends Controller
 
         $request->validate([
             'time_number'   => 'required',
-            'period'        => 'required'
+            'period'        => 'required',
+            'reminder_time' => 'required'
         ]);
 
         TrialPeriod::where('id', 1)->update([
-            'number'      => $request->time_number,
-            'time_period' => $request->period
+            'number'        => $request->time_number,
+            'time_period'   => $request->period,
+            'reminder_time' => $request->reminder_time,
         ]);
 
         return redirect()->back()->with('success', 'Updated successfully.');
@@ -1133,7 +1250,7 @@ class ApiGeneralController extends Controller
 
         $rules = [
             'type'    => 'required|numeric',
-            'search'  => 'required|string'
+            'search'  => 'nullable|string'
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -1141,27 +1258,62 @@ class ApiGeneralController extends Controller
         }
 
         if ($request->type == '1') {
-            $users = User::with('userprofile', 'Following')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->latest()->paginate(100);
-            $users->getCollection()->transform(function ($user) {
-                $data = $user;
-                $data->unfollow = $user->Following ? false : true;
-                return $data;
-            });
+            if($request->search){
+                $users = User::with('userprofile', 'Following')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->whereNotNull('username')->whereNot('id', auth()->id())->latest()->paginate(100);
+                $users->getCollection()->transform(function ($user) {
+                    $data = $user;
+                    $data->unfollow = $user->Following ? false : true;
+                    return $data;
+                });
+            }else{
+                $authUserId = auth()->id();
+                $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
+                $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
+        
+                $relatedUserIds = array_unique(array_merge($followers, $following));
+
+                $users = User::with('userprofile', 'Following')->whereIn('id',$relatedUserIds)->withCount('TotalStar')->where('is_registration', '1')->whereNot('id', auth()->id())->latest()->paginate(100);
+                $users->getCollection()->transform(function ($user) {
+                    $data = $user;
+                    $data->unfollow = $user->Following ? false : true;
+                    return $data;
+                });
+            }
+            
             return $this->success([], $users);
         } else {
             $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
                 ->whereNot('user_id', auth()->id())
+                ->whereDoesntHave('userHidePost')
                 ->where(function ($query) use ($request) {
                     $query->where('post_image_title', 'LIKE', '%' . $request->search . '%')
-                        ->orWhere('description', 'LIKE', '%' . $request->search . '%')
-                        ->orWhereHas('ObjectType', function ($q) use ($request) {
-                            $q->where('name', 'LIKE', '%' . $request->search . '%');
-                        })
-                        ->orWhereHas('Telescope', function ($q) use ($request) {
-                            $q->where('name', 'LIKE', '%' . $request->search . '%');
-                        });
-                })
-                ->latest()->paginate(100);
+                        ->orWhere('description', 'LIKE', '%' . $request->search . '%');
+                });
+
+            if ($request->location) {
+                if ($request->location == 'NH') {
+                    $observer_location = [1, 2, 3, 4, 6];
+                } elseif ($request->location == 'SH') {
+                    $observer_location = [5, 7, 8];
+                } else {
+                    $observer_location = null;
+                }
+                $posts->whereIn('observer_location_id', $observer_location);
+            }
+
+            if ($request->object_type) {
+                $posts->where('object_type_id', $request->object_type);
+            }
+            if ($request->camera_type) {
+                $posts->whereHas('StarCard', function ($q) use ($request) {
+                    $q->where('camera_type', $request->camera_type);
+                });
+            }
+            if ($request->telescope_type) {
+                $posts->where('telescope_id', $request->telescope_type);
+            }
+
+            $posts = $posts->latest()->paginate(100);
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $posts->getCollection()->transform(function ($post) use ($trophies) {
                 return [
@@ -1192,6 +1344,9 @@ class ApiGeneralController extends Controller
                     'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
                     'Follow'             => $post->Follow ? true : false,
                     'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                    'gold_trophy'        => $post->gold_trophy,
+                    'silver_trophy'      => $post->silver_trophy,
+                    'bronze_trophy'      => $post->bronze_trophy,
                     'trophy'             => $trophies,
                     'star_card'           => $post->StarCard,
                     'user'               => [
@@ -1376,6 +1531,47 @@ class ApiGeneralController extends Controller
             return $this->success(['Get Image of week successfully!'], $data);
         } else {
             return $this->error(['No data found']);
+        }
+    }
+
+    public function UpdateNotificationSetting(Request $request)
+    {
+        $rules = [
+            'follow'        => 'required|in:0,1',
+            'post'          => 'required|in:0,1',
+            'trophy'        => 'required|in:0,1',
+            'star'          => 'required|in:0,1',
+            'comment'       => 'required|in:0,1',
+            'comment_reply' => 'required|in:0,1',
+            'like_comment'  => 'required|in:0,1',
+            'other'         => 'required|in:0,1'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+
+        $data = NotificationSetting::updateOrCreate(
+            [
+                'user_id' => auth()->id()
+            ],
+            [
+                'follow'        => $request->follow,
+                'post'          => $request->post,
+                'trophy'        => $request->trophy,
+                'star'          => $request->star,
+                'comment'       => $request->comment,
+                'comment_reply' => $request->comment_reply,
+                'like_comment'  => $request->like_comment,
+                'other'         => $request->other
+            ]
+        );
+
+        if ($data) {
+            return $this->success(['Updated successfully.'], $data);
+        } else {
+            return $this->error(['Something went wrong please try again.']);
         }
     }
 }

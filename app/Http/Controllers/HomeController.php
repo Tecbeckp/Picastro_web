@@ -22,16 +22,21 @@ use Illuminate\Support\Facades\DB;
 use App\Exports\UsersExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Mail;
+use App\Helpers\PusherHelper;
 
 class HomeController extends Controller
 {
     use ApiResponseTrait;
+    protected $pusherHelper;
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct() {}
+    public function __construct()
+    {
+        $this->pusherHelper = new PusherHelper();
+    }
 
     /**
      * Show the application dashboard.
@@ -200,6 +205,12 @@ class HomeController extends Controller
             IsRegistration::where('id', '1')->update([
                 'ios_screenshot' => $allow
             ]);
+            $data = IsRegistration::select('ios_screenshot', 'android_screenshot')->where('id', '1')->first();
+            $data = [
+                'android' => $data->android_screenshot == '0' ? true : false,
+                'ios'     => $data->ios_screenshot   == '0' ? true : false
+            ];
+            $this->pusherHelper->sendEvent('picastro-real-time-services', 'turn_on_off_screen_shots', $data);
         } elseif ($request->platform_type == 'android_screenshot') {
             if ($request->status == 'true') {
                 $allow = '0';
@@ -209,9 +220,14 @@ class HomeController extends Controller
             IsRegistration::where('id', '1')->update([
                 'android_screenshot' => $allow
             ]);
+            $data = IsRegistration::select('ios_screenshot', 'android_screenshot')->where('id', '1')->first();
+            $data = [
+                'android' => $data->android_screenshot == '0' ? true : false,
+                'ios'     => $data->ios_screenshot   == '0' ? true : false
+            ];
+            $this->pusherHelper->sendEvent('picastro-real-time-services', 'turn_on_off_screen_shots', $data);
         }
         return $this->success(['Successfully'], $status);
-
     }
 
     public function appVersion(Request $request)
@@ -356,12 +372,13 @@ class HomeController extends Controller
         return response()->json(['message' => 'Email sent successfully.'], 200);
     }
 
-     public function exportUser($subscription){
-        if($subscription == '1'){
+    public function exportUser($subscription)
+    {
+        if ($subscription == '1') {
             $file_name = 'PaidUser.csv';
-        }else{
+        } else {
             $file_name = 'UnpaidUser.csv';
         }
         return Excel::download(new UsersExport($subscription), $file_name);
-     }
+    }
 }
