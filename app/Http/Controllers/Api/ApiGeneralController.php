@@ -594,7 +594,13 @@ class ApiGeneralController extends Controller
         $data['android_screenshot'] = IsRegistration::first()->android_screenshot;
         $data['trial_period'] = TrialPeriod::first();
         $data['app_under_maintenance'] = Setting::where('id', '1')->first()->maintenance;
-        $data['subscription_plan'] = SubscriptionPlan::all();
+        $used_trial = User::where('id', $request->user_id)->whereIn('trial_period_status', ['0','2'])->first();
+       
+        if($used_trial){
+            $data['subscription_plan'] = SubscriptionPlan::wherNot('id','1')->get();
+        }else{
+            $data['subscription_plan'] = SubscriptionPlan::all();
+        }
 
         $user_trial = User::where('id', $request->user_id)->where('trial_period_status', '2')->first();
         if ($user_trial) {
