@@ -38,7 +38,7 @@ class PostCommentController extends Controller
         }
         $post_id = $request->post_id;
 
-        $post_comments = PostComment::with('user.userprofile', 'ReplyComment.user.userprofile', 'ReplyComment.LikedComment')->where('post_image_id', $post_id)->whereNull('post_comment_id')->latest()->paginate(10);
+        $post_comments = PostComment::with('user.userprofile', 'ReplyComment.user.userprofile', 'ReplyComment.LikedComment')->where('post_image_id', $post_id)->whereNull('post_comment_id')->paginate(10);
 
         $post_comments->getCollection()->transform(function ($comment) {
 
