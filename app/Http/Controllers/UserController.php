@@ -194,10 +194,10 @@ return $btn;
 
         if($user){
             $user_id = decrypt($id);
-            $users = User::where('id', $user_id)->first();
+            $users = User::count();
             User::where('id', $user_id)->update([
-                'email' => 'delete' . $users->count() . $users->email,
-                'username' => 'delete'.$users->count() . $users->username
+                'email'    => 'delete' . $users . $user->email,
+                'username' => 'delete'.$users . $user->username
             ]);
             $user->delete();
             $post = PostImage::where('user_id',decrypt($id))->delete();
