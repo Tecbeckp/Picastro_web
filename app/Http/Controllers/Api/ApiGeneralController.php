@@ -597,7 +597,7 @@ class ApiGeneralController extends Controller
         $used_trial = User::where('id', $request->user_id)->whereIn('trial_period_status', ['0','2'])->first();
        
         if($used_trial){
-            $data['subscription_plan'] = SubscriptionPlan::wherNot('id','1')->get();
+            $data['subscription_plan'] = SubscriptionPlan::whereNot('id','1')->get();
         }else{
             $data['subscription_plan'] = SubscriptionPlan::all();
         }
