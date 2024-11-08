@@ -20,7 +20,7 @@
             
     @endphp
     @if ($results)
-        <meta property="og:url" content="https://picastro.co.uk/profile/{{ $id }}" />
+        <meta property="og:url" content="{{ url('profile/'.$id) }}" />
         <meta property="og:image" content="{{$results->profile_image }}" />
         <meta property="og:type" content="User Profile" />
         <meta property="og:title" content="{{ $results->username }}" />
