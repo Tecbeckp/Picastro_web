@@ -11,6 +11,7 @@ use App\Helpers\WebPaymentHelper;
 use App\Mail\giftMail;
 use App\Models\Coupons;
 use App\Models\PaypalSubscription;
+use App\Models\SubscriptionPlan;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Stripe\Customer;
@@ -47,29 +48,36 @@ class PaymentController extends Controller
         $data = $this->paymentHelper->createWebHook();
         dd($data);
     }
-    public function create(Request $request, string $plan_id = 'P-1075760685626815NM3RO7BI')
+    public function create(Request $request)
     {
+        // string $plan_id = 'P-1075760685626815NM3RO7BI'
         // P-44X84743BV816410HM3GGGUQ
         if ($request->gifted_plan_user_id) {
             $id = $request->gifted_plan_user_id;
         } else {
             $id = $request->user_id;
         }
-        $this->paymentHelper->subscribeToPlan($plan_id, $id);
-        $subscriptionResponse =   $this->paymentHelper->getSubscriptionResponse();
-        // Get the approval link
-        $link = $this->paymentHelper->redirectUrl($subscriptionResponse['links'], 'approve');
-
-        PaypalSubscription::create([
-            'user_id' => $id,
-            'plan_id' => $subscriptionResponse['plan_id'],
-            'subscription_id' => $subscriptionResponse['id'],
-            'quantity' => $subscriptionResponse['quantity'],
-            'status' => $subscriptionResponse['status'],
-            'link' => $link,
-        ]);
-
-        return redirect()->away($link);
+        $subscription_plan = SubscriptionPlan::where('id', $request->plan_id)->first();
+        if($subscription_plan){
+            $this->paymentHelper->subscribeToPlan($subscription_plan->paypal_price_id, $id);
+            $subscriptionResponse =   $this->paymentHelper->getSubscriptionResponse();
+            // Get the approval link
+            $link = $this->paymentHelper->redirectUrl($subscriptionResponse['links'], 'approve');
+    
+            PaypalSubscription::create([
+                'user_id' => $id,
+                'plan_id' => $subscriptionResponse['plan_id'],
+                'subscription_id' => $subscriptionResponse['id'],
+                'quantity' => $subscriptionResponse['quantity'],
+                'status' => $subscriptionResponse['status'],
+                'link' => $link,
+            ]);
+    
+            return redirect()->away($link);
+        }else{
+            return $this->error(['Internal server error.']);
+        }
+        
     }
 
     public function paypalSubscribed(Request $request, $id)
@@ -117,8 +125,8 @@ class PaymentController extends Controller
         Stripe::setApiKey(config('services.stripe.secret'));
 
         $user = User::where('id', $user_id)->first();
-
-        if ($user) {
+        $subscription_plan = SubscriptionPlan::where('id', $request->plan_id)->first();
+        if ($user && $subscription_plan) {
             // $pll = ''; prod_QjWAuSh9HNzXEc
             // $pll = 'price_1Ps38NICvNFT82L6uSUKhcI4';
             $customer = $user->stripe_id
@@ -140,7 +148,7 @@ class PaymentController extends Controller
                     'card',
                 ],
                 'line_items' => [[
-                    'price'      => 'price_1Ps38NICvNFT82L6uSUKhcI4',
+                    'price'      => $subscription_plan->stripe_price_id,
                     'quantity'   => 1,
                 ]],
                 'mode' => 'subscription',
@@ -167,7 +175,7 @@ class PaymentController extends Controller
             $checkoutSession = \Stripe\Checkout\Session::create($checkoutSessionData);
             return Redirect::to($checkoutSession->url);
         } else {
-            return $this->error(['User Not Found.']);
+            return $this->error(['Internal server error.']);
         }
     }
 
