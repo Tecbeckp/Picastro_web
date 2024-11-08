@@ -28,7 +28,8 @@ class User extends Authenticatable
         'platform_type',
         'fcm_token',
         'is_registration',
-        'gift_subscription'
+        'gift_subscription',
+        'subscription_id'
     ];
 
     /**
