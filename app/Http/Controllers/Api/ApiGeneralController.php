@@ -44,6 +44,7 @@ use App\Models\NotificationSetting;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use App\Jobs\TrialPeriodEndReminderJob;
+use App\Models\SubscriptionPlan;
 use DateTime;
 
 class ApiGeneralController extends Controller
@@ -593,6 +594,7 @@ class ApiGeneralController extends Controller
         $data['android_screenshot'] = IsRegistration::first()->android_screenshot;
         $data['trial_period'] = TrialPeriod::first();
         $data['app_under_maintenance'] = Setting::where('id', '1')->first()->maintenance;
+        $data['subscription_plan'] = SubscriptionPlan::all();
 
         $user_trial = User::where('id', $request->user_id)->where('trial_period_status', '2')->first();
         if ($user_trial) {
@@ -1573,5 +1575,9 @@ class ApiGeneralController extends Controller
         } else {
             return $this->error(['Something went wrong please try again.']);
         }
+    }
+
+    public function GetSubscriptionPlan(){
+
     }
 }
