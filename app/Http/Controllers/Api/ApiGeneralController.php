@@ -44,6 +44,7 @@ use App\Models\NotificationSetting;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use App\Jobs\TrialPeriodEndReminderJob;
+use App\Models\GiftSubscription;
 use App\Models\SubscriptionPlan;
 use DateTime;
 
@@ -1429,7 +1430,8 @@ class ApiGeneralController extends Controller
     public function sendGift(Request $request)
     {
         $rules = [
-            'email'  => 'required|email'
+            'email'     => 'required|email',
+            'my_email'  => 'required|email'
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -1450,9 +1452,13 @@ class ApiGeneralController extends Controller
                 'last_name'         => $request->email,
                 'email'             => $request->email,
                 'password'          => Hash::make('987654321'),
-                'gift_subscription' => auth()->id(),
                 'is_registration'   => '0'
             ]);
+            GiftSubscription::create([
+                'email' => $request->my_email,
+                'gifted_email' => $request->email
+            ]);
+            
             return $this->success(['successfully.'], $data);
         }
     }

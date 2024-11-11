@@ -45,6 +45,7 @@ Route::get('/paypal-subscription-cancel/{id}', [PaymentController::class, 'paypa
 Route::get('/create-plan', [PaymentController::class, 'createPlan']);
 Route::get('get-all-test-post-image', [PostImageController::class, 'allTestPostImage']);
 Route::get('/pusher-common-keys', [ApiGeneralController::class ,'pusherCommonKeys']);
+Route::post('send-gift', [ApiGeneralController::class, 'sendGift'])->name('sendGift');
 
 Route::group(['middleware' => 'auth:sanctum'], function () {    
     Route::post('pusher-auths', [ApiGeneralController::class, 'pusherAuths']); 
@@ -106,7 +107,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('get-given-star-users', [ApiGeneralController::class, 'getGivenStarUser'])->name('getGivenStarUser');
     Route::get('all-over-search', [ApiGeneralController::class, 'AllOverSearch'])->name('AllOverSearch');
     Route::get('apply-coupon', [ApiGeneralController::class, 'applyCoupon'])->name('applyCoupon');
-    Route::post('send-gift', [ApiGeneralController::class, 'sendGift'])->name('sendGift');
     Route::get('hide-post', [ApiGeneralController::class, 'HidePost'])->name('HidePost');
     Route::get('image-of-week', [ApiGeneralController::class, 'imageOfweek']);
     Route::post('update-notification-setting', [ApiGeneralController::class, 'UpdateNotificationSetting']);
