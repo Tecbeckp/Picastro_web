@@ -1439,6 +1439,7 @@ class ApiGeneralController extends Controller
         }
 
         $user = User::where('email', $request->email)->first();
+        $active_user = User::where('email', $request->my_email)->first();
 
         if ($user && $user->is_registration == '0' && $user->subscription == '1') {
             return $this->error(['This user already has a gifted plan.']);
@@ -1452,13 +1453,14 @@ class ApiGeneralController extends Controller
                 'last_name'         => $request->email,
                 'email'             => $request->email,
                 'password'          => Hash::make('987654321'),
+                'gift_subscription' => $active_user ? $active_user->id : null,
                 'is_registration'   => '0'
             ]);
             GiftSubscription::create([
                 'email' => $request->my_email,
                 'gifted_email' => $request->email
             ]);
-            
+
             return $this->success(['successfully.'], $data);
         }
     }
