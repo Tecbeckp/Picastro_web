@@ -70,6 +70,9 @@ class PostImage extends Model
     public function blockToUser(){
         return $this->hasOne(BlockToUser::class, 'block_user_id', 'user_id')->where('user_id',auth()->id());
     }
+    public function UserToBlock(){
+        return $this->hasOne(BlockToUser::class, 'user_id', 'user_id')->where('block_user_id',auth()->id());
+    }
 
     public function userHidePost(){
         return $this->hasOne(HidePost::class, 'post_id', 'id')->where('user_id',auth()->id());

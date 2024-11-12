@@ -154,11 +154,13 @@ class PostImageController extends Controller
 
         $relatedPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
             ->whereDoesntHave('blockToUser')
+            ->whereDoesntHave('UserToBlock')
             ->whereDoesntHave('userHidePost')
             ->whereIn('user_id', $relatedUserIds)
             ->whereNot('user_id', $authUserId);
         $otherPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
             ->whereDoesntHave('blockToUser')
+            ->whereDoesntHave('UserToBlock')
             ->whereDoesntHave('userHidePost')
             ->whereNotIn('user_id', $relatedUserIds);
 
@@ -291,7 +293,7 @@ class PostImageController extends Controller
             $observer_location = null;
         }
 
-        $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->whereDoesntHave('blockToUser')->whereNot('user_id', auth()->id());
+        $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->whereDoesntHave('blockToUser')->whereDoesntHave('UserToBlock')->whereNot('user_id', auth()->id());
         if ($observer_location) {
             $posts->whereIn('observer_location_id', $observer_location);
         }

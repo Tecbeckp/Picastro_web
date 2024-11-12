@@ -1296,6 +1296,8 @@ class ApiGeneralController extends Controller
             $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
                 ->whereNot('user_id', auth()->id())
                 ->whereDoesntHave('userHidePost')
+                ->whereDoesntHave('blockToUser')
+                ->whereDoesntHave('UserToBlock')
                 ->where(function ($query) use ($request) {
                     $query->where('post_image_title', 'LIKE', '%' . $request->search . '%')
                         ->orWhere('description', 'LIKE', '%' . $request->search . '%');
