@@ -596,12 +596,12 @@ class ApiGeneralController extends Controller
         $data['trial_period'] = TrialPeriod::first();
         $data['app_under_maintenance'] = Setting::where('id', '1')->first()->maintenance;
         $data['enable_plan'] = true;
-        
-        $used_trial = User::where('id', $request->user_id)->whereIn('trial_period_status', ['0','2'])->first();
-       
-        if($used_trial){
-            $data['subscription_plan'] = SubscriptionPlan::whereNot('id','1')->get();
-        }else{
+
+        $used_trial = User::where('id', $request->user_id)->whereIn('trial_period_status', ['0', '2'])->first();
+
+        if ($used_trial) {
+            $data['subscription_plan'] = SubscriptionPlan::whereNot('id', '1')->get();
+        } else {
             $data['subscription_plan'] = SubscriptionPlan::all();
         }
 
@@ -797,9 +797,9 @@ class ApiGeneralController extends Controller
         try {
             $post_id = $request->post_id;
             $user_id = $request->user_id;
-            if($post_id){
+            if ($post_id) {
                 $share_post_link = route('post', base64_encode($post_id));
-            }else{
+            } else {
                 $share_post_link = route('profile', base64_encode($user_id));
             }
             return $this->success(['Request Proccessed Successfully'], $share_post_link);
@@ -881,8 +881,8 @@ class ApiGeneralController extends Controller
                     ->where('post_user_id', $user_id)
                     ->count();
             }
-    
-    
+
+
             $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('user_id', $user_id)->whereDoesntHave('userHidePost')->latest()->get();
             $troph = Trophy::select('id', 'name', 'icon')->get();
             $result = [
@@ -943,7 +943,7 @@ class ApiGeneralController extends Controller
             ];
         }
 
-       
+
         return $this->success([], $result);
     }
 
@@ -1269,28 +1269,28 @@ class ApiGeneralController extends Controller
         }
 
         if ($request->type == '1') {
-            if($request->search){
+            if ($request->search) {
                 $users = User::with('userprofile', 'Following')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->whereNotNull('username')->whereNot('id', auth()->id())->latest()->paginate(100);
                 $users->getCollection()->transform(function ($user) {
                     $data = $user;
                     $data->unfollow = $user->Following ? false : true;
                     return $data;
                 });
-            }else{
+            } else {
                 $authUserId = auth()->id();
                 $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
                 $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
-        
+
                 $relatedUserIds = array_unique(array_merge($followers, $following));
 
-                $users = User::with('userprofile', 'Following')->whereIn('id',$relatedUserIds)->withCount('TotalStar')->where('is_registration', '1')->whereNot('id', auth()->id())->latest()->paginate(100);
+                $users = User::with('userprofile', 'Following')->whereIn('id', $relatedUserIds)->withCount('TotalStar')->where('is_registration', '1')->whereNot('id', auth()->id())->latest()->paginate(100);
                 $users->getCollection()->transform(function ($user) {
                     $data = $user;
                     $data->unfollow = $user->Following ? false : true;
                     return $data;
                 });
             }
-            
+
             return $this->success([], $users);
         } else {
             $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
@@ -1488,6 +1488,7 @@ class ApiGeneralController extends Controller
 
     public function imageOfweek(Request $request)
     {
+
         $data = ImageOfWeek::with([
             'postImage.user',
             'postImage.StarCard.StarCardFilter',
@@ -1503,12 +1504,12 @@ class ApiGeneralController extends Controller
         ])->whereHas('postImage', function ($q) {
             $q->whereNull('deleted_at');
         })->get();
+
         if ($data->isNotEmpty()) {
-            $data->transform(function ($post) {
+            $groupedData = $data->transform(function ($post) {
                 return [
-                    'place'                   => $post->place,
-                    'object_type'            => $post->postImage->ObjectType ? $post->postImage->ObjectType->name : 'Other',
-                    'post_image'             => [
+                    'place'                   => 'place_' . $post->place, // Group by place
+                    'post_image'              => [
                         'id'                 => $post->postImage->id,
                         'user_id'            => $post->postImage->user_id,
                         'post_image_title'   => $post->postImage->post_image_title,
@@ -1546,9 +1547,9 @@ class ApiGeneralController extends Controller
                         ]
                     ]
                 ];
-            });
+            })->groupBy('place'); // Group posts by "place"
 
-            return $this->success(['Get Image of week successfully!'], $data);
+            return $this->success(['Get Image of week successfully!'], $groupedData);
         } else {
             return $this->error(['No data found']);
         }
@@ -1595,7 +1596,5 @@ class ApiGeneralController extends Controller
         }
     }
 
-    public function GetSubscriptionPlan(){
-
-    }
+    public function GetSubscriptionPlan() {}
 }
