@@ -1379,7 +1379,8 @@ class ApiGeneralController extends Controller
     public function applyCoupon(Request $request)
     {
         $rules = [
-            'coupon_code'  => 'required'
+            'coupon_code'          => 'required',
+            'subscription_plan_id' => 'required'
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -1387,24 +1388,28 @@ class ApiGeneralController extends Controller
         }
 
         $coupon = Coupons::where('code', $request->coupon_code)->where('status', 'enabled')->first();
-
-        if ($coupon) {
-            if ($coupon->expires_at >= now()->format('Y-m-d')) {
-                if ($coupon->type == 'percentage') {
-                    $discount_price = ($coupon->discount / 100) * 48;
+        $subscription = SubscriptionPlan::where('id', $request->subscription_plan_id)->where('id', '!=', '1')->first();
+        if ($subscription) {
+            if ($coupon) {
+                if ($coupon->expires_at >= now()->format('Y-m-d')) {
+                    if ($coupon->type == 'percentage') {
+                        $discount_price = ($coupon->discount / 100) * $subscription->plan_price;
+                    } else {
+                        $discount_price = $coupon->discount;
+                    }
+                    $data = [
+                        'discount_price' => number_format($discount_price, 2),
+                        'updated_price' => number_format($subscription->plan_price - $discount_price, 2)
+                    ];
+                    return $this->success(['Apply coupon successfully.'], $data);
                 } else {
-                    $discount_price = $coupon->discount;
+                    return $this->error(['This coupon is expire']);
                 }
-                $data = [
-                    'discount_price' => number_format($discount_price, 2),
-                    'updated_price' => number_format('48' - $discount_price, 2)
-                ];
-                return $this->success(['Apply coupon successfully.'], $data);
             } else {
-                return $this->error(['This coupon is expire']);
+                return $this->error(['Invalid coupon code.']);
             }
         } else {
-            return $this->error(['Invalid coupon code.']);
+            return $this->error(['Select valid subscription plan.']);
         }
     }
 
