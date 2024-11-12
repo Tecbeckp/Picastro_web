@@ -506,7 +506,7 @@ class PostImageController extends Controller
         }
         $postlimit = PostImage::where('user_id', auth()->id())->count();
         if($subscription && $subscription->post_limit != 0 && $postlimit >= $subscription->post_limit){
-            return $this->error(["You can't upload post images as your Picastro Callisto subscription limit of 25 images has been exceeded."]);
+            return $this->error(["You can't upload post images as your " . $subscription->plan_name." subscription limit of ".$subscription->post_limit." images has been exceeded."]);
         }
         try {
             $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/');
