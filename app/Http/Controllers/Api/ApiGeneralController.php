@@ -1182,8 +1182,8 @@ class ApiGeneralController extends Controller
         }
 
         $followers = FollowerList::with('follower.userprofile', 'follower.Following')
-        // ->whereDoesntHave('blockToUser')
-        // ->whereDoesntHave('UserToBlock')
+        ->whereDoesntHave('blockToUser')
+        ->whereDoesntHave('UserToBlock')
         ->where('user_id', auth()->id());
         if ($request->search) {
             $search = $request->search;
@@ -1214,7 +1214,10 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followings = FollowerList::with('following.userprofile')->where('follower_id', auth()->id());
+        $followings = FollowerList::with('following.userprofile')
+        ->whereDoesntHave('blockToUser')
+        ->whereDoesntHave('UserToBlock')
+        ->where('follower_id', auth()->id());
         if ($request->search) {
             $search = $request->search;
             $followings->whereHas('following', function ($q) use ($search) {
