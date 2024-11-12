@@ -1100,7 +1100,8 @@ class ApiGeneralController extends Controller
                 User::where('id', auth()->id())->update([
                     'trial_start_at' => date('Y-m-d H:i:s'),
                     'trial_ends_at'  => $time->format('Y-m-d H:i:s'),
-                    'trial_period_status'  => '2'
+                    'trial_period_status'  => '2',
+                    'subscription_id'   => 1
                 ]);
 
 
@@ -1180,7 +1181,10 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followers = FollowerList::with('follower.userprofile', 'follower.Following')->where('user_id', auth()->id());
+        $followers = FollowerList::with('follower.userprofile', 'follower.Following')
+        // ->whereDoesntHave('blockToUser')
+        // ->whereDoesntHave('UserToBlock')
+        ->where('user_id', auth()->id());
         if ($request->search) {
             $search = $request->search;
             $followers->whereHas('follower', function ($q) use ($search) {
@@ -1401,8 +1405,9 @@ class ApiGeneralController extends Controller
                         $discount_price = $coupon->discount;
                     }
                     $data = [
+                        'actual_price'   => number_format($subscription->plan_price, 2),
                         'discount_price' => number_format($discount_price, 2),
-                        'updated_price' => number_format($subscription->plan_price - $discount_price, 2)
+                        'updated_price'  => number_format($subscription->plan_price - $discount_price, 2)
                     ];
                     return $this->success(['Apply coupon successfully.'], $data);
                 } else {
