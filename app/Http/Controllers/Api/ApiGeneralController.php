@@ -598,12 +598,23 @@ class ApiGeneralController extends Controller
         $data['enable_plan'] = true;
 
         $used_trial = User::where('id', $request->user_id)->whereIn('trial_period_status', ['0', '2'])->first();
-
-        if ($used_trial) {
-            $data['subscription_plan'] = SubscriptionPlan::whereNot('id', '1')->get();
-        } else {
-            $data['subscription_plan'] = SubscriptionPlan::all();
-        }
+        $subscription_plan = SubscriptionPlan::all();
+        $data['subscription_plan'] = $subscription_plan->map(function ($plan) use ($used_trial) {
+            return [
+                'id' => $plan->id,
+                'plan_name' => $plan->plan_name,
+                'plan_price' => $plan->plan_price,
+                'stripe_plan_id' => $plan->stripe_plan_id,
+                'stripe_price_id' => $plan->stripe_price_id,
+                'paypal_plan_id' => $plan->paypal_plan_id,
+                'paypal_price_id' => $plan->paypal_price_id,
+                'description' => $plan->description,
+                'post_limit' => $plan->post_limit,
+                'image_size_limit' => $plan->image_size_limit,
+                'created_at' => $plan->created_at,
+                'already_taken' => $used_trial ? true : false
+            ];
+        });
 
         $user_trial = User::where('id', $request->user_id)->where('trial_period_status', '2')->first();
         if ($user_trial) {
@@ -1101,7 +1112,7 @@ class ApiGeneralController extends Controller
                     'trial_start_at' => date('Y-m-d H:i:s'),
                     'trial_ends_at'  => $time->format('Y-m-d H:i:s'),
                     'trial_period_status'  => '2',
-                    'subscription_id'   => 1
+                    'subscription_id'   => '1'
                 ]);
 
 
@@ -1182,9 +1193,9 @@ class ApiGeneralController extends Controller
         }
 
         $followers = FollowerList::with('follower.userprofile', 'follower.Following')
-        ->whereDoesntHave('blockToUser')
-        ->whereDoesntHave('UserToBlock')
-        ->where('user_id', auth()->id());
+            ->whereDoesntHave('blockToUser')
+            ->whereDoesntHave('UserToBlock')
+            ->where('user_id', auth()->id());
         if ($request->search) {
             $search = $request->search;
             $followers->whereHas('follower', function ($q) use ($search) {
@@ -1215,9 +1226,9 @@ class ApiGeneralController extends Controller
         }
 
         $followings = FollowerList::with('following.userprofile')
-        ->whereDoesntHave('blockToUser')
-        ->whereDoesntHave('UserToBlock')
-        ->where('follower_id', auth()->id());
+            ->whereDoesntHave('blockToUser')
+            ->whereDoesntHave('UserToBlock')
+            ->where('follower_id', auth()->id());
         if ($request->search) {
             $search = $request->search;
             $followings->whereHas('following', function ($q) use ($search) {
@@ -1278,9 +1289,9 @@ class ApiGeneralController extends Controller
         if ($request->type == '1') {
             if ($request->search) {
                 $users = User::with('userprofile', 'Following')
-                ->whereDoesntHave('blockToUser')
-                ->whereDoesntHave('UserToBlock')
-                ->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->whereNotNull('username')->whereNot('id', auth()->id())->latest()->paginate(100);
+                    ->whereDoesntHave('blockToUser')
+                    ->whereDoesntHave('UserToBlock')
+                    ->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->whereNotNull('username')->whereNot('id', auth()->id())->latest()->paginate(100);
                 $users->getCollection()->transform(function ($user) {
                     $data = $user;
                     $data->unfollow = $user->Following ? false : true;
