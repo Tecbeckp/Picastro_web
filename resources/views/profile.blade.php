@@ -62,8 +62,8 @@
                                     <h1 class="text-white mb-4 mt-4">Download Picastro App</h1>
                                     {{-- <h4 class="text-uppercase">Sorry, Page not Found 😭</h4> --}}
                                     <p class="text-white mb-4">Download the app today using the links below</p>
-                                    <a href="https://apps.apple.com/pk/app/picastro/id6446713728"><img src="{{asset('assets/images/app_store.png')}}" alt="Playstore"  class="w-50"></a>
-                                    <a href="https://play.google.com/store/search?q=picastro&c=apps&hl=en"><img src="{{asset('assets/images/Google-Play-Store-Logo-PNG-Transparent.png')}}" alt="Playstore" style="width: 49% !important;border-radius: 10px"></a>
+                                    <a target="_blank" href="https://apps.apple.com/pk/app/picastro/id6446713728"><img src="{{asset('assets/images/app_store.png')}}" alt="Playstore"  class="w-50"></a>
+                                    <a target="_blank" href="https://play.google.com/store/search?q=picastro&c=apps&hl=en"><img src="{{asset('assets/images/Google-Play-Store-Logo-PNG-Transparent.png')}}" alt="Playstore" style="width: 49% !important;border-radius: 10px"></a>
                                     
                                 </div>
                             </div>
