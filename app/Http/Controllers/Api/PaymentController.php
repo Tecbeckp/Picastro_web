@@ -155,19 +155,17 @@ class PaymentController extends Controller
                 'success_url' => $successUrl,
                 'cancel_url' => $cancelUrl,
             ];
-
             if ($request->filled('coupon_code')) {
                 $coupon = Coupons::where('code', $request->coupon_code)->where('status', 'enabled')->first();
-            
+
                 if ($coupon) {
                     if ($coupon->expires_at >= now()->format('Y-m-d')) {
                         // Retrieve the promotion code object from Stripe
-                        $promotionCode = $coupon = Coupon::retrieve($request->coupon_code);
-            
+                        $promotionCode = Coupon::retrieve($request->coupon_code);
                         if (!empty($promotionCode)) {
                             // Use the Stripe promotion_code ID
                             $checkoutSessionData['discounts'] = [
-                                ['promotion_code' => $promotionCode->id]
+                                ['coupon' => $promotionCode->id]
                             ];
                         } else {
                             return $this->error(['Invalid or inactive promotion code.']);
@@ -179,7 +177,7 @@ class PaymentController extends Controller
                     return $this->error(['Invalid coupon code.']);
                 }
             }
-            
+
             $checkoutSession = \Stripe\Checkout\Session::create($checkoutSessionData);
             return Redirect::to($checkoutSession->url);
         } else {
