@@ -139,7 +139,7 @@ class PaymentController extends Controller
                 'stripe_id' => $customer->id
             ]);
 
-            $successUrl = url('subscribed/' . $user->id);
+            $successUrl = url('subscribed/' . $user->id.'/'.$subscription_plan->id);
             $cancelUrl  = url('subscription-cancel/' . $user->id);
             
             $checkoutSessionData = [
