@@ -24,29 +24,57 @@
     @endif
 
     @include('includes.style')
-
+    <style>
+        .btn-theme-red{
+            background: #ED1C24;
+            border-color: #ED1C24;
+        }
+        .auth-bg-cover {
+            background: linear-gradient(-45deg, #4d2425 50%, #333333);
+        }
+        .w-50{
+            width: 45% !important;
+            border-radius: 10px 
+        }
+        .card-body.p-5{
+            padding: 75px 30px !important;
+            border-radius: 8px;
+        }
+    </style>
 
 </head>
 
 <body>
 
-    <div class="container-fluid">
+    <div class="auth-page-wrapper auth-bg-cover py-5 d-flex justify-content-center align-items-center min-vh-100">
+        <div class="bg-overlay"></div>
+        <div class="auth-page-content overflow-hidden pt-lg-5">
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-xl-4">
+                        <div class="card overflow-hidden card-bg-fill galaxy-border-none">
+                            <div class="card-body p-5">
+                                <div class="text-center">
+                                    <img src="{{ asset('assets/images/picastro.png') }}" alt="">
+                                    <h1 class="text-white mb-4 mt-4">Download Picastro App</h1>
+                                    {{-- <h4 class="text-uppercase">Sorry, Page not Found 😭</h4> --}}
+                                    <p class="text-white mb-4">Download the app today using the links below</p>
+                                    <a target="_blank" href="https://apps.apple.com/pk/app/picastro/id6446713728"><img src="{{asset('assets/images/app_store.png')}}" alt="Playstore" class="w-50"></a>
+                                    <a target="_blank" href="https://play.google.com/store/search?q=picastro&c=apps&hl=en"><img src="{{asset('assets/images/Google-Play-Store-Logo-PNG-Transparent.png')}}" alt="Playstore" style="width: 49% !important;border-radius: 10px"></a>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end card -->
+                    </div>
+                    <!-- end col -->
 
-        <!-- Forgot Password Email -->
-        <div class="row">
-
-            <div class="col-12 mt-3">
-                <h1>Download Picastro app to see this post</h1>
-                <!-- end table -->
+                </div>
+                <!-- end row -->
             </div>
+            <!-- container-fluid -->
         </div>
-        <!-- end row -->
-
-        <!--end row-->
-
     </div>
-    <!-- container-fluid -->
-
 
     @include('includes.script')
 </body>
