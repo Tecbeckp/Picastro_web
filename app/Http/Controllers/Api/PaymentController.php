@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Stripe\Customer;
 use Stripe\Stripe;
-use Stripe\Price;
+use Stripe\Coupon;
 
 class PaymentController extends Controller
 {
@@ -162,15 +162,12 @@ class PaymentController extends Controller
                 if ($coupon) {
                     if ($coupon->expires_at >= now()->format('Y-m-d')) {
                         // Retrieve the promotion code object from Stripe
-                        $promotionCode = \Stripe\PromotionCode::all([
-                            'code' => $request->coupon_code,
-                            'active' => true,
-                        ])->data;
+                        $promotionCode = $coupon = Coupon::retrieve($request->coupon_code);
             
                         if (!empty($promotionCode)) {
                             // Use the Stripe promotion_code ID
                             $checkoutSessionData['discounts'] = [
-                                ['promotion_code' => $promotionCode[0]->id]
+                                ['promotion_code' => $promotionCode->id]
                             ];
                         } else {
                             return $this->error(['Invalid or inactive promotion code.']);
