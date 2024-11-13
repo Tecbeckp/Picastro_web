@@ -269,7 +269,7 @@ class WebPaymentHelper
      * @return WebPaymentHelper $this
      * @throws \Exception
      */
-        public function subscribeToPlan($planId,$id)
+        public function subscribeToPlan($planId,$id,$plan_id)
         {
             if (empty($planId)) {
                 throw  new \Exception("Plan Is required");
@@ -302,7 +302,7 @@ class WebPaymentHelper
                         "payer_selected" => "PAYPAL",
                         "payee_preferred" => "IMMEDIATE_PAYMENT_REQUIRED"
                     ],
-                    "return_url" => url('paypal-subscribed/'.$id),
+                    "return_url" => url('paypal-subscribed/'.$id.'/'.$plan_id),
                     "cancel_url" => url('paypal-subscription-cancel/'.$id)
                 ]
             ]);

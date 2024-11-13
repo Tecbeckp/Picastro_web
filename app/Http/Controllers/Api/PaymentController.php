@@ -59,7 +59,7 @@ class PaymentController extends Controller
         }
         $subscription_plan = SubscriptionPlan::where('id', $request->plan_id)->first();
         if($subscription_plan){
-            $this->paymentHelper->subscribeToPlan($subscription_plan->paypal_price_id, $id);
+            $this->paymentHelper->subscribeToPlan($subscription_plan->paypal_price_id, $id,$subscription_plan->id);
             $subscriptionResponse =   $this->paymentHelper->getSubscriptionResponse();
             // Get the approval link
             $link = $this->paymentHelper->redirectUrl($subscriptionResponse['links'], 'approve');
