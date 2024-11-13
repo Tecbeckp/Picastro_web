@@ -612,7 +612,7 @@ class ApiGeneralController extends Controller
                 'post_limit' => $plan->post_limit,
                 'image_size_limit' => $plan->image_size_limit,
                 'created_at' => $plan->created_at,
-                'already_taken' => $used_trial ? true : false
+                'already_taken' => $used_trial && $plan->id == 1 ? true : false
             ];
         });
 
