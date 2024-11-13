@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Redirect;
 use Stripe\Customer;
 use Stripe\Stripe;
 use Stripe\Price;
+
 class PaymentController extends Controller
 {
     use ApiResponseTrait;
@@ -38,7 +39,7 @@ class PaymentController extends Controller
 
     public function createPlan(Request $request)
     {
-        
+
         $data = $this->paymentHelper->createPlan($request->product_id, $request->product_name, $request->product_price);
         dd($data);
     }
@@ -58,12 +59,12 @@ class PaymentController extends Controller
             $id = $request->user_id;
         }
         $subscription_plan = SubscriptionPlan::where('id', $request->plan_id)->first();
-        if($subscription_plan){
-            $this->paymentHelper->subscribeToPlan($subscription_plan->paypal_price_id, $id,$subscription_plan->id);
+        if ($subscription_plan) {
+            $this->paymentHelper->subscribeToPlan($subscription_plan->paypal_price_id, $id, $subscription_plan->id);
             $subscriptionResponse =   $this->paymentHelper->getSubscriptionResponse();
             // Get the approval link
             $link = $this->paymentHelper->redirectUrl($subscriptionResponse['links'], 'approve');
-    
+
             PaypalSubscription::create([
                 'user_id' => $id,
                 'plan_id' => $subscriptionResponse['plan_id'],
@@ -72,12 +73,11 @@ class PaymentController extends Controller
                 'status' => $subscriptionResponse['status'],
                 'link' => $link,
             ]);
-    
+
             return redirect()->away($link);
-        }else{
+        } else {
             return $this->error(['Internal server error.']);
         }
-        
     }
 
     public function paypalSubscribed(Request $request, $id, $plan_id)
@@ -134,14 +134,14 @@ class PaymentController extends Controller
                 : Customer::create([
                     'email' => $user->email,
                 ]);
-                
+
             User::where('id', $user_id)->update([
                 'stripe_id' => $customer->id
             ]);
 
-            $successUrl = url('subscribed/' . $user->id.'/'.$subscription_plan->id);
+            $successUrl = url('subscribed/' . $user->id . '/' . $subscription_plan->id);
             $cancelUrl  = url('subscription-cancel/' . $user->id);
-            
+
             $checkoutSessionData = [
                 'customer' => $customer->id,
                 'payment_method_types' => [
@@ -158,20 +158,31 @@ class PaymentController extends Controller
 
             if ($request->filled('coupon_code')) {
                 $coupon = Coupons::where('code', $request->coupon_code)->where('status', 'enabled')->first();
-
+            
                 if ($coupon) {
                     if ($coupon->expires_at >= now()->format('Y-m-d')) {
-                        $checkoutSessionData['discounts'] = [
-                            ['promotion_code' => $request->coupon_code]
-                        ];
+                        // Retrieve the promotion code object from Stripe
+                        $promotionCode = \Stripe\PromotionCode::all([
+                            'code' => $request->coupon_code,
+                            'active' => true,
+                        ])->data;
+            
+                        if (!empty($promotionCode)) {
+                            // Use the Stripe promotion_code ID
+                            $checkoutSessionData['discounts'] = [
+                                ['promotion_code' => $promotionCode[0]->id]
+                            ];
+                        } else {
+                            return $this->error(['Invalid or inactive promotion code.']);
+                        }
                     } else {
-                        return $this->error(['This coupon is expire']);
+                        return $this->error(['This coupon has expired.']);
                     }
                 } else {
                     return $this->error(['Invalid coupon code.']);
                 }
             }
-
+            
             $checkoutSession = \Stripe\Checkout\Session::create($checkoutSessionData);
             return Redirect::to($checkoutSession->url);
         } else {
