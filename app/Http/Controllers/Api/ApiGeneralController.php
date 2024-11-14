@@ -533,7 +533,7 @@ class ApiGeneralController extends Controller
             }
             $following =  FollowerList::where('follower_id', $request->block_user_id)->where('user_id', auth()->id())->first();
             if ($following) {
-                $user = User::with('userprofile')->where('id', auth()->id())->whereNot('id', '1')->first();
+                $user = User::with('userprofile')->where('id', $request->block_user_id)->whereNot('id', '1')->first();
                 $user->userprofile->decrement('following');
                 $following->delete();
             }
