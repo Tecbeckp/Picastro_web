@@ -525,6 +525,8 @@ class ApiGeneralController extends Controller
             $blockToUser->block_user_id = $request->block_user_id;
             $blockToUser->save();
 
+            FollowerList::whereAny(['user_id','follower_id'], auth()->id())->delete();
+
             return $this->success(['User blocked successfully!'], []);
         }
     }
