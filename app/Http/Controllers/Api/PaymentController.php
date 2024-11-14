@@ -51,6 +51,7 @@ class PaymentController extends Controller
     }
     public function create(Request $request)
     {
+        $mode = config('paypal.mode');
         // string $plan_id = 'P-1075760685626815NM3RO7BI'
         // P-44X84743BV816410HM3GGGUQ
         if ($request->gifted_plan_user_id) {
@@ -60,7 +61,12 @@ class PaymentController extends Controller
         }
         $subscription_plan = SubscriptionPlan::where('id', $request->plan_id)->first();
         if ($subscription_plan) {
-            $this->paymentHelper->subscribeToPlan($subscription_plan->paypal_price_id, $id, $subscription_plan->id);
+            if ($mode == 'sandbox') {
+                $paypal_plan =  $subscription_plan->test_paypal_price_id;
+            } else {
+                $paypal_plan = $subscription_plan->paypal_price_id;
+            }
+            $this->paymentHelper->subscribeToPlan($paypal_plan, $id, $subscription_plan->id);
             $subscriptionResponse =   $this->paymentHelper->getSubscriptionResponse();
             // Get the approval link
             $link = $this->paymentHelper->redirectUrl($subscriptionResponse['links'], 'approve');
@@ -131,9 +137,9 @@ class PaymentController extends Controller
         if ($user && $subscription_plan) {
             // $pll = ''; prod_QjWAuSh9HNzXEc
             // $pll = 'price_1Ps38NICvNFT82L6uSUKhcI4';
-            if(config('services.stripe.mode') == 'test'){
+            if (config('services.stripe.mode') == 'test') {
                 $stripe_plan_id = $subscription_plan->test_stripe_price_id;
-            }else{
+            } else {
                 $stripe_plan_id = $subscription_plan->stripe_price_id;
             }
             $customer = $user->stripe_id
