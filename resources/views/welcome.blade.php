@@ -55,7 +55,7 @@
                         <div class="card overflow-hidden card-bg-fill galaxy-border-none">
                             <div class="card-body p-5">
                                 <div class="text-center">
-                                    <img src="{{ asset('assets/images/picastro.png') }}" alt="">
+                                    <img src="{{ asset('assets/images/picastro.png') }}" alt="" style="width: 50%;">
                                     <h1 class="text-white mb-4 mt-4">Download Picastro App</h1>
                                     {{-- <h4 class="text-uppercase">Sorry, Page not Found 😭</h4> --}}
                                     <p class="text-white mb-4">Download the app today using the links below</p>
