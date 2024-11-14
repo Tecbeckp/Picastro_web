@@ -525,7 +525,18 @@ class ApiGeneralController extends Controller
             $blockToUser->block_user_id = $request->block_user_id;
             $blockToUser->save();
 
-            FollowerList::whereAny(['user_id','follower_id'], $request->block_user_id)->whereAny(['user_id','follower_id'], auth()->id())->delete();
+            $follower =  FollowerList::where('user_id', $request->block_user_id)->where('follower_id', auth()->id())->first();
+            if ($follower) {
+                $user = User::with('userprofile')->where('id', auth()->id())->whereNot('id', '1')->first();
+                $user->userprofile->decrement('followers');
+                $follower->delete();
+            }
+            $following =  FollowerList::where('follower_id', $request->block_user_id)->where('user_id', auth()->id())->first();
+            if ($following) {
+                $user = User::with('userprofile')->where('id', auth()->id())->whereNot('id', '1')->first();
+                $user->userprofile->decrement('following');
+                $following->delete();
+            }
 
             return $this->success(['User blocked successfully!'], []);
         }
