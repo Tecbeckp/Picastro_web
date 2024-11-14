@@ -13,16 +13,19 @@ trait  UploadImageTrait
         if (!$file) {
             return null;
         }
-        // Define the file name and path
-        $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
 
-        $filePath = $destinationFolder . time() . '-' . $fileName . '.webp';
-
-        // Store the file on S3
+        $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
+        $localFilePath = public_path('assets/uploads/postimage/' . time() . '-' . $fileName);
+        $filePath = $destinationFolder . time() . '-' . $fileName;
+        $image = Image::read($file)
+                      ->resize()
+                      ->save($localFilePath, 100);
+    
         Storage::disk('s3')->put($filePath, file_get_contents($file));
-
-        // Get the file URL
+    
         $fileUrl = Storage::disk('s3')->url($filePath);
+
+        unlink($localFilePath);
 
         return $fileUrl;
     }
@@ -58,14 +61,11 @@ trait  UploadImageTrait
 
     function getImageFileSizeFromUrl($url)
     {
-        // Fetch headers only (use HEAD request to get the Content-Length)
         $response = Http::head($url);
 
-        // Check if the Content-Length header is present
         if ($response->successful() && $response->header('Content-Length')) {
             $fileSizeInBytes = $response->header('Content-Length');
 
-            // Convert to KB or MB
             $fileSizeInKB = $fileSizeInBytes / 1024;
             $fileSizeInMB = $fileSizeInKB / 1024;
 
@@ -76,6 +76,6 @@ trait  UploadImageTrait
             ];
         }
 
-        return null; // If the file size could not be determined
+        return null;
     }
 }

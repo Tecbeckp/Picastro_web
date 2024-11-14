@@ -13,6 +13,7 @@ use App\Models\FollowerList;
 use App\Models\PostImage;
 use App\Models\StarCard;
 use App\Models\StarCardFilter;
+use App\Models\SubscriptionPlan;
 use App\Models\Telescope;
 use App\Models\Trophy;
 use App\Models\User;
@@ -153,11 +154,13 @@ class PostImageController extends Controller
 
         $relatedPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
             ->whereDoesntHave('blockToUser')
+            ->whereDoesntHave('UserToBlock')
             ->whereDoesntHave('userHidePost')
             ->whereIn('user_id', $relatedUserIds)
             ->whereNot('user_id', $authUserId);
         $otherPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
             ->whereDoesntHave('blockToUser')
+            ->whereDoesntHave('UserToBlock')
             ->whereDoesntHave('userHidePost')
             ->whereNotIn('user_id', $relatedUserIds);
 
@@ -290,7 +293,7 @@ class PostImageController extends Controller
             $observer_location = null;
         }
 
-        $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->whereDoesntHave('blockToUser')->whereNot('user_id', auth()->id());
+        $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->whereDoesntHave('blockToUser')->whereDoesntHave('UserToBlock')->whereNot('user_id', auth()->id());
         if ($observer_location) {
             $posts->whereIn('observer_location_id', $observer_location);
         }
@@ -457,8 +460,9 @@ class PostImageController extends Controller
      */
     public function store(Request $request)
     {
+        $subscription = SubscriptionPlan::where('id',auth()->user()->subscription_id)->first();
+
         $rules = [
-            'image'                 => 'required|mimes:jpg,jpeg,png,webp,tif|max:153600',
             'description'           => 'required',
             'object_type'           => 'required_if:only_image_and_description,false',
             'bortle_number'         => 'required_if:only_image_and_description,false',
@@ -468,6 +472,11 @@ class PostImageController extends Controller
             'post_image_title'      => 'required_if:only_image_and_description,true',
             'add_startcard'         => 'required'
         ];
+        
+        if($subscription){
+            $size_limit = $subscription->image_size_limit * 1024; 
+            $rules['image'] = 'required|mimes:jpg,jpeg,png,webp,tif|max:'.$size_limit;
+        }
         if ($request->only_image_and_description == 'false') {
 
             if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10') {
@@ -488,36 +497,6 @@ class PostImageController extends Controller
                 $rules['ir_pass']          = 'required';
                 $rules['planet_name']      = 'required_if:object_type,10';
             }
-
-            // if($request->add_startcard == 'true'){
-
-            // $rules['camera_type']           = 'required';
-            // // $rules['setup']                 = 'required';
-            // $rules['number_of_darks']       = 'required|numeric|min:0';
-            // $rules['number_of_flats']       = 'required|numeric|min:0';
-            // $rules['number_of_dark_flats']  = 'required|numeric|min:0';
-            // $rules['number_of_bias']        = 'required|numeric|min:0';
-
-            // if (strtolower($request->camera_type) == 'osc camera' || strtolower($request->camera_type) == 'dslr') {
-            //     $rules['light_frame_number']    = 'required|numeric|min:0';
-            //     $rules['light_frame_exposure']  = 'required|numeric|min:0';
-            // }
-            // if (strtolower($request->camera_type) == 'osc camera' || strtolower($request->camera_type) == 'mono camera') {
-            //     $rules['cooling']    = 'required|numeric';
-            // }
-            // if (strtolower($request->camera_type) == 'dslr') {
-            //     $rules['iso']           = 'required|numeric|min:0';
-            //     $rules['ratio']         = 'required';
-            //     $rules['focal_length']  = 'required';
-            // }
-            // if (strtolower($request->camera_type) == 'mono camera') {
-            //     $rules['filter_name']     = 'required';
-            //     $rules['number_of_subs']  = 'required';
-            //     $rules['exposure_time']   = 'required';
-            //     $rules['gain']            = 'required';
-            //     $rules['binning']         = 'required';
-            // }
-            // }
         }
 
         $validator = Validator::make($request->all(), $rules);
@@ -525,7 +504,10 @@ class PostImageController extends Controller
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-
+        $postlimit = PostImage::where('user_id', auth()->id())->count();
+        if($subscription && $subscription->post_limit != 0 && $postlimit >= $subscription->post_limit){
+            return $this->error(["You can't upload post images as your " . $subscription->plan_name." subscription limit of ".$subscription->post_limit." images has been exceeded."]);
+        }
         try {
             $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/');
             // dd($imageName);
@@ -635,7 +617,7 @@ class PostImageController extends Controller
                 }
             }
 
-            dispatch(new SendNotificationJob($this->notificationService, auth()->id(), $postImage));
+            dispatch(new SendNotificationJob($this->notificationService, auth()->id(), $postImage))->delay(now()->addSeconds(5));
             return $this->success(['Post uploaded successfully!'], []);
         } catch (ValidationException $e) {
             return $this->error($e->errors());

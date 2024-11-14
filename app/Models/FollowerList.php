@@ -19,5 +19,10 @@ class FollowerList extends Model
     {
       return $this->hasOne(User::class,'id','follower_id')->whereNull('users.deleted_at');
     }
- 
+    public function blockToUser(){
+      return $this->hasOne(BlockToUser::class, 'block_user_id', 'follower_id')->where('user_id',auth()->id());
+  }
+  public function UserToBlock(){
+      return $this->hasOne(BlockToUser::class, 'user_id', 'user_id')->where('follower_id',auth()->id());
+  }
 }

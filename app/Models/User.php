@@ -28,7 +28,8 @@ class User extends Authenticatable
         'platform_type',
         'fcm_token',
         'is_registration',
-        'gift_subscription'
+        'gift_subscription',
+        'subscription_id'
     ];
 
     /**
@@ -81,6 +82,13 @@ class User extends Authenticatable
     public function Following()
     {
         return $this->hasOne(FollowerList::class, 'user_id', 'id')->where('follower_id', auth()->id());
+    }
+
+    public function blockToUser(){
+        return $this->hasOne(BlockToUser::class, 'block_user_id', 'id')->where('user_id',auth()->id());
+    }
+    public function UserToBlock(){
+        return $this->hasOne(BlockToUser::class, 'user_id', 'id')->where('block_user_id',auth()->id());
     }
     
 }

@@ -44,6 +44,8 @@ use App\Models\NotificationSetting;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use App\Jobs\TrialPeriodEndReminderJob;
+use App\Models\GiftSubscription;
+use App\Models\SubscriptionPlan;
 use DateTime;
 
 class ApiGeneralController extends Controller
@@ -548,15 +550,17 @@ class ApiGeneralController extends Controller
         $contact->message  = $request->message;
         $contact->save();
 
-        $details = [
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'message'  => $request->message
-        ];
+        // $details = [
+        //     'name'     => $request->name,
+        //     'email'    => $request->email,
+        //     'message'  => $request->message
+        // ];
 
-        Mail::to('support@picastroapp.com')->send(new ContactUsMail($details));
-
-
+        Http::post('https://picastro.co.uk/contact-us-mail', [
+            'name' => $request->username,
+            'email' => $request->email,
+            'message' => $request->message
+        ]);
         return $this->success(['Sent successfully!'], []);
     }
 
@@ -592,6 +596,25 @@ class ApiGeneralController extends Controller
         $data['trial_period'] = TrialPeriod::first();
         $data['app_under_maintenance'] = Setting::where('id', '1')->first()->maintenance;
         $data['enable_plan'] = true;
+
+        $used_trial = User::where('id', $request->user_id)->whereIn('trial_period_status', ['0', '2'])->first();
+        $subscription_plan = SubscriptionPlan::all();
+        $data['subscription_plan'] = $subscription_plan->map(function ($plan) use ($used_trial) {
+            return [
+                'id' => $plan->id,
+                'plan_name' => $plan->plan_name,
+                'plan_price' => $plan->plan_price,
+                'stripe_plan_id' => $plan->stripe_plan_id,
+                'stripe_price_id' => $plan->stripe_price_id,
+                'paypal_plan_id' => $plan->paypal_plan_id,
+                'paypal_price_id' => $plan->paypal_price_id,
+                'description' => $plan->description,
+                'post_limit' => $plan->post_limit,
+                'image_size_limit' => $plan->image_size_limit,
+                'created_at' => $plan->created_at,
+                'already_taken' => $used_trial && $plan->id == 1 ? true : false
+            ];
+        });
 
         $user_trial = User::where('id', $request->user_id)->where('trial_period_status', '2')->first();
         if ($user_trial) {
@@ -785,9 +808,9 @@ class ApiGeneralController extends Controller
         try {
             $post_id = $request->post_id;
             $user_id = $request->user_id;
-            if($post_id){
+            if ($post_id) {
                 $share_post_link = route('post', base64_encode($post_id));
-            }else{
+            } else {
                 $share_post_link = route('profile', base64_encode($user_id));
             }
             return $this->success(['Request Proccessed Successfully'], $share_post_link);
@@ -869,8 +892,8 @@ class ApiGeneralController extends Controller
                     ->where('post_user_id', $user_id)
                     ->count();
             }
-    
-    
+
+
             $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('user_id', $user_id)->whereDoesntHave('userHidePost')->latest()->get();
             $troph = Trophy::select('id', 'name', 'icon')->get();
             $result = [
@@ -931,7 +954,7 @@ class ApiGeneralController extends Controller
             ];
         }
 
-       
+
         return $this->success([], $result);
     }
 
@@ -1088,7 +1111,8 @@ class ApiGeneralController extends Controller
                 User::where('id', auth()->id())->update([
                     'trial_start_at' => date('Y-m-d H:i:s'),
                     'trial_ends_at'  => $time->format('Y-m-d H:i:s'),
-                    'trial_period_status'  => '2'
+                    'trial_period_status'  => '2',
+                    'subscription_id'   => '1'
                 ]);
 
 
@@ -1168,7 +1192,10 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followers = FollowerList::with('follower.userprofile', 'follower.Following')->where('user_id', auth()->id());
+        $followers = FollowerList::with('follower.userprofile', 'follower.Following')
+            ->whereDoesntHave('blockToUser')
+            ->whereDoesntHave('UserToBlock')
+            ->where('user_id', auth()->id());
         if ($request->search) {
             $search = $request->search;
             $followers->whereHas('follower', function ($q) use ($search) {
@@ -1198,7 +1225,10 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $followings = FollowerList::with('following.userprofile')->where('follower_id', auth()->id());
+        $followings = FollowerList::with('following.userprofile')
+            ->whereDoesntHave('blockToUser')
+            ->whereDoesntHave('UserToBlock')
+            ->where('follower_id', auth()->id());
         if ($request->search) {
             $search = $request->search;
             $followings->whereHas('following', function ($q) use ($search) {
@@ -1257,33 +1287,38 @@ class ApiGeneralController extends Controller
         }
 
         if ($request->type == '1') {
-            if($request->search){
-                $users = User::with('userprofile', 'Following')->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->whereNotNull('username')->whereNot('id', auth()->id())->latest()->paginate(100);
+            if ($request->search) {
+                $users = User::with('userprofile', 'Following')
+                    ->whereDoesntHave('blockToUser')
+                    ->whereDoesntHave('UserToBlock')
+                    ->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $request->search . '%')->withCount('TotalStar')->where('is_registration', '1')->whereNotNull('username')->whereNot('id', auth()->id())->latest()->paginate(100);
                 $users->getCollection()->transform(function ($user) {
                     $data = $user;
                     $data->unfollow = $user->Following ? false : true;
                     return $data;
                 });
-            }else{
+            } else {
                 $authUserId = auth()->id();
                 $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
                 $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
-        
+
                 $relatedUserIds = array_unique(array_merge($followers, $following));
 
-                $users = User::with('userprofile', 'Following')->whereIn('id',$relatedUserIds)->withCount('TotalStar')->where('is_registration', '1')->whereNot('id', auth()->id())->latest()->paginate(100);
+                $users = User::with('userprofile', 'Following')->whereIn('id', $relatedUserIds)->withCount('TotalStar')->where('is_registration', '1')->whereNot('id', auth()->id())->latest()->paginate(100);
                 $users->getCollection()->transform(function ($user) {
                     $data = $user;
                     $data->unfollow = $user->Following ? false : true;
                     return $data;
                 });
             }
-            
+
             return $this->success([], $users);
         } else {
             $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
                 ->whereNot('user_id', auth()->id())
                 ->whereDoesntHave('userHidePost')
+                ->whereDoesntHave('blockToUser')
+                ->whereDoesntHave('UserToBlock')
                 ->where(function ($query) use ($request) {
                     $query->where('post_image_title', 'LIKE', '%' . $request->search . '%')
                         ->orWhere('description', 'LIKE', '%' . $request->search . '%');
@@ -1365,7 +1400,8 @@ class ApiGeneralController extends Controller
     public function applyCoupon(Request $request)
     {
         $rules = [
-            'coupon_code'  => 'required'
+            'coupon_code'          => 'required',
+            'subscription_plan_id' => 'required'
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -1373,24 +1409,29 @@ class ApiGeneralController extends Controller
         }
 
         $coupon = Coupons::where('code', $request->coupon_code)->where('status', 'enabled')->first();
-
-        if ($coupon) {
-            if ($coupon->expires_at >= now()->format('Y-m-d')) {
-                if ($coupon->type == 'percentage') {
-                    $discount_price = ($coupon->discount / 100) * 48;
+        $subscription = SubscriptionPlan::where('id', $request->subscription_plan_id)->where('id', '!=', '1')->first();
+        if ($subscription) {
+            if ($coupon) {
+                if ($coupon->expires_at >= now()->format('Y-m-d')) {
+                    if ($coupon->type == 'percentage') {
+                        $discount_price = ($coupon->discount / 100) * $subscription->plan_price;
+                    } else {
+                        $discount_price = $coupon->discount;
+                    }
+                    $data = [
+                        'actual_price'   => number_format($subscription->plan_price, 2),
+                        'discount_price' => number_format($discount_price, 2),
+                        'updated_price'  => number_format($subscription->plan_price - $discount_price, 2)
+                    ];
+                    return $this->success(['Apply coupon successfully.'], $data);
                 } else {
-                    $discount_price = $coupon->discount;
+                    return $this->error(['This coupon is expire']);
                 }
-                $data = [
-                    'discount_price' => number_format($discount_price, 2),
-                    'updated_price' => number_format('48' - $discount_price, 2)
-                ];
-                return $this->success(['Apply coupon successfully.'], $data);
             } else {
-                return $this->error(['This coupon is expire']);
+                return $this->error(['Invalid coupon code.']);
             }
         } else {
-            return $this->error(['Invalid coupon code.']);
+            return $this->error(['Select valid subscription plan.']);
         }
     }
 
@@ -1418,7 +1459,8 @@ class ApiGeneralController extends Controller
     public function sendGift(Request $request)
     {
         $rules = [
-            'email'  => 'required|email'
+            'email'     => 'required|email',
+            'my_email'  => 'required|email'
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -1426,6 +1468,7 @@ class ApiGeneralController extends Controller
         }
 
         $user = User::where('email', $request->email)->first();
+        $active_user = User::where('email', $request->my_email)->first();
 
         if ($user && $user->is_registration == '0' && $user->subscription == '1') {
             return $this->error(['This user already has a gifted plan.']);
@@ -1439,9 +1482,14 @@ class ApiGeneralController extends Controller
                 'last_name'         => $request->email,
                 'email'             => $request->email,
                 'password'          => Hash::make('987654321'),
-                'gift_subscription' => auth()->id(),
+                'gift_subscription' => $active_user ? $active_user->id : null,
                 'is_registration'   => '0'
             ]);
+            GiftSubscription::create([
+                'email' => $request->my_email,
+                'gifted_email' => $request->email
+            ]);
+
             return $this->success(['successfully.'], $data);
         }
     }
@@ -1467,6 +1515,7 @@ class ApiGeneralController extends Controller
 
     public function imageOfweek(Request $request)
     {
+
         $data = ImageOfWeek::with([
             'postImage.user',
             'postImage.StarCard.StarCardFilter',
@@ -1482,12 +1531,12 @@ class ApiGeneralController extends Controller
         ])->whereHas('postImage', function ($q) {
             $q->whereNull('deleted_at');
         })->get();
+
         if ($data->isNotEmpty()) {
-            $data->transform(function ($post) {
+            $groupedData = $data->transform(function ($post) {
                 return [
-                    'week'                   => date('d M, Y', strtotime($post->created_at)),
-                    'object_type'            => $post->postImage->ObjectType ? $post->postImage->ObjectType->name : 'Other',
-                    'post_image'             => [
+                    'place'                   => 'place_' . $post->place, // Group by place
+                    'post_image'              => [
                         'id'                 => $post->postImage->id,
                         'user_id'            => $post->postImage->user_id,
                         'post_image_title'   => $post->postImage->post_image_title,
@@ -1525,9 +1574,9 @@ class ApiGeneralController extends Controller
                         ]
                     ]
                 ];
-            });
+            })->groupBy('place'); // Group posts by "place"
 
-            return $this->success(['Get Image of week successfully!'], $data);
+            return $this->success(['Get Image of week successfully!'], $groupedData);
         } else {
             return $this->error(['No data found']);
         }
@@ -1573,4 +1622,6 @@ class ApiGeneralController extends Controller
             return $this->error(['Something went wrong please try again.']);
         }
     }
+
+    public function GetSubscriptionPlan() {}
 }

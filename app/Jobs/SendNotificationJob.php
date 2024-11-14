@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\BlockToUser;
 use App\Models\FollowerList;
 use App\Models\Notification;
 use App\Models\NotificationSetting;
@@ -37,10 +38,18 @@ class SendNotificationJob implements ShouldQueue
         $authUserId = $this->userId;
         $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
         $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
+        $block_users = BlockToUser::whereAny(['user_id','block_user_id'], $authUserId)->get();
 
+        $get_user_id = [];
+        foreach($block_users as $user){
+            $get_user_id[]=$user->user_id;
+            $get_user_id[]=$user->block_user_id;
+        }
+        $unique_user = array_unique($get_user_id);
         $relatedUserIds = array_unique(array_merge($followers, $following));
+        $unique_user_ids = array_diff($relatedUserIds, $unique_user);
 
-        $users = User::select('id', 'fcm_token')->whereIn('id', $relatedUserIds)->get();
+        $users = User::select('id', 'fcm_token')->whereIn('id', $unique_user_ids)->get();
         $loginUser = User::where('id', $authUserId)->first();
         if ($users) {
             foreach ($users as $user) {

@@ -44,10 +44,10 @@ Route::get('/gift-email', [HomeController::class, 'giftEmail'])->name('giftEmail
 Route::get('/privacy-and-policy', [HomeController::class, 'viewPrivacy'])->name('privacy-and-policy');
 Route::get('/terms-and-conditions', [HomeController::class, 'viewTerms'])->name('terms-and-conditions');
 Route::get('/subscription', [PaymentController::class, 'storeSubscription']);
-Route::get('/subscribed/{id}', [PaymentController::class, 'Subscribed']);
+Route::get('/subscribed/{id}/{plan_id}', [PaymentController::class, 'Subscribed']);
 Route::get('/subscription-cancel/{id}', [PaymentController::class, 'subscriptionCancel']);
 Route::get('/paypal-subscription', [PaymentController::class, 'create']);
-Route::get('/paypal-subscribed/{id}', [PaymentController::class, 'paypalSubscribed']);
+Route::get('/paypal-subscribed/{id}/{plan_id}', [PaymentController::class, 'paypalSubscribed']);
 Route::get('/paypal-subscription-cancel/{id}', [PaymentController::class, 'paypalsubscriptionCancel']);
 Route::get('/create-web-hook', [PaymentController::class, 'createWebHook']);
 Route::get('/create-plan', [PaymentController::class, 'createPlan']);

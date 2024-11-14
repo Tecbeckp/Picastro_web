@@ -19,6 +19,10 @@ return new class extends Migration
             $table->string('stripe_price_id')->nullable();
             $table->string('paypal_plan_id')->nullable();
             $table->string('paypal_price_id')->nullable();
+            $table->string('test_stripe_plan_id')->nullable();
+            $table->string('test_stripe_price_id')->nullable();
+            $table->string('test_paypal_plan_id')->nullable();
+            $table->string('test_paypal_price_id')->nullable();
             $table->longText('description')->nullable();
             $table->string('post_limit')->nullable();
             $table->string('image_size_limit')->nullable();
