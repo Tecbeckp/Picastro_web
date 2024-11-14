@@ -23,6 +23,6 @@ class FollowerList extends Model
       return $this->hasOne(BlockToUser::class, 'block_user_id', 'follower_id')->where('user_id',auth()->id());
   }
   public function UserToBlock(){
-      return $this->hasOne(BlockToUser::class, 'block_user_id', 'user_id')->where('follower_id',auth()->id());
+      return $this->hasOne(BlockToUser::class, 'user_id', 'follower_id')->where('user_id',auth()->id());
   }
 }
