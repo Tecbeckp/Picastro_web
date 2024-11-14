@@ -124,11 +124,18 @@ class PaymentController extends Controller
         }
         Stripe::setApiKey(config('services.stripe.secret'));
 
+
+
         $user = User::where('id', $user_id)->first();
         $subscription_plan = SubscriptionPlan::where('id', $request->plan_id)->first();
         if ($user && $subscription_plan) {
             // $pll = ''; prod_QjWAuSh9HNzXEc
             // $pll = 'price_1Ps38NICvNFT82L6uSUKhcI4';
+            if(config('services.stripe.mode') == 'test'){
+                $stripe_plan_id = $subscription_plan->test_stripe_price_id;
+            }else{
+                $stripe_plan_id = $subscription_plan->stripe_price_id;
+            }
             $customer = $user->stripe_id
                 ? Customer::retrieve($user->stripe_id)
                 : Customer::create([
@@ -148,7 +155,7 @@ class PaymentController extends Controller
                     'card',
                 ],
                 'line_items' => [[
-                    'price'      => $subscription_plan->stripe_price_id,
+                    'price'      => $stripe_plan_id,
                     'quantity'   => 1,
                 ]],
                 'mode' => 'subscription',
