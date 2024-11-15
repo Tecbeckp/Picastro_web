@@ -61,7 +61,7 @@ class PostImage extends Model
 
     public function totalGoldTrophies()
     {
-        return $this->hasOne(VoteImage::class, 'post_image_id', 'id')->where('trophy_id',1);
+        return $this->hasMany(VoteImage::class, 'post_image_id', 'id')->where('trophy_id',1);
     }
     public function Follow()
     {
