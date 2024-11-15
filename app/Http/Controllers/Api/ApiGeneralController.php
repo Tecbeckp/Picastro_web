@@ -1549,7 +1549,8 @@ class ApiGeneralController extends Controller
             'postImage.giveStar',
             'postImage.totalStar',
             'postImage.Follow',
-            'postImage.votedTrophy'
+            'postImage.votedTrophy',
+            'postImage.totalGoldTrophies'
         ])->whereHas('postImage', function ($q) {
             $q->whereNull('deleted_at');
         })->get();
@@ -1584,6 +1585,7 @@ class ApiGeneralController extends Controller
                         'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
                         'Follow'             => $post->postImage->Follow ? true : false,
                         'voted_trophy_id'    => $post->postImage->votedTrophy ? $post->postImage->votedTrophy->trophy_id : null,
+                        'total_gold_trophies'    => $post->postImage->totalGoldTrophies ? $post->postImage->totalGoldTrophies->count() : 0,
                         'star_card'          => $post->postImage->StarCard,
                         'user'               => [
                             'id'             => $post->postImage->user->id,
