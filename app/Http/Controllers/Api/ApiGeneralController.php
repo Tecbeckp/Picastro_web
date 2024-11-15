@@ -1046,7 +1046,7 @@ class ApiGeneralController extends Controller
         if ($request->user_type == 'All') {
             $users = User::whereNot('id', '1')->get();
         } else {
-            $users = User::whereNot('id', '1')->where('id', 31)->get();
+            $users = User::whereNot('id', '1')->where('subscription', $request->user_type)->get();
         }
         if ($users) {
             $success_user = [];
