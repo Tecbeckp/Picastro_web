@@ -1549,7 +1549,8 @@ class ApiGeneralController extends Controller
             'postImage.giveStar',
             'postImage.totalStar',
             'postImage.Follow',
-            'postImage.votedTrophy'
+            'postImage.votedTrophy',
+            'postImage.totalGoldTrophies'
         ])->whereHas('postImage', function ($q) {
             $q->whereNull('deleted_at');
         })->get();
@@ -1557,8 +1558,7 @@ class ApiGeneralController extends Controller
         if ($data->isNotEmpty()) {
             $groupedData = $data->transform(function ($post) {
                 return [
-                    'place'                   => 'place_' . $post->place, // Group by place
-                    'post_image'              => [
+                    'place'                  => 'place_' . $post->place,
                         'id'                 => $post->postImage->id,
                         'user_id'            => $post->postImage->user_id,
                         'post_image_title'   => $post->postImage->post_image_title,
@@ -1585,6 +1585,7 @@ class ApiGeneralController extends Controller
                         'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
                         'Follow'             => $post->postImage->Follow ? true : false,
                         'voted_trophy_id'    => $post->postImage->votedTrophy ? $post->postImage->votedTrophy->trophy_id : null,
+                        'total_gold_trophies'    => $post->postImage->totalGoldTrophies ? $post->postImage->totalGoldTrophies->count() : 0,
                         'star_card'          => $post->postImage->StarCard,
                         'user'               => [
                             'id'             => $post->postImage->user->id,
@@ -1594,7 +1595,6 @@ class ApiGeneralController extends Controller
                             'profile_image'  => $post->postImage->user->userprofile->profile_image,
                             'fcm_token'      => $post->postImage->user->fcm_token,
                         ]
-                    ]
                 ];
             })->groupBy('place'); // Group posts by "place"
 
@@ -1603,7 +1603,6 @@ class ApiGeneralController extends Controller
             return $this->error(['No data found']);
         }
     }
-
     public function UpdateNotificationSetting(Request $request)
     {
         $rules = [
