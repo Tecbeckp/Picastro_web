@@ -131,7 +131,7 @@ class ApiGeneralController extends Controller
     public function saveObject(Request $request)
     {
         $rules = [
-            'post_image_id'   => 'required|numeric|exists:post_images,id',
+            'post_image_id'   => 'required_if:save_object_id,null|numeric|exists:post_images,id',
             'object_type_id'  => 'nullable|numeric',
             'save_object_id'  => 'nullable|numeric|exists:save_objects,id'
         ];
