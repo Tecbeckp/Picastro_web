@@ -21,9 +21,8 @@ class UserProfileController extends Controller
     use UploadImageTrait;
 
     public function profileSetup(Request $request){
-        // return $this->susscess([''],$request->all());
         $rules = [  
-            'username'      => 'required|unique:users|max:16|alpha_dash',
+            'username'      => 'required|unique:users|max:20|alpha_dash',
             'pronouns'      => 'required',
             'bio'           => 'required|max:250',
             'profile_image' => 'nullable|mimes:jpg,jpeg,png,webp'
