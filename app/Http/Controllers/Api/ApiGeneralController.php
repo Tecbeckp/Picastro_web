@@ -1364,31 +1364,26 @@ class ApiGeneralController extends Controller
                 ->whereDoesntHave('UserToBlock')
                 ->where(function ($query) use ($request) {
                     $query->where('post_image_title', 'LIKE', '%' . $request->search . '%')
-                        ->orWhere('description', 'LIKE', '%' . $request->search . '%');
+                        ->orWhere('description', 'LIKE', '%' . $request->search . '%')
+                        ->orWhere('catalogue_number', 'LIKE', '%' . $request->search . '%')
+                        ->orWhere('object_name', 'LIKE', '%' . $request->search . '%')
+                        ->orwhereHas('StarCard', function ($q) use ($request) {
+                            $q->where('camera_type', 'LIKE', '%' . $request->search . '%')
+                                ->orwhere('telescope_name', 'LIKE', '%' . $request->search . '%')
+                                ->orwhere('scope_type', 'LIKE', '%' . $request->search . '%')
+                                ->orwhere('mount_name', 'LIKE', '%' . $request->search . '%')
+                                ->orwhere('imaging_camera', 'LIKE', '%' . $request->search . '%')
+                                ->orwhere('guide_camera', 'LIKE', '%' . $request->search . '%')
+                                ->orwhere('guide_scope', 'LIKE', '%' . $request->search . '%')
+                                ->orwhere('camera_lens', 'LIKE', '%' . $request->search . '%');
+                        })->orwhereHas('ObserverLocation', function ($q) use ($request) {
+                            $q->where('name', 'LIKE', '%' . $request->search . '%');
+                        })->orwhereHas('ObjectType', function ($q) use ($request) {
+                            $q->where('name', 'LIKE', '%' . $request->search . '%');
+                        })->orwhereHas('Telescope', function ($q) use ($request) {
+                            $q->where('name', 'LIKE', '%' . $request->search . '%');
+                        });
                 });
-
-            if ($request->location) {
-                if ($request->location == 'NH') {
-                    $observer_location = [1, 2, 3, 4, 6];
-                } elseif ($request->location == 'SH') {
-                    $observer_location = [5, 7, 8];
-                } else {
-                    $observer_location = null;
-                }
-                $posts->whereIn('observer_location_id', $observer_location);
-            }
-
-            if ($request->object_type) {
-                $posts->where('object_type_id', $request->object_type);
-            }
-            if ($request->camera_type) {
-                $posts->whereHas('StarCard', function ($q) use ($request) {
-                    $q->where('camera_type', $request->camera_type);
-                });
-            }
-            if ($request->telescope_type) {
-                $posts->where('telescope_id', $request->telescope_type);
-            }
 
             $posts = $posts->latest()->paginate(100);
             $trophies = Trophy::select('id', 'name', 'icon')->get();
