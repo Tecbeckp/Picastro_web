@@ -159,6 +159,7 @@ class ApiGeneralController extends Controller
         $data = [];
         $perPage = $request->input('per_page', 10);
         $searchTerm = $request->input('search', null);
+        $archived = $request->input('archived', '0');
         foreach ($save_objects as $obj) {
 
             $objects = SaveObject::with('user', 'postImage.StarCard.StarCardFilter', 'postImage.ObjectType', 'postImage.Bortle', 'postImage.ObserverLocation', 'postImage.ApproxLunarPhase', 'postImage.Telescope', 'postImage.giveStar', 'postImage.Follow')
@@ -172,6 +173,7 @@ class ApiGeneralController extends Controller
                             ->orWhere('object_name', 'like', "%{$searchTerm}%");
                     }
                 })
+                ->where('archived', "$archived")
                 ->get();
             // ->paginate($perPage);
             $trophies = Trophy::select('id', 'name', 'icon')->get();
@@ -529,7 +531,7 @@ class ApiGeneralController extends Controller
             if ($follower) {
                 $user = User::with('userprofile')->where('id', auth()->id())->whereNot('id', '1')->first();
                 $blockuser = User::with('userprofile')->where('id', $request->block_user_id)->whereNot('id', '1')->first();
-                
+
                 $blockuser->userprofile->decrement('followers');
                 $user->userprofile->decrement('following');
                 $follower->delete();
@@ -1559,42 +1561,42 @@ class ApiGeneralController extends Controller
             $groupedData = $data->transform(function ($post) {
                 return [
                     'place'                  => 'place_' . $post->place,
-                        'id'                 => $post->postImage->id,
-                        'user_id'            => $post->postImage->user_id,
-                        'post_image_title'   => $post->postImage->post_image_title,
-                        'image'              => $post->postImage->image,
-                        'original_image'     => $post->postImage->original_image,
-                        'description'        => $post->postImage->description,
-                        'video_length'       => $post->postImage->video_length,
-                        'number_of_frame'    => $post->postImage->number_of_frame,
-                        'number_of_video'    => $post->postImage->number_of_video,
-                        'exposure_time'      => $post->postImage->exposure_time,
-                        'total_hours'        => $post->postImage->total_hours,
-                        'additional_minutes' => $post->postImage->additional_minutes,
-                        'catalogue_number'   => $post->postImage->catalogue_number,
-                        'object_name'        => $post->postImage->object_name,
-                        'ir_pass'            => $post->postImage->ir_pass,
-                        'planet_name'        => $post->postImage->planet_name,
-                        'ObjectType'         => $post->postImage->ObjectType,
-                        'Bortle'             => $post->postImage->Bortle,
-                        'ObserverLocation'   => $post->postImage->ObserverLocation,
-                        'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
-                        'location'           => $post->postImage->location,
-                        'Telescope'          => $post->postImage->Telescope,
-                        'giveStar'           => $post->postImage->giveStar ? true : false,
-                        'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
-                        'Follow'             => $post->postImage->Follow ? true : false,
-                        'voted_trophy_id'    => $post->postImage->votedTrophy ? $post->postImage->votedTrophy->trophy_id : null,
-                        'total_gold_trophies'    => $post->postImage->totalGoldTrophies ? $post->postImage->totalGoldTrophies->count() : 0,
-                        'star_card'          => $post->postImage->StarCard,
-                        'user'               => [
-                            'id'             => $post->postImage->user->id,
-                            'first_name'     => $post->postImage->user->first_name,
-                            'last_name'      => $post->postImage->user->last_name,
-                            'username'       => $post->postImage->user->username,
-                            'profile_image'  => $post->postImage->user->userprofile->profile_image,
-                            'fcm_token'      => $post->postImage->user->fcm_token,
-                        ]
+                    'id'                 => $post->postImage->id,
+                    'user_id'            => $post->postImage->user_id,
+                    'post_image_title'   => $post->postImage->post_image_title,
+                    'image'              => $post->postImage->image,
+                    'original_image'     => $post->postImage->original_image,
+                    'description'        => $post->postImage->description,
+                    'video_length'       => $post->postImage->video_length,
+                    'number_of_frame'    => $post->postImage->number_of_frame,
+                    'number_of_video'    => $post->postImage->number_of_video,
+                    'exposure_time'      => $post->postImage->exposure_time,
+                    'total_hours'        => $post->postImage->total_hours,
+                    'additional_minutes' => $post->postImage->additional_minutes,
+                    'catalogue_number'   => $post->postImage->catalogue_number,
+                    'object_name'        => $post->postImage->object_name,
+                    'ir_pass'            => $post->postImage->ir_pass,
+                    'planet_name'        => $post->postImage->planet_name,
+                    'ObjectType'         => $post->postImage->ObjectType,
+                    'Bortle'             => $post->postImage->Bortle,
+                    'ObserverLocation'   => $post->postImage->ObserverLocation,
+                    'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
+                    'location'           => $post->postImage->location,
+                    'Telescope'          => $post->postImage->Telescope,
+                    'giveStar'           => $post->postImage->giveStar ? true : false,
+                    'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
+                    'Follow'             => $post->postImage->Follow ? true : false,
+                    'voted_trophy_id'    => $post->postImage->votedTrophy ? $post->postImage->votedTrophy->trophy_id : null,
+                    'total_gold_trophies'    => $post->postImage->totalGoldTrophies ? $post->postImage->totalGoldTrophies->count() : 0,
+                    'star_card'          => $post->postImage->StarCard,
+                    'user'               => [
+                        'id'             => $post->postImage->user->id,
+                        'first_name'     => $post->postImage->user->first_name,
+                        'last_name'      => $post->postImage->user->last_name,
+                        'username'       => $post->postImage->user->username,
+                        'profile_image'  => $post->postImage->user->userprofile->profile_image,
+                        'fcm_token'      => $post->postImage->user->fcm_token,
+                    ]
                 ];
             })->groupBy('place'); // Group posts by "place"
 
