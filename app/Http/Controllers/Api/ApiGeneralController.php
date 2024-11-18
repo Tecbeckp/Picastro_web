@@ -243,11 +243,19 @@ class ApiGeneralController extends Controller
     public function deleteSaveObject(Request $request)
     {
         $id = $request->id;
+        $archived = $request->archived;
         if ($id) {
             $StarCamp =  SaveObject::find($id);
             if ($StarCamp) {
-                $StarCamp->delete();
-                return $this->success(['Saved object deleted successfully!'], []);
+                if ($archived) {
+                    $StarCamp->update([
+                        'archived' => '0'
+                    ]);
+                    return $this->success(['Object unarchive  successfully!'], []);
+                } else {
+                    $StarCamp->delete();
+                    return $this->success(['Saved object deleted successfully!'], []);
+                }
             } else {
                 return $this->error(['Please enter valid Saved object id']);
             }
