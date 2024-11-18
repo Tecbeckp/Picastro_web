@@ -130,10 +130,10 @@ class ApiGeneralController extends Controller
     }
     public function saveObject(Request $request)
     {
-
         $rules = [
             'post_image_id'   => 'required|numeric|exists:post_images,id',
-            'object_type_id'  => 'nullable|numeric'
+            'object_type_id'  => 'nullable|numeric',
+            'save_object_id'  => 'nullable|numeric|exists:save_objects,id'
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -142,15 +142,26 @@ class ApiGeneralController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $post = PostImage::where('id', $request->post_image_id)->first();
+        if ($request->save_object_id) {
+            $save_obj = SaveObject::where('id', $request->save_object_id)->first();
+            if ($save_obj) {
+                $save_obj->update([
+                    'archived' => '1'
+                ]);
+                return $this->success(['Object archived  successfully!'], []);
+            } else {
+                return $this->error(['Invalid save object ID.']);
+            }
+        } else {
+            $post = PostImage::where('id', $request->post_image_id)->first();
 
-        $save_object                 =  new SaveObject();
-        $save_object->user_id        = auth()->id();
-        $save_object->object_type_id = $request->object_type_id ?? ($post ? $post->object_type_id : null);
-        $save_object->post_image_id  = $request->post_image_id;
-        $save_object->save();
-
-        return $this->success(['Object saved  successfully!'], []);
+            $save_object                 =  new SaveObject();
+            $save_object->user_id        = auth()->id();
+            $save_object->object_type_id = $request->object_type_id ?? ($post ? $post->object_type_id : null);
+            $save_object->post_image_id  = $request->post_image_id;
+            $save_object->save();
+            return $this->success(['Object saved  successfully!'], []);
+        }
     }
 
     public function getSaveObject(Request $request)
