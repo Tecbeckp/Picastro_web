@@ -8,7 +8,6 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PostImageController;
 use App\Http\Controllers\StarCampController;
 use App\Http\Controllers\UserController;
-use App\Models\PostImage;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,6 +35,9 @@ Route::get('/otp', function () {
 Route::get('/email', function () {
     return view('email');
 })->name('email');
+
+Route::get('get-all-test-post-image/{id}', [App\Http\Controllers\Api\PostImageController::class, 'allTestPostImage']);
+
 
 Route::post('/send-email', [HomeController::class, 'sendEmail'])->name('sendEmail');
 Route::post('/contact-us-mail', [HomeController::class, 'contactUsMail'])->name('contactUsMail');

@@ -6,7 +6,7 @@
 <head>
 
     <meta charset="utf-8" />
-    <title>Users | Picastro</title>
+    <title>User Posts | Picastro</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     @include('includes.style') 
@@ -29,7 +29,7 @@
                             <div class="card small-card mb-0">
 								<div class="card-body p-0">
 									<span class="d-flex align-items-center isProfile">
-										<img class="rounded-circle header-profile-user" src="{{$item['user']['profile_image']}}" alt="Header Avatar">
+										<img class="rounded-circle header-profile-user" src="{{$item['user']['profile_image']}}" alt="{{$item['post_image_title']}}">
 										<span class="text-start ms-xl-2">
 											<span class=" d-xl-inline-block ms-1 fw-medium user-name-text">Picastro</span>
 											
