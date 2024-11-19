@@ -223,7 +223,7 @@
                                         @forelse ($data['users'] as $user)
                                             <tr>
                                                 <td class="d-flex">
-                                                    <img src="{{ $user->userProfile->profile_image }}" alt=""
+                                                    <img src="{{ @$user->userProfile->profile_image }}" alt=""
                                                         class="avatar-xs rounded-3 me-2 material-shadow">
                                                     <div>
                                                         <h5 class="fs-13 mb-0">{{ $user->first_name }}
