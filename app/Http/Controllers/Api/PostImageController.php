@@ -265,7 +265,7 @@ class PostImageController extends Controller
         return $this->success([], $paginatedPosts);
     }
 
-    public function allTestPostImage(Request $request)
+    public function allTestPostImage(Request $request, $id)
     {
         $rules = [
             'location'          => 'nullable',
@@ -309,9 +309,9 @@ class PostImageController extends Controller
         if ($randomizer) {
             $posts->where('object_type_id', $randomizer)->inRandomOrder();
         }
-        $posts = $posts->latest()->paginate(10);
+        $posts = $posts->where('user_id', $id)->latest()->get();
         $trophies = Trophy::select('id', 'name', 'icon')->get();
-        $posts->getCollection()->transform(function ($post) use ($trophies) {
+        $posts->transform(function ($post) use ($trophies) {
 
             return [
                 'id'                 => $post->id,
