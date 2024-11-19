@@ -635,7 +635,7 @@ class ApiGeneralController extends Controller
         $data['trial_period'] = TrialPeriod::first();
         $data['app_under_maintenance'] = Setting::where('id', '1')->first()->maintenance;
         $data['enable_plan'] = true;
-
+        $data['comment_character_length'] = 400;
         $used_trial = User::where('id', $request->user_id)->whereIn('trial_period_status', ['0', '2'])->first();
         $subscription_plan = SubscriptionPlan::all();
         $data['subscription_plan'] = $subscription_plan->map(function ($plan) use ($used_trial) {
