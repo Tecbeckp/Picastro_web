@@ -309,8 +309,9 @@ class PostImageController extends Controller
         if ($randomizer) {
             $posts->where('object_type_id', $randomizer)->inRandomOrder();
         }
-        $posts = $posts->where('user_id', $id)->latest()->get();
+        $posts = $posts->where('user_id', $id)->get();
         $trophies = Trophy::select('id', 'name', 'icon')->get();
+        $user = User::with('userprofile')->where('id', $id)->first();
         $posts->transform(function ($post) use ($trophies) {
 
             return [
@@ -356,8 +357,7 @@ class PostImageController extends Controller
                 ]
             ];
         });
-        // return $this->success([], $posts);
-        return view('admin.post.test_posts', compact('posts'));
+        return view('admin.post.test_posts', compact('posts','user'));
     }
 
     public function userPostImage(Request $request)
