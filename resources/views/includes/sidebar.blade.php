@@ -123,6 +123,9 @@
                             <li class="nav-item">
                                 <a href="{{route('trial-period')}}" class="nav-link" data-key="t-trial-period">Trial Period</a>
                             </li>
+                            <li class="nav-item">
+                                <a href="{{route('trial-period')}}" class="nav-link" data-key="t-trial-period">Rating PopUp/a>
+                            </li>
                         </ul>
                     </div>
                 </li>
