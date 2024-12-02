@@ -9,4 +9,21 @@ class ChatImage extends Model
 {
     use HasFactory;
     protected $guarded = [];
+
+
+    public function getOriginalImageAttribute($key){
+        if($key){
+            return asset($key);
+        }else{
+            return '';
+        }
+    }
+
+    public function getThumbnailAttribute($key){
+        if($key){
+            return asset($key);
+        }else{
+            return '';
+        }
+    }
 }
