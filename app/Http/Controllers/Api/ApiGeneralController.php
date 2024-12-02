@@ -1698,10 +1698,10 @@ class ApiGeneralController extends Controller
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-        $baseUrl = "http://picastro.co.uk/public/";
+        $baseUrl = "https://picastro.co.uk/public/";
         $image = str_replace($baseUrl, '', $request->image);
         $data = ChatImage::where('thumbnail', $image)->first();
-        return $this->success(['Uploaded successfully!'], $data);
+        return $this->success(['Get chat image successfully!'], $data);
 
     }
 }
