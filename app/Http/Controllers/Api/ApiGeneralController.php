@@ -1688,4 +1688,20 @@ class ApiGeneralController extends Controller
 
         return $this->success(['Uploaded successfully!'], $data);
     }
+
+    public function getChatImage(Request $request){
+        $rules = [
+            'image' => 'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+        $baseUrl = "http://picastro.co.uk/public/";
+        $image = str_replace($baseUrl, '', $request->image);
+        $data = ChatImage::where('thumbnail', $image)->first();
+        return $this->success(['Uploaded successfully!'], $data);
+
+    }
 }
