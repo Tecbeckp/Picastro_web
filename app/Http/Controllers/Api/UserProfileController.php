@@ -31,7 +31,7 @@ class UserProfileController extends Controller
         $validator = Validator::make($request->all(), $rules, [
             'username.unique'       => 'The username has already been taken! Try again',
             'username.required'     => 'Username is required.',
-            'username.max'          => 'Username must be a maximum of 16 characters.',
+            'username.max'          => 'Username must be a maximum of 20 characters.',
             'username.alpha_dash'   => 'The username field must only contain letters, numbers, hyphen, and underscores.',
             'pronouns.required'     => 'Pronouns is required.',
             'bio.required'          => 'Bio is required.'
