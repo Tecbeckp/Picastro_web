@@ -25,6 +25,7 @@ use App\Models\VoteImage;
 use App\Models\ContactUs;
 use App\Services\NotificationService;
 use App\Traits\ApiResponseTrait;
+use App\Traits\UploadImageTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -44,6 +45,7 @@ use App\Models\NotificationSetting;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use App\Jobs\TrialPeriodEndReminderJob;
+use App\Models\ChatImage;
 use App\Models\GiftSubscription;
 use App\Models\SubscriptionPlan;
 use DateTime;
@@ -51,6 +53,7 @@ use DateTime;
 class ApiGeneralController extends Controller
 {
     use ApiResponseTrait;
+    use UploadImageTrait;
     protected $notificationService;
 
     public function __construct(NotificationService $notificationService)
@@ -1665,5 +1668,24 @@ class ApiGeneralController extends Controller
         }
     }
 
-    public function GetSubscriptionPlan() {}
+    public function UploadChatImage(Request $request) {
+        $rules = [
+            'image' => 'required|mimes:jpg,jpeg,png,webp,tif|max:122880'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+
+        $thumbnail         = $this->imageUpload($request->file('image'), 'assets/uploads/chatImageThumbnail/');
+        $originalImageName = $this->originalImageUpload($request->file('image'), 'assets/uploads/chatImage/',true);
+
+        $data = ChatImage::create([
+            'original_image' => $originalImageName,
+            'thumbnail'      => $thumbnail
+        ]);
+
+        return $this->success(['Uploaded successfully!'], $data);
+    }
 }

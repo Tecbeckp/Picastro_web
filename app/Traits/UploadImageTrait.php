@@ -8,13 +8,19 @@ use Illuminate\Support\Facades\Http;
 
 trait  UploadImageTrait
 {
-    public function originalImageUpload($file, $destinationFolder)
+    public function originalImageUpload($file, $destinationFolder, $chatImage = false)
     {
         if (!$file) {
             return null;
         }
 
-        $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
+        if($chatImage){
+            $random = rand(1000,9999);
+            $filename = time() . $random . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path($destinationFolder), $filename);
+            $fileUrl = $destinationFolder . $filename;
+        }else{
+            $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
         $localFilePath = public_path('assets/uploads/postimage/' . time() . '-' . $fileName);
         $filePath = $destinationFolder . time() . '-' . $fileName;
         $image = Image::read($file)
@@ -26,6 +32,8 @@ trait  UploadImageTrait
         $fileUrl = Storage::disk('s3')->url($filePath);
 
         unlink($localFilePath);
+        }
+        
 
         return $fileUrl;
     }
@@ -52,8 +60,8 @@ trait  UploadImageTrait
 
         // Resize the image to 70% of its original size
         $image->resize($newWidth, $newHeight, function ($constraint) {
-            $constraint->aspectRatio(); // Maintain aspect ratio
-        })->save(public_path($destinationFolder . $filename), 90); // Save with quality set to 90%
+            $constraint->aspectRatio();
+        })->save(public_path($destinationFolder . $filename), 90);
 
         $file_path = $destinationFolder . $filename;
         return $file_path;
