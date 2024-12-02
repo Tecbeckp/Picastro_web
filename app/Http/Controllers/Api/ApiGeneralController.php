@@ -365,9 +365,7 @@ class ApiGeneralController extends Controller
             'postImage.totalStar',
             'postImage.Follow',
             'postImage.votedTrophy'
-        ])->whereHas('postImage.user', function ($q) {
-            $q->where('id', '!=', 43);
-        })->whereHas('postImage', function ($q) {
+        ])->whereHas('postImage', function ($q) {
                 $q->whereNull('deleted_at');
             })->where('IOT', '1')
             ->latest()->get();
