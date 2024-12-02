@@ -327,7 +327,7 @@ class ApiGeneralController extends Controller
         if ($currentDay == 28) {
             $data = VoteImage::select('post_image_id', 'month', DB::raw('count(id) as post_count'))
                 ->whereHas('postImage', function ($q) {
-                    $q->whereNull('deleted_at');
+                    $q->whereNull('deleted_at')->whereNotIn('user_id', ['41', '43']);
                 })
                 ->where('trophy_id', '1')
                 ->whereNotIn('user_id', ['41', '43'])
