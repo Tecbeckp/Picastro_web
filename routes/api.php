@@ -109,7 +109,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('hide-post', [ApiGeneralController::class, 'HidePost'])->name('HidePost');
     Route::get('image-of-week', [ApiGeneralController::class, 'imageOfweek']);
     Route::post('update-notification-setting', [ApiGeneralController::class, 'UpdateNotificationSetting']);
-    Route::post('upload_chat_image', [ApiGeneralController::class, 'UploadChatImage']);
+    Route::post('upload-chat-image', [ApiGeneralController::class, 'UploadChatImage']);
 
 
     Route::post('add-post-comment', [PostCommentController::class, 'postComment']);
