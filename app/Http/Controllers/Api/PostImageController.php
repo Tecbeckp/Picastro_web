@@ -452,6 +452,7 @@ class PostImageController extends Controller
                         'username'       => $post->user->username,
                         'profile_image'  => $post->user->userprofile->profile_image,
                         'fcm_token'      => $post->user->fcm_token,
+                        'Follow'         => $post->Follow ? true : false,
                     ]
                 ];
             })
