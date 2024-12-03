@@ -84,6 +84,11 @@ class User extends Authenticatable
         return $this->hasOne(FollowerList::class, 'user_id', 'id')->where('follower_id', auth()->id());
     }
 
+    public function Follower()
+    {
+        return $this->hasOne(FollowerList::class, 'follower_id', 'id')->where('user_id', auth()->id());
+    }
+
     public function blockToUser(){
         return $this->hasOne(BlockToUser::class, 'block_user_id', 'id')->where('user_id',auth()->id());
     }
