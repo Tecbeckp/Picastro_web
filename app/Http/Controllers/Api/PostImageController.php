@@ -116,153 +116,164 @@ class PostImageController extends Controller
 
     public function allPostImage(Request $request)
     {
-        $rules = [
-            'location'          => 'nullable',
-            'telescope_type_id' => 'nullable|numeric|exists:telescopes,id',
-            'object_type_id'    => 'nullable|numeric|exists:object_types,id',
-            'most_recent'       => 'nullable|numeric|exists:object_types,id',
-            'randomizer'        => 'nullable|numeric|exists:object_types,id'
-        ];
-
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return $this->error($validator->errors()->all());
-        }
-
-        $location       = $request->location;
-        $telescope_type = $request->telescope_type_id;
-        $object_type    = $request->object_type_id;
-        $most_recent    = $request->most_recent;
-        $randomizer     = $request->randomizer;
-
-        // Determine observer location based on location input
-        if ($location && $location == 'NH') {
-            $observer_location = [1, 2, 3, 4, 6];
-        } elseif ($location && $location == 'SH') {
-            $observer_location = [5, 7, 8];
+        if ($request->user) {
+            $followers = FollowerList::where('user_id', auth()->id())->pluck('follower_id')->toArray();
+            $users = User::with('userprofile', 'Following')->whereNot('id', auth()->id())->whereNotIn('id', $followers)->where('is_registration', '1')->latest()->paginate(50);
+            $users->getCollection()->transform(function ($user) {
+                $data = $user;
+                $data->unfollow = $user->Following ? false : true;
+                return $data;
+            });
+            return $this->success(['get user list'], $users);
         } else {
-            $observer_location = null;
-        }
-
-        $authUserId = auth()->id();
-        $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
-        $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
-
-        // Combine the follower/following ids along with the current user's id
-        $relatedUserIds = array_unique(array_merge($followers, $following, [$authUserId]));
-
-        $relatedPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
-            ->whereDoesntHave('blockToUser')
-            ->whereDoesntHave('UserToBlock')
-            ->whereDoesntHave('userHidePost')
-            ->whereIn('user_id', $relatedUserIds)
-            ->whereNot('user_id', $authUserId);
-        $otherPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
-            ->whereDoesntHave('blockToUser')
-            ->whereDoesntHave('UserToBlock')
-            ->whereDoesntHave('userHidePost')
-            ->whereNotIn('user_id', $relatedUserIds);
-
-        if ($observer_location) {
-            $relatedPosts->whereIn('observer_location_id', $observer_location);
-            $otherPosts->whereIn('observer_location_id', $observer_location);
-        }
-
-        if ($object_type) {
-            $relatedPosts->where('object_type_id', $object_type);
-            $otherPosts->where('object_type_id', $object_type);
-        }
-
-        if ($telescope_type) {
-            $relatedPosts->where('telescope_id', $telescope_type);
-            $otherPosts->where('telescope_id', $telescope_type);
-        }
-
-        if ($randomizer) {
-            $relatedPosts->where('object_type_id', $randomizer)->inRandomOrder();
-            $otherPosts->where('object_type_id', $randomizer)->inRandomOrder();
-        }
-
-        if ($most_recent) {
-            $relatedPosts->where('object_type_id', $most_recent);
-            $otherPosts->where('object_type_id', $most_recent);
-        }
-
-        $relatedPostsCollection = $relatedPosts->latest()->get();
-        $otherPostsCollection = $otherPosts->latest()->get();
-        $mergedPosts = $relatedPostsCollection->merge($otherPostsCollection);
-
-
-        // Paginate the final merged result
-        $perPage = 10;
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $currentItems = $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values();
-        $paginatedPosts = new LengthAwarePaginator($currentItems, $mergedPosts->count(), $perPage, $currentPage, [
-            'path' => LengthAwarePaginator::resolveCurrentPath()
-        ]);
-
-        $filteredPosts = collect();
-        $previousUserId = null;
-
-        foreach ($paginatedPosts->getCollection() as $post) {
-            if ($post->user_id !== $previousUserId) {
-                $filteredPosts->push($post);
-                $previousUserId = $post->user_id;
-            } else {
-                $filteredPosts->push($post);
-            }
-        }
-        $filteredPosts = $filteredPosts->shuffle();
-        $paginatedPosts->setCollection($filteredPosts);
-        $trophies = Trophy::select('id', 'name', 'icon')->get();
-
-        $paginatedPosts->getCollection()->transform(function ($post) use ($trophies) {
-            return [
-                'id'                 => $post->id,
-                'user_id'            => $post->user_id,
-                'post_image_title'   => $post->post_image_title,
-                'image'              => $post->image,
-                'original_image'     => $post->original_image,
-                'description'        => $post->description,
-                'video_length'       => $post->video_length,
-                'number_of_frame'    => $post->number_of_frame,
-                'number_of_video'    => $post->number_of_video,
-                'exposure_time'      => $post->exposure_time,
-                'total_hours'        => $post->total_hours,
-                'additional_minutes' => $post->additional_minutes,
-                'catalogue_number'   => $post->catalogue_number,
-                'object_name'        => $post->object_name,
-                'ir_pass'            => $post->ir_pass,
-                'planet_name'        => $post->planet_name,
-                'ObjectType'         => $post->ObjectType,
-                'Bortle'             => $post->Bortle,
-                'ObserverLocation'   => $post->ObserverLocation,
-                'ApproxLunarPhase'   => $post->ApproxLunarPhase,
-                'location'           => $post->location,
-                'Telescope'          => $post->Telescope,
-                'only_image_and_description' => $post->only_image_and_description,
-                'giveStar'           => $post->giveStar ? true : false,
-                'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
-                'Follow'             => $post->Follow ? true : false,
-                'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
-                'gold_trophy'        => $post->gold_trophy,
-                'silver_trophy'      => $post->silver_trophy,
-                'bronze_trophy'      => $post->bronze_trophy,
-                'trophy'             => $trophies,
-                'star_card'          => $post->StarCard,
-                'user'               => [
-                    'id'             => $post->user->id,
-                    'first_name'     => $post->user->first_name,
-                    'last_name'      => $post->user->last_name,
-                    'username'       => $post->user->username,
-                    'profile_image'  => $post->user->userprofile->profile_image,
-                    'fcm_token'      => $post->user->fcm_token,
-                ]
+            $rules = [
+                'location'          => 'nullable',
+                'telescope_type_id' => 'nullable|numeric|exists:telescopes,id',
+                'object_type_id'    => 'nullable|numeric|exists:object_types,id',
+                'most_recent'       => 'nullable|numeric|exists:object_types,id',
+                'randomizer'        => 'nullable|numeric|exists:object_types,id'
             ];
-        });
 
-        return $this->success([], $paginatedPosts);
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return $this->error($validator->errors()->all());
+            }
+
+            $location       = $request->location;
+            $telescope_type = $request->telescope_type_id;
+            $object_type    = $request->object_type_id;
+            $most_recent    = $request->most_recent;
+            $randomizer     = $request->randomizer;
+
+            // Determine observer location based on location input
+            if ($location && $location == 'NH') {
+                $observer_location = [1, 2, 3, 4, 6];
+            } elseif ($location && $location == 'SH') {
+                $observer_location = [5, 7, 8];
+            } else {
+                $observer_location = null;
+            }
+
+            $authUserId = auth()->id();
+            $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
+            $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
+
+            // Combine the follower/following ids along with the current user's id
+            $relatedUserIds = array_unique(array_merge($followers, $following, [$authUserId]));
+
+            $relatedPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
+                ->whereDoesntHave('blockToUser')
+                ->whereDoesntHave('UserToBlock')
+                ->whereDoesntHave('userHidePost')
+                ->whereIn('user_id', $relatedUserIds)
+                ->whereNot('user_id', $authUserId);
+            $otherPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
+                ->whereDoesntHave('blockToUser')
+                ->whereDoesntHave('UserToBlock')
+                ->whereDoesntHave('userHidePost')
+                ->whereNotIn('user_id', $relatedUserIds);
+
+            if ($observer_location) {
+                $relatedPosts->whereIn('observer_location_id', $observer_location);
+                $otherPosts->whereIn('observer_location_id', $observer_location);
+            }
+
+            if ($object_type) {
+                $relatedPosts->where('object_type_id', $object_type);
+                $otherPosts->where('object_type_id', $object_type);
+            }
+
+            if ($telescope_type) {
+                $relatedPosts->where('telescope_id', $telescope_type);
+                $otherPosts->where('telescope_id', $telescope_type);
+            }
+
+            if ($randomizer) {
+                $relatedPosts->where('object_type_id', $randomizer)->inRandomOrder();
+                $otherPosts->where('object_type_id', $randomizer)->inRandomOrder();
+            }
+
+            if ($most_recent) {
+                $relatedPosts->where('object_type_id', $most_recent);
+                $otherPosts->where('object_type_id', $most_recent);
+            }
+
+            $relatedPostsCollection = $relatedPosts->latest()->get();
+            $otherPostsCollection = $otherPosts->latest()->get();
+            $mergedPosts = $relatedPostsCollection->merge($otherPostsCollection);
+
+
+            // Paginate the final merged result
+            $perPage = 10;
+            $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            $currentItems = $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values();
+            $paginatedPosts = new LengthAwarePaginator($currentItems, $mergedPosts->count(), $perPage, $currentPage, [
+                'path' => LengthAwarePaginator::resolveCurrentPath()
+            ]);
+
+            $filteredPosts = collect();
+            $previousUserId = null;
+
+            foreach ($paginatedPosts->getCollection() as $post) {
+                if ($post->user_id !== $previousUserId) {
+                    $filteredPosts->push($post);
+                    $previousUserId = $post->user_id;
+                } else {
+                    $filteredPosts->push($post);
+                }
+            }
+            $filteredPosts = $filteredPosts->shuffle();
+            $paginatedPosts->setCollection($filteredPosts);
+            $trophies = Trophy::select('id', 'name', 'icon')->get();
+
+            $paginatedPosts->getCollection()->transform(function ($post) use ($trophies) {
+                return [
+                    'id'                 => $post->id,
+                    'user_id'            => $post->user_id,
+                    'post_image_title'   => $post->post_image_title,
+                    'image'              => $post->image,
+                    'original_image'     => $post->original_image,
+                    'description'        => $post->description,
+                    'video_length'       => $post->video_length,
+                    'number_of_frame'    => $post->number_of_frame,
+                    'number_of_video'    => $post->number_of_video,
+                    'exposure_time'      => $post->exposure_time,
+                    'total_hours'        => $post->total_hours,
+                    'additional_minutes' => $post->additional_minutes,
+                    'catalogue_number'   => $post->catalogue_number,
+                    'object_name'        => $post->object_name,
+                    'ir_pass'            => $post->ir_pass,
+                    'planet_name'        => $post->planet_name,
+                    'ObjectType'         => $post->ObjectType,
+                    'Bortle'             => $post->Bortle,
+                    'ObserverLocation'   => $post->ObserverLocation,
+                    'ApproxLunarPhase'   => $post->ApproxLunarPhase,
+                    'location'           => $post->location,
+                    'Telescope'          => $post->Telescope,
+                    'only_image_and_description' => $post->only_image_and_description,
+                    'giveStar'           => $post->giveStar ? true : false,
+                    'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
+                    'Follow'             => $post->Follow ? true : false,
+                    'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                    'gold_trophy'        => $post->gold_trophy,
+                    'silver_trophy'      => $post->silver_trophy,
+                    'bronze_trophy'      => $post->bronze_trophy,
+                    'trophy'             => $trophies,
+                    'star_card'          => $post->StarCard,
+                    'user'               => [
+                        'id'             => $post->user->id,
+                        'first_name'     => $post->user->first_name,
+                        'last_name'      => $post->user->last_name,
+                        'username'       => $post->user->username,
+                        'profile_image'  => $post->user->userprofile->profile_image,
+                        'fcm_token'      => $post->user->fcm_token,
+                    ]
+                ];
+            });
+
+            return $this->success([], $paginatedPosts);
+        }
     }
 
     public function allTestPostImage(Request $request, $id)
@@ -357,7 +368,7 @@ class PostImageController extends Controller
                 ]
             ];
         });
-        return view('admin.post.test_posts', compact('posts','user'));
+        return view('admin.post.test_posts', compact('posts', 'user'));
     }
 
     public function userPostImage(Request $request)
@@ -373,9 +384,9 @@ class PostImageController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        if($request->user_id){
+        if ($request->user_id) {
             $user = User::with('userprofile')->withCount('TotalStar')->where('id', $request->user_id)->first();
-        }else{
+        } else {
             $user = User::with('userprofile')->withCount('TotalStar')->where('username', $request->username)->first();
         }
         $trophies = Trophy::select('id', 'name', 'icon')->get();
@@ -460,7 +471,7 @@ class PostImageController extends Controller
      */
     public function store(Request $request)
     {
-        $subscription = SubscriptionPlan::where('id',auth()->user()->subscription_id)->first();
+        $subscription = SubscriptionPlan::where('id', auth()->user()->subscription_id)->first();
 
         $rules = [
             'description'           => 'required',
@@ -472,10 +483,10 @@ class PostImageController extends Controller
             'post_image_title'      => 'required_if:only_image_and_description,true',
             'add_startcard'         => 'required'
         ];
-        
-        if($subscription){
-            $size_limit = $subscription->image_size_limit * 1024; 
-            $rules['image'] = 'required|mimes:jpg,jpeg,png,webp,tif|max:'.$size_limit;
+
+        if ($subscription) {
+            $size_limit = $subscription->image_size_limit * 1024;
+            $rules['image'] = 'required|mimes:jpg,jpeg,png,webp,tif|max:' . $size_limit;
         }
         if ($request->only_image_and_description == 'false') {
 
@@ -505,8 +516,8 @@ class PostImageController extends Controller
             return $this->error($validator->errors()->all());
         }
         $postlimit = PostImage::where('user_id', auth()->id())->count();
-        if($subscription && $subscription->post_limit != 0 && $postlimit >= $subscription->post_limit){
-            return $this->error(["You can't upload post images as your " . $subscription->plan_name." subscription limit of ".$subscription->post_limit." images has been exceeded."]);
+        if ($subscription && $subscription->post_limit != 0 && $postlimit >= $subscription->post_limit) {
+            return $this->error(["You can't upload post images as your " . $subscription->plan_name . " subscription limit of " . $subscription->post_limit . " images has been exceeded."]);
         }
         try {
             $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/');
