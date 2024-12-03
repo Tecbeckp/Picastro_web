@@ -629,7 +629,8 @@ class PostImageController extends Controller
                 }
             }
 
-            dispatch(new SendNotificationJob($this->notificationService, auth()->id(), $postImage))->delay(now()->addSeconds(5));
+            dispatch(new SendNotificationJob($this->notificationService, auth()->id(), $postImage->id))->delay(now()->addSeconds(5));
+            
             return $this->success(['Post uploaded successfully!'], []);
         } catch (ValidationException $e) {
             return $this->error($e->errors());
