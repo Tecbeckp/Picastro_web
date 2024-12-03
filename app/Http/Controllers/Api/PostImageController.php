@@ -121,7 +121,7 @@ class PostImageController extends Controller
             $users = User::with('userprofile', 'Following')->whereNot('id', auth()->id())->whereNotIn('id', $followers)->where('is_registration', '1')->latest()->paginate(50);
             $users->getCollection()->transform(function ($user) {
                 $data = $user;
-                $data->unfollow = $user->Following ?  true : false;
+                $data->followback = $user->Following ?  true : false;
                 return $data;
             });
             return $this->success(['get user list'], $users);
