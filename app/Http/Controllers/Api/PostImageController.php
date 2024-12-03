@@ -117,7 +117,7 @@ class PostImageController extends Controller
     public function allPostImage(Request $request)
     {
         if ($request->user) {
-            $followers = FollowerList::where('user_id', auth()->id())->pluck('follower_id')->toArray();
+            $followers = FollowerList::where('follower_id', auth()->id())->pluck('user_id')->toArray();
             $users = User::with('userprofile', 'Following')->whereNot('id', auth()->id())->whereNotIn('id', $followers)->where('is_registration', '1')->latest()->paginate(50);
             $users->getCollection()->transform(function ($user) {
                 $data = $user;
