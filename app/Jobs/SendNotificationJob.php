@@ -19,12 +19,12 @@ class SendNotificationJob implements ShouldQueue
 
     public $notificationService;
     public $userId;
-    public $postId;
-    public function __construct($notificationService, $userId, $post_id)
+    public $post;
+    public function __construct($notificationService, $userId, $post)
     {
         $this->notificationService = $notificationService;
         $this->userId              = $userId;
-        $this->postId              = $post_id;
+        $this->post              = $post;
     }
     /**
      * Create a new job instance.
@@ -58,7 +58,7 @@ class SendNotificationJob implements ShouldQueue
                 $notification = new Notification();
                 $notification->user_id = $user->id;
                 $notification->type    = 'New Post';
-                $notification->post_image_id    = $this->postId;
+                $notification->post_image_id    = $this->post->id;
                 $notification->notification = $loginUser->username . ' added a new post';
                 $notification->save();
                 $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
