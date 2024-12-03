@@ -385,9 +385,9 @@ class PostImageController extends Controller
         }
 
         if ($request->user_id) {
-            $user = User::with('userprofile')->withCount('TotalStar')->where('id', $request->user_id)->first();
+            $user = User::with('userprofile','Following')->withCount('TotalStar')->where('id', $request->user_id)->first();
         } else {
-            $user = User::with('userprofile')->withCount('TotalStar')->where('username', $request->username)->first();
+            $user = User::with('userprofile','Following')->withCount('TotalStar')->where('username', $request->username)->first();
         }
         $trophies = Trophy::select('id', 'name', 'icon')->get();
         $vote = [];
@@ -402,6 +402,7 @@ class PostImageController extends Controller
         $troph = Trophy::select('id', 'name', 'icon')->get();
         $data = [
             'user' => $user,
+            'follow'=> $user->Following ? true : false,
             'posts' => $posts->count(),
             'trophies' => $trophies->map(function ($trophy) use ($vote) {
                 return [
@@ -452,7 +453,6 @@ class PostImageController extends Controller
                         'username'       => $post->user->username,
                         'profile_image'  => $post->user->userprofile->profile_image,
                         'fcm_token'      => $post->user->fcm_token,
-                        'Follow'         => $post->Follow ? true : false,
                     ]
                 ];
             })
