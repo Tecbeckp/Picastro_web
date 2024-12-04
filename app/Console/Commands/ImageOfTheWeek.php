@@ -43,6 +43,7 @@ class ImageOfTheWeek extends Command
         // Get the vote count for each post_image_id
         $vote = VoteImage::select('post_image_id', DB::raw('count(id) as post_count'))
             ->whereIn('post_image_id', $posts_id)
+            ->whereNotIn('user_id', ['41', '43'])
             ->where('trophy_id', '1')
             ->groupBy('post_image_id')
             ->orderBy('post_count', 'desc')
@@ -51,6 +52,7 @@ class ImageOfTheWeek extends Command
         // Get the star count for each post_image_id
         $star = GiveStar::select('post_image_id', DB::raw('count(id) as post_count'))
             ->whereIn('post_image_id', $posts_id)
+            ->whereNotIn('user_id', ['41', '43'])
             ->groupBy('post_image_id')
             ->orderBy('post_count', 'desc')
             ->get();
@@ -110,7 +112,8 @@ class ImageOfTheWeek extends Command
 
         // Group posts by position (1st, 2nd, 3rd, etc.)
 
-
+        ImageOfWeek::truncate();
+        
         foreach ($rankedPosts as $rankedPost) {
             ImageOfWeek::create([
                 'post_id' =>  $rankedPost['post_image_id'],
