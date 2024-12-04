@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('mins:trial-period-update')->everyMinute();
+        $schedule->command('week:image-of-the-week')->weeklyOn(0, '5:00');
     }
 
     /**

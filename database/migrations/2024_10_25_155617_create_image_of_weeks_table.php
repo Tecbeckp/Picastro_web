@@ -14,6 +14,10 @@ return new class extends Migration
         Schema::create('image_of_weeks', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('post_id');
+            $table->integer('place')->nullable();
+            $table->integer(column: 'vote')->nullable();
+            $table->integer('star')->nullable();
+            $table->integer('total')->nullable();
             $table->foreign('post_id')->references('id')->on('post_images')->onDelete('cascade');
             $table->timestamps();
         });
