@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('post_id');
             $table->integer('place')->nullable();
-            $table->integer(column: 'vote')->nullable();
-            $table->integer('star')->nullable();
-            $table->integer('total')->nullable();
+            $table->double('vote')->nullable();
+            $table->double('star')->nullable();
+            $table->double('comment')->nullable();
+            $table->double('total')->nullable();
             $table->foreign('post_id')->references('id')->on('post_images')->onDelete('cascade');
             $table->timestamps();
         });
