@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\GiveStar;
 use App\Models\ImageOfWeek;
+use App\Models\PostComment;
 use App\Models\PostImage;
 use App\Models\VoteImage;
 use Illuminate\Console\Command;
@@ -57,22 +58,34 @@ class ImageOfTheWeek extends Command
             ->orderBy('post_count', 'desc')
             ->get();
 
+        $comment = PostComment::select('post_image_id', DB::raw('count(id) as post_count'))
+            ->whereIn('post_image_id', $posts_id)
+            ->whereNotIn('user_id', ['41', '43'])
+            ->groupBy('post_image_id')
+            ->orderBy('post_count', 'desc')
+            ->get();
+
         // Initialize an array to store the total counts
         $postCounts = [];
 
         // Combine the vote counts into the array
         foreach ($vote as $v) {
-            $postCounts[$v->post_image_id]['votes'] = $v->post_count;
+            $postCounts[$v->post_image_id]['votes'] = $v->post_count * 0.6;
         }
 
         // Combine the star counts into the array
         foreach ($star as $s) {
-            $postCounts[$s->post_image_id]['stars'] = $s->post_count;
+            $postCounts[$s->post_image_id]['stars'] = $s->post_count * 0.3;
+        }
+
+        // Combine the star counts into the array
+        foreach ($comment as $c) {
+            $postCounts[$c->post_image_id]['comments'] = $c->post_count * 0.1;
         }
 
         // Calculate the total combined counts and store them
         foreach ($postCounts as $post_image_id => $counts) {
-            $postCounts[$post_image_id]['total'] = ($counts['votes'] ?? 0) + ($counts['stars'] ?? 0);
+            $postCounts[$post_image_id]['total'] = ($counts['votes'] ?? 0) + ($counts['stars'] ?? 0) + ($counts['comments'] ?? 0);
         }
 
         // Sort the posts by the total counts in descending order
@@ -99,6 +112,7 @@ class ImageOfTheWeek extends Command
                 'post_image_id' => $post_image_id,
                 'votes' => $counts['votes'] ?? 0,
                 'stars' => $counts['stars'] ?? 0,
+                'comments' => $counts['comments'] ?? 0,
                 'total' => $counts['total'],
                 'rank' => $currentRank,
             ];
@@ -110,17 +124,18 @@ class ImageOfTheWeek extends Command
             $position++;
         }
 
-        // Group posts by position (1st, 2nd, 3rd, etc.)
+        // Group posts by position (1st, 2nd, 3rd)
 
         ImageOfWeek::truncate();
-        
+
         foreach ($rankedPosts as $rankedPost) {
             ImageOfWeek::create([
                 'post_id' =>  $rankedPost['post_image_id'],
-                'vote' =>  $rankedPost['votes'],
-                'star' =>  $rankedPost['stars'],
-                'total' =>  $rankedPost['total'],
-                'place' =>  $rankedPost['rank']
+                'vote'    =>  $rankedPost['votes'],
+                'star'    =>  $rankedPost['stars'],
+                'comment' =>  $rankedPost['comments'],
+                'total'   =>  $rankedPost['total'],
+                'place'   =>  $rankedPost['rank']
             ]);
         }
     }

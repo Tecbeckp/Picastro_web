@@ -840,7 +840,7 @@ class ApiGeneralController extends Controller
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-        $data = User::select('id', 'first_name', 'last_name', 'username', 'fcm_token')->with('userprofile:user_id,profile_image')->whereIn('id', explode(',', $request->user_id))->get();
+        $data = User::select('id', 'first_name', 'last_name', 'username', 'fcm_token')->with('userprofile:user_id,profile_image,pronouns')->whereIn('id', explode(',', $request->user_id))->get();
 
         return $this->success(['Get user successfully'], $data);
     }
