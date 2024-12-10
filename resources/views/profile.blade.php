@@ -185,8 +185,8 @@
 
                             <div class="d-flex justify-content-between">
                                 <div class="badges d-flex gap-2 mt-3">
-                                    @forelse ($trophies as $item)
-                                        <img src="{{ asset($item->icon) }}" alt="Badge 1" style="border: none !important;height: auto !important;width: auto !important;border-radius: 0px !important;">
+                                    @forelse ($trophies as $key => $item)
+                                        <img src="{{ asset($item->icon) }}" alt="Badge 1" style="border: none !important;height: auto !important;width: auto !important;border-radius: 0px !important;"><span>{{$vote[$key]}}</span>
                                     @empty
                                     @endforelse
                                 </div>
@@ -205,7 +205,7 @@
                                             alt="{{ $item['post_image_title'] }}">
                                         <span class="text-start ms-xl-2">
                                             <span
-                                                class=" d-xl-inline-block ms-1 fw-medium user-name-text">Picastro</span>
+                                                class=" d-xl-inline-block ms-1 fw-medium user-name-text">{{ $user->username }}</span>
 
                                         </span>
                                     </span>
