@@ -325,8 +325,14 @@ class PostImageController extends Controller
             $posts->where('object_type_id', $randomizer)->inRandomOrder();
         }
         $posts = $posts->where('user_id', base64_decode($id))->latest()->limit('14')->get();
-        $trophies = Trophy::select('id', 'name', 'icon')->get();
         $user = User::with('userprofile')->withCount('TotalStar')->where('id', base64_decode($id, true))->first();
+        $trophies = Trophy::select('id', 'name', 'icon')->get();
+        $vote = [];
+        foreach ($trophies as $trophy) {
+            $vote[$trophy->id] = VoteImage::where('trophy_id', $trophy->id)
+                ->where('post_user_id', $user->id)
+                ->count();
+        }
         $posts->transform(function ($post) use ($trophies) {
 
             return [
@@ -372,7 +378,7 @@ class PostImageController extends Controller
                 ]
             ];
         });
-        return view('profile', compact('posts', 'user','trophies'));
+        return view('profile', compact('posts', 'user','trophies','vote'));
     }
 
     public function userPostImage(Request $request)
