@@ -148,7 +148,7 @@
             <div class="container-fluid">
                 <!-- App Listing -->
                 <div class="row">
-                    <div class="col-12 col-sm-12" style="padding: 0">
+                    <div class="col-12 col-sm-12" style="padding: 0;padding-bottom: 10px !important;">
                         <div class="profile-card small-card mb-0">
                             <div class="d-flex align-items-center">
                                 <img src="{{ $user->userprofile->profile_image }}" alt="Profile Picture">
@@ -186,7 +186,7 @@
                             <div class="d-flex justify-content-between">
                                 <div class="badges d-flex gap-2 mt-3">
                                     @forelse ($trophies as $item)
-                                        <img src="{{ asset($item->icon) }}" alt="Badge 1" style="order: none;height: auto;width: auto;border-radius: 0px !important;">
+                                        <img src="{{ asset($item->icon) }}" alt="Badge 1" style="border: none !important;height: auto !important;width: auto !important;border-radius: 0px !important;">
                                     @empty
                                     @endforelse
                                 </div>
