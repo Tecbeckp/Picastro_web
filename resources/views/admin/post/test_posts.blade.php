@@ -86,7 +86,6 @@
 
         <div class="page-content">
             <div class="container-fluid">
-
                 <!-- App Listing -->
                 <div class="row">
                     <div class="col-12 col-sm-12" style="padding: 0">
@@ -97,7 +96,7 @@
                                     <h5 class="mb-0">{{ $user->username }}</h5>
                                     <small class="text-muted">{{ $user->userprofile->pronouns }}</small>
                                 </div>
-                                <span class="ms-auto text-warning">★ 1,945</span>
+                                <span class="ms-auto text-warning">★ {{ number_format($user->total_star_count) }}</span>
                             </div>
 
                             <div class="stats mt-3">
@@ -126,9 +125,10 @@
 
                             <div class="d-flex justify-content-between">
                                 <div class="badges d-flex gap-2 mt-3">
-                                    <img src="https://via.placeholder.com/25" alt="Badge 1">
-                                    <img src="https://via.placeholder.com/25" alt="Badge 2">
-                                    <img src="https://via.placeholder.com/25" alt="Badge 3">
+                                    @forelse ($trophies as $item)
+                                        <img src="{{ asset($item->icon) }}" alt="Badge 1">
+                                    @empty
+                                    @endforelse
                                 </div>
 
                                 {{-- <button class="btn btn-follow">Follow</button> --}}
@@ -168,21 +168,50 @@
                     @empty
                     @endforelse
 
+                    <div class="row">
+                        <div class="col-12 col-sm-12" style="padding: 0">
+                            <div class="profile-card small-card mb-0"
+                                style="padding: 0 !important;margin-top: 10px;background: none;">
+                                <div class="d-flex align-items-center">
+                                    <div class="card overflow-hidden card-bg-fill galaxy-border-none">
+                                        <div class="card-body p-5">
+                                            <div class="text-center">
+                                                <img src="{{ asset('assets/images/picastro.png') }}" class="profile"
+                                                    alt=""
+                                                    style="width: 50%;border: none;height: auto;border-radius: unset;">
+                                                <h1 class="text-white mb-4 mt-4">Download Picastro App</h1>
+                                                <p class="text-white mb-4">Download the app today using the links below
+                                                </p>
+                                                <a target="_blank"
+                                                    href="https://apps.apple.com/pk/app/picastro/id6446713728"><img
+                                                        src="{{ asset('assets/images/app_store.png') }}"
+                                                        alt="Playstore"
+                                                        style="width: 44% !important;border: none;height: auto;border-radius: 8px !important;"></a>
+                                                <a target="_blank"
+                                                    href="https://play.google.com/store/search?q=picastro&c=apps&hl=en"><img
+                                                        src="{{ asset('assets/images/Google-Play-Store-Logo-PNG-Transparent.png') }}"
+                                                        alt="Playstore"
+                                                        style="width: 49% !important;border-radius: 10px;border: none;height: auto;"></a>
 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
+                    </div>
                 </div>
+                <!-- container-fluid -->
             </div>
-            <!-- container-fluid -->
+            <!-- End Page-content -->
+
         </div>
-        <!-- End Page-content -->
+        <!-- end main content-->
 
     </div>
-    <!-- end main content-->
 
-
-
-    @include('includes.script')
-
+        @include('includes.script')
 
 </body>
 

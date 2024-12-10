@@ -25,9 +25,9 @@ Route::get('/', [LoginController::class, 'showLoginForm'])->middleware('guest')-
 Route::get('/post/{id}', function ($id) {
     return view('welcome', compact('id'));
 })->name('post');
-Route::get('/profile/{id}', function ($id) {
-    return view('profile', compact('id'));
-})->name('profile');
+// Route::get('/profile/{id}', function ($id) {
+//     return view('profile', compact('id'));
+// })->name('profile');
 Route::get('/otp', function () {
     return view('otp');
 })->name('otp');
@@ -36,7 +36,7 @@ Route::get('/email', function () {
     return view('email');
 })->name('email');
 
-Route::get('get-all-test-post-image/{id}', [App\Http\Controllers\Api\PostImageController::class, 'allTestPostImage']);
+Route::get('profile/{id}', [App\Http\Controllers\Api\PostImageController::class, 'allTestPostImage']);
 
 
 Route::post('/send-email', [HomeController::class, 'sendEmail'])->name('sendEmail');
