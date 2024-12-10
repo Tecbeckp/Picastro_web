@@ -220,7 +220,7 @@
                                             </p>
                                         @endif
 
-                                        <i class="bx bx-star"></i>
+                                        {{-- <i class="bx bx-star"></i> --}}
                                     </div>
                                 </div>
                             </div>
