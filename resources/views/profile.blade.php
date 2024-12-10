@@ -186,7 +186,7 @@
                             <div class="d-flex justify-content-between">
                                 <div class="badges d-flex gap-2 mt-3">
                                     @forelse ($trophies as $item)
-                                        <img src="{{ asset($item->icon) }}" alt="Badge 1">
+                                        <img src="{{ asset($item->icon) }}" alt="Badge 1" style="order: none;height: auto;width: auto;border-radius: 0px !important;">
                                     @empty
                                     @endforelse
                                 </div>
