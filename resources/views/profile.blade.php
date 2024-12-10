@@ -186,7 +186,7 @@
                             <div class="d-flex justify-content-between">
                                 <div class="badges d-flex gap-2 mt-3">
                                     @forelse ($trophies as $key => $item)
-                                        <img src="{{ asset($item->icon) }}" alt="Badge 1" style="border: none !important;height: auto !important;width: auto !important;border-radius: 0px !important;"><span>{{$vote[$key]}}</span>
+                                        <img src="{{ asset($item->icon) }}" alt="Badge 1" style="border: none !important;height: auto !important;width: auto !important;border-radius: 0px !important;">@nbsp;{{$vote[$key]}}
                                     @empty
                                     @endforelse
                                 </div>
