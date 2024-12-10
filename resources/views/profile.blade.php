@@ -26,8 +26,8 @@
         <meta property="og:description"
             content="{{ $results->bio ?? $results->first_name . ' ' . $results->last_name }}" />
     @endif
-
     @include('includes.style')
+    <link href="{{ asset('assets/app.min.css') }}" rel="stylesheet" type="text/css" />
     {{-- <style>
         .btn-theme-red{
             background: #ED1C24;
