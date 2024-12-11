@@ -194,9 +194,9 @@
                         </div>
                     </div>
                     @forelse ($posts as $item)
-                        <div class="col-6 col-sm-6">
+                        <div class="col-6 col-sm-6" style="padding-bottom: 7px !important;">
                             <div class="card small-card mb-0">
-                                <div class="card-body p-0" style="">
+                                <div class="card-body p-0">
                                     {{-- <span class="d-flex align-items-center isProfile">
                                         <img class="rounded-circle header-profile-user"
                                             src="{{ $item['user']['profile_image'] }}"
