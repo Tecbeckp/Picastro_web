@@ -175,10 +175,10 @@
 
                             <div class="links mt-2 d-flex gap-3">
                                 <a href="https://{{ $user->userprofile->web_site_one }}"
-                                    target="_blank">{{ $user->userprofile->web_site_one }}</a>
+                                    target="_blank">{{ Str::limit($user->userprofile->web_site_one, 20) }}</a>
 
                                 <a href="https://{{ $user->userprofile->web_site_two }}"
-                                    target="_blank">{{ $user->userprofile->web_site_two }}</a>
+                                    target="_blank">{{ Str::limit($user->userprofile->web_site_two, 20) }}</a>
                             </div>
 
                             <div class="d-flex justify-content-between">
