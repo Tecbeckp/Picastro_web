@@ -13,14 +13,13 @@
         use Illuminate\Support\Facades\DB;
         $id = request('id');
     @endphp
-    @if ($results)
         <meta property="og:url" content="{{ url('profile/' . $id) }}" />
         <meta property="og:image" content="{{ $user->userprofile->profile_image  }}" />
         <meta property="og:type" content="User Profile" />
         <meta property="og:title" content="{{ $user->username }}" />
         <meta property="og:description"
             content="{{ $user->userprofile->bio ?? $user->userprofile->first_name . ' ' . $user->userprofile->last_name }}" />
-    @endif
+
     @include('includes.style')
     <link href="{{ asset('assets/app.min.css') }}" rel="stylesheet" type="text/css" />
     {{-- <style>
