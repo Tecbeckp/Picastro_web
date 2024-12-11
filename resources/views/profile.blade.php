@@ -12,19 +12,14 @@
     @php
         use Illuminate\Support\Facades\DB;
         $id = request('id');
-        $results = DB::table('users')
-            ->join('user_profiles', 'users.id', '=', 'user_profiles.user_id')
-            ->where('users.id', base64_decode($id))
-            ->first();
-
     @endphp
     @if ($results)
         <meta property="og:url" content="{{ url('profile/' . $id) }}" />
-        <meta property="og:image" content="{{ $results->profile_image }}" />
+        <meta property="og:image" content="{{ $user->userprofile->profile_image  }}" />
         <meta property="og:type" content="User Profile" />
-        <meta property="og:title" content="{{ $results->username }}" />
+        <meta property="og:title" content="{{ $user->username }}" />
         <meta property="og:description"
-            content="{{ $results->bio ?? $results->first_name . ' ' . $results->last_name }}" />
+            content="{{ $user->userprofile->bio ?? $user->userprofile->first_name . ' ' . $user->userprofile->last_name }}" />
     @endif
     @include('includes.style')
     <link href="{{ asset('assets/app.min.css') }}" rel="stylesheet" type="text/css" />
@@ -46,6 +41,9 @@
         }
     </style> --}}
     <style>
+        body{
+            background-color: black !important;
+        }
         .profile-card {
             background-color: #2f2f2f;
             color: white;
@@ -142,7 +140,7 @@
         </div>
     </div> --}}
 
-    <div class="main-content-app">
+    <div class="main-content-app overflow-hidden">
 
         <div class="page-content">
             <div class="container-fluid">
@@ -156,7 +154,7 @@
                                     <h5 class="mb-0">{{ $user->username }}</h5>
                                     <small class="text-muted">{{ $user->userprofile->pronouns }}</small>
                                 </div>
-                                <span class="ms-auto text-warning">★ {{ number_format($user->total_star_count) }}</span>
+                                <span class="ms-auto text-danger">★ <span style="color: #fff !important">{{ number_format($user->total_star_count) }}</span></span>
                             </div>
 
                             <div class="stats mt-3">
@@ -179,6 +177,7 @@
                             <div class="links mt-2 d-flex gap-3">
                                 <a href="https://{{ $user->userprofile->web_site_one }}"
                                     target="_blank">{{ $user->userprofile->web_site_one }}</a>
+
                                 <a href="https://{{ $user->userprofile->web_site_two }}"
                                     target="_blank">{{ $user->userprofile->web_site_two }}</a>
                             </div>
