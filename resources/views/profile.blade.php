@@ -153,7 +153,7 @@
                                     <h5 class="mb-0">{{ $user->username }}</h5>
                                     <small class="text-muted">{{ $user->userprofile->pronouns }}</small>
                                 </div>
-                                <span class="ms-auto text-danger" style="font-size: large;">★ <span style="color: #fff !important">{{ number_format($user->total_star_count) }}</span></span>
+                                <span class="ms-auto text-danger" style="font-size: large;">★ <span style="color: #fff !important;font-size: medium;">{{ number_format($user->total_star_count) }}</span></span>
                             </div>
 
                             <div class="stats mt-3">
