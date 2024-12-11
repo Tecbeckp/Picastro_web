@@ -153,7 +153,7 @@
                                     <h5 class="mb-0">{{ $user->username }}</h5>
                                     <small class="text-muted">{{ $user->userprofile->pronouns }}</small>
                                 </div>
-                                <span class="ms-auto text-danger">★ <span style="color: #fff !important">{{ number_format($user->total_star_count) }}</span></span>
+                                <span class="ms-auto text-danger" style="font-size: large;">★ <span style="color: #fff !important">{{ number_format($user->total_star_count) }}</span></span>
                             </div>
 
                             <div class="stats mt-3">
@@ -196,7 +196,7 @@
                     @forelse ($posts as $item)
                         <div class="col-6 col-sm-6">
                             <div class="card small-card mb-0">
-                                <div class="card-body p-0">
+                                <div class="card-body p-0" style="padding-bottom: 7px !important;">
                                     {{-- <span class="d-flex align-items-center isProfile">
                                         <img class="rounded-circle header-profile-user"
                                             src="{{ $item['user']['profile_image'] }}"
