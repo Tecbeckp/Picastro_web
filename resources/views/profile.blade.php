@@ -198,7 +198,7 @@
                         <div class="col-6 col-sm-6">
                             <div class="card small-card mb-0">
                                 <div class="card-body p-0">
-                                    <span class="d-flex align-items-center isProfile">
+                                    {{-- <span class="d-flex align-items-center isProfile">
                                         <img class="rounded-circle header-profile-user"
                                             src="{{ $item['user']['profile_image'] }}"
                                             alt="{{ $item['post_image_title'] }}">
@@ -207,7 +207,7 @@
                                                 class=" d-xl-inline-block ms-1 fw-medium user-name-text">{{ $user->username }}</span>
 
                                         </span>
-                                    </span>
+                                    </span> --}}
                                     <img src="{{ $item['image'] }}" alt="Space Image" class="spaceImg">
                                     <div class="card-footer">
                                         @if ($item['post_image_title'])
