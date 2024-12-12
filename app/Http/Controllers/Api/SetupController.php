@@ -31,7 +31,7 @@ class SetupController extends Controller
             // 'number_of_flats'       => 'required|numeric|min:0',
             // 'number_of_dark_flats'  => 'required|numeric|min:0',
             // 'number_of_bias'        => 'required|numeric|min:0',
-            'setup_name'          => 'required',
+            'setup_name'          => 'required|unique:main_setups,name',
             // 'telescope_name'      => 'required',
             // 'scope_type'          => 'required',
             // 'mount_name'          => 'required',
