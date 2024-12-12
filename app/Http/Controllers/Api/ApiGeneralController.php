@@ -187,6 +187,9 @@ class ApiGeneralController extends Controller
                             ->orWhere('object_name', 'like', "%{$searchTerm}%");
                     }
                 })
+                ->whereHas('postImage', function ($q){
+                    $q->whereNull('deleted_at');
+                })
                 ->where('archived', "$archived")
                 ->get();
             // ->paginate($perPage);
