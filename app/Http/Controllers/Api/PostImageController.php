@@ -118,11 +118,11 @@ class PostImageController extends Controller
     {
         if ($request->user) {
             $followers = FollowerList::where('follower_id', auth()->id())->pluck('user_id')->toArray();
-            $users = User::with('userprofile', 'Follower')->whereNotIn('id', [auth()->id(),1])->whereNotIn('id', $followers)
-            ->whereHas('userprofile', function($q){
-                $q->where('complete_profile', '1');
-            })
-            ->where('is_registration', '1')->latest()->paginate(50);
+            $users = User::with('userprofile', 'Follower')->whereNotIn('id', [auth()->id(), 1])->whereNotIn('id', $followers)
+                ->whereHas('userprofile', function ($q) {
+                    $q->where('complete_profile', '1');
+                })
+                ->where('is_registration', '1')->latest()->paginate(50);
             $users->getCollection()->transform(function ($user) {
                 $data = $user;
                 $data->followback = $user->Follower ?  true : false;
@@ -162,73 +162,124 @@ class PostImageController extends Controller
             $authUserId = auth()->id();
             $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
             $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
-
-            // Combine the follower/following ids along with the current user's id
             $relatedUserIds = array_unique(array_merge($followers, $following, [$authUserId]));
 
-            $relatedPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
+            $postsQuery = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
                 ->whereDoesntHave('blockToUser')
                 ->whereDoesntHave('UserToBlock')
-                ->whereDoesntHave('userHidePost')
-                ->whereIn('user_id', $relatedUserIds)
-                ->whereNot('user_id', $authUserId);
-            $otherPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
-                ->whereDoesntHave('blockToUser')
-                ->whereDoesntHave('UserToBlock')
-                ->whereDoesntHave('userHidePost')
-                ->whereNotIn('user_id', $relatedUserIds);
+                ->whereDoesntHave('userHidePost');
 
             if ($observer_location) {
-                $relatedPosts->whereIn('observer_location_id', $observer_location);
-                $otherPosts->whereIn('observer_location_id', $observer_location);
+                $postsQuery->whereIn('observer_location_id', $observer_location);
             }
 
             if ($object_type) {
-                $relatedPosts->where('object_type_id', $object_type);
-                $otherPosts->where('object_type_id', $object_type);
+                $postsQuery->where('object_type_id', $object_type);
             }
 
             if ($telescope_type) {
-                $relatedPosts->where('telescope_id', $telescope_type);
-                $otherPosts->where('telescope_id', $telescope_type);
+                $postsQuery->where('telescope_id', $telescope_type);
             }
 
             if ($randomizer) {
-                $relatedPosts->where('object_type_id', $randomizer)->inRandomOrder();
-                $otherPosts->where('object_type_id', $randomizer)->inRandomOrder();
+                $postsQuery->where('object_type_id', $randomizer)->inRandomOrder();
             }
 
             if ($most_recent) {
-                $relatedPosts->where('object_type_id', $most_recent);
-                $otherPosts->where('object_type_id', $most_recent);
+                $postsQuery->where('object_type_id', $most_recent);
             }
+
+            $relatedPosts = (clone $postsQuery)->whereIn('user_id', $relatedUserIds)->whereNot('user_id', $authUserId);
+            $otherPosts = (clone $postsQuery)->whereNotIn('user_id', $relatedUserIds);
 
             $relatedPostsCollection = $relatedPosts->latest()->get();
             $otherPostsCollection = $otherPosts->latest()->get();
+
             $mergedPosts = $relatedPostsCollection->merge($otherPostsCollection);
 
+            // $relatedPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
+            //     ->whereDoesntHave('blockToUser')
+            //     ->whereDoesntHave('UserToBlock')
+            //     ->whereDoesntHave('userHidePost')
+            //     ->whereIn('user_id', $relatedUserIds)
+            //     ->whereNot('user_id', $authUserId);
+            // $otherPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
+            //     ->whereDoesntHave('blockToUser')
+            //     ->whereDoesntHave('UserToBlock')
+            //     ->whereDoesntHave('userHidePost')
+            //     ->whereNotIn('user_id', $relatedUserIds);
 
-            // Paginate the final merged result
-            $perPage = 10;
-            $currentPage = LengthAwarePaginator::resolveCurrentPage();
-            $currentItems = $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values();
-            $paginatedPosts = new LengthAwarePaginator($currentItems, $mergedPosts->count(), $perPage, $currentPage, [
-                'path' => LengthAwarePaginator::resolveCurrentPath()
-            ]);
+            // if ($observer_location) {
+            //     $relatedPosts->whereIn('observer_location_id', $observer_location);
+            //     $otherPosts->whereIn('observer_location_id', $observer_location);
+            // }
+
+            // if ($object_type) {
+            //     $relatedPosts->where('object_type_id', $object_type);
+            //     $otherPosts->where('object_type_id', $object_type);
+            // }
+
+            // if ($telescope_type) {
+            //     $relatedPosts->where('telescope_id', $telescope_type);
+            //     $otherPosts->where('telescope_id', $telescope_type);
+            // }
+
+            // if ($randomizer) {
+            //     $relatedPosts->where('object_type_id', $randomizer)->inRandomOrder();
+            //     $otherPosts->where('object_type_id', $randomizer)->inRandomOrder();
+            // }
+
+            // if ($most_recent) {
+            //     $relatedPosts->where('object_type_id', $most_recent);
+            //     $otherPosts->where('object_type_id', $most_recent);
+            // }
+
+            // $relatedPostsCollection = $relatedPosts->latest()->get();
+            // $otherPostsCollection = $otherPosts->latest()->get();
+            // $mergedPosts = $relatedPostsCollection->merge($otherPostsCollection);
 
             $filteredPosts = collect();
             $previousUserId = null;
 
-            foreach ($paginatedPosts->getCollection() as $post) {
+            foreach ($mergedPosts as $post) {
                 if ($post->user_id !== $previousUserId) {
                     $filteredPosts->push($post);
                     $previousUserId = $post->user_id;
-                } else {
-                    $filteredPosts->push($post);
                 }
             }
+
             $filteredPosts = $filteredPosts->shuffle();
-            $paginatedPosts->setCollection($filteredPosts);
+            $perPage = 10;
+            $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            $paginatedPosts = new LengthAwarePaginator(
+                $filteredPosts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
+                $filteredPosts->count(),
+                $perPage,
+                $currentPage,
+                ['path' => LengthAwarePaginator::resolveCurrentPath()]
+            );
+
+            // Paginate the final merged result
+            
+            
+            // $currentItems = $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values();
+            // $paginatedPosts = new LengthAwarePaginator($currentItems, $mergedPosts->count(), $perPage, $currentPage, [
+            //     'path' => LengthAwarePaginator::resolveCurrentPath()
+            // ]);
+
+            // $filteredPosts = collect();
+            // $previousUserId = null;
+
+            // foreach ($paginatedPosts->getCollection() as $post) {
+            //     if ($post->user_id !== $previousUserId) {
+            //         $filteredPosts->push($post);
+            //         $previousUserId = $post->user_id;
+            //     } else {
+            //         $filteredPosts->push($post);
+            //     }
+            // }
+            // $filteredPosts = $filteredPosts->shuffle();
+            // $paginatedPosts->setCollection($filteredPosts);
             $trophies = Trophy::select('id', 'name', 'icon')->get();
 
             $paginatedPosts->getCollection()->transform(function ($post) use ($trophies) {
@@ -378,7 +429,7 @@ class PostImageController extends Controller
                 ]
             ];
         });
-        return view('profile', compact('posts', 'user','trophies','vote'));
+        return view('profile', compact('posts', 'user', 'trophies', 'vote'));
     }
 
     public function userPostImage(Request $request)
@@ -395,9 +446,9 @@ class PostImageController extends Controller
         }
 
         if ($request->user_id) {
-            $user = User::with('userprofile','Following')->withCount('TotalStar')->where('id', $request->user_id)->first();
+            $user = User::with('userprofile', 'Following')->withCount('TotalStar')->where('id', $request->user_id)->first();
         } else {
-            $user = User::with('userprofile','Following')->withCount('TotalStar')->where('username', $request->username)->first();
+            $user = User::with('userprofile', 'Following')->withCount('TotalStar')->where('username', $request->username)->first();
         }
         $trophies = Trophy::select('id', 'name', 'icon')->get();
         $vote = [];
@@ -412,7 +463,7 @@ class PostImageController extends Controller
         $troph = Trophy::select('id', 'name', 'icon')->get();
         $data = [
             'user' => $user,
-            'follow'=> $user->Following ? true : false,
+            'follow' => $user->Following ? true : false,
             'posts' => $posts->count(),
             'trophies' => $trophies->map(function ($trophy) use ($vote) {
                 return [
