@@ -18,8 +18,41 @@ class SetupController extends Controller
 
     public function index()
     {
-        $setups = MainSetup::select('id','name')->where('user_id',auth()->id())->get();
-        return $this->success([], $setups);
+        $setups = MainSetup::where('user_id', auth()->id())->get();
+
+$data = $setups->map(function ($setup, $key) {
+    return [
+        'id' => $setup->id,
+        'name' => $setup->name,
+        'data' => [
+            'setup' => [
+                'id' => $setup->id,
+                'user_id' => $setup->user_id,
+                'name' => $setup->name,
+                'telescope_name' => $setup->telescope_name,
+                'scope_type' => $setup->scope_type,
+                'mount_name' => $setup->mount_name,
+                'camera_lens' => $setup->camera_lens,
+                'imaging_camera' => $setup->imaging_camera,
+                'guide_camera' => $setup->guide_camera,
+                'guide_scope' => $setup->guide_scope,
+                'filter_wheel' => $setup->filter_wheel,
+                'reducer_name' => $setup->reducer_name,
+                'autofocuser' => $setup->autofocuser,
+                'other_accessories' => $setup->other_accessories,
+                'barlow_lens' => $setup->barlow_lens,
+                'filters' => $setup->filters,
+                'acquisition_software' => $setup->acquisition_software,
+                'processing' => $setup->processing,
+                'deleted_at' => $setup->deleted_at,
+                'created_at' => $setup->created_at->toISOString(),
+                'updated_at' => $setup->updated_at->toISOString(),
+            ],
+        ],
+    ];
+});
+
+        return $this->success([], $data);
 
     }
 
