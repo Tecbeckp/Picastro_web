@@ -194,16 +194,20 @@ class PostImageController extends Controller
 
             // Interleave posts
             $mergedPosts = collect();
-            $maxCount = max($relatedPosts->count(), $otherPosts->count());
-            for ($i = 0; $i < $maxCount; $i++) {
-                if (isset($relatedPosts[$i])) {
-                    $mergedPosts->push($relatedPosts[$i]);
+
+            $relatedIterator = $relatedPosts->values()->getIterator();
+            $otherIterator = $otherPosts->values()->getIterator();
+
+            while ($relatedIterator->valid() || $otherIterator->valid()) {
+                if ($relatedIterator->valid()) {
+                    $mergedPosts->push($relatedIterator->current());
+                    $relatedIterator->next();
                 }
-                if (isset($otherPosts[$i])) {
-                    $mergedPosts->push($otherPosts[$i]);
+                if ($otherIterator->valid()) {
+                    $mergedPosts->push($otherIterator->current());
+                    $otherIterator->next();
                 }
             }
-
             // Paginate the result
             $perPage = 10;
             $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -214,7 +218,27 @@ class PostImageController extends Controller
                 $currentPage,
                 ['path' => LengthAwarePaginator::resolveCurrentPath()]
             );
-            
+            // $maxCount = max($relatedPosts->count(), $otherPosts->count());
+            // for ($i = 0; $i < $maxCount; $i++) {
+            //     if (isset($relatedPosts[$i])) {
+            //         $mergedPosts->push($relatedPosts[$i]);
+            //     }
+            //     if (isset($otherPosts[$i])) {
+            //         $mergedPosts->push($otherPosts[$i]);
+            //     }
+            // }
+
+            // Paginate the result
+            // $perPage = 10;
+            // $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            // $paginatedPosts = new LengthAwarePaginator(
+            //     $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
+            //     $mergedPosts->count(),
+            //     $perPage,
+            //     $currentPage,
+            //     ['path' => LengthAwarePaginator::resolveCurrentPath()]
+            // );
+
             $trophies = Trophy::select('id', 'name', 'icon')->get();
 
             $paginatedPosts->getCollection()->transform(function ($post) use ($trophies) {
