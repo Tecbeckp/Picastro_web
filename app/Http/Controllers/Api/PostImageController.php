@@ -167,10 +167,10 @@ class PostImageController extends Controller
             $postsQuery = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
                 ->whereDoesntHave('blockToUser')
                 ->whereDoesntHave('UserToBlock')
-                ->whereDoesntHave('userHidePost')
-                ->whereHas('user', function ($q){
-                    $q->whereNull('deleted_at');
-                });
+                ->whereDoesntHave('userHidePost');
+                // ->whereHas('user', function ($q){
+                //     $q->whereNull('deleted_at');
+                // });
 
             if ($observer_location) {
                 $postsQuery->whereIn('observer_location_id', $observer_location);
