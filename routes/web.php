@@ -36,7 +36,7 @@ Route::get('/email', function () {
     return view('email');
 })->name('email');
 
-Route::get('profile/{id}', [App\Http\Controllers\Api\PostImageController::class, 'allTestPostImage']);
+Route::get('profile/{id}', [App\Http\Controllers\Api\PostImageController::class, 'allTestPostImage'])->name('profile');
 
 
 Route::post('/send-email', [HomeController::class, 'sendEmail'])->name('sendEmail');
