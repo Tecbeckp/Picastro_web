@@ -189,13 +189,35 @@ class PostImageController extends Controller
                 $postsQuery->where('object_type_id', $most_recent);
             }
 
-            $relatedPosts = (clone $postsQuery)->whereIn('user_id', $relatedUserIds)->whereNot('user_id', $authUserId)->latest()->get();
-            $otherPosts = (clone $postsQuery)->whereNotIn('user_id', $relatedUserIds)->latest()->get();
+            $relatedPosts = (clone $postsQuery)->whereIn('user_id', $relatedUserIds)->whereNot('user_id', $authUserId)->get()->shuffle();
+            $otherPosts = (clone $postsQuery)->whereNotIn('user_id', $relatedUserIds)->get()->shuffle();
 
+            // Interleave posts
+            $mergedPosts = collect();
+            $maxCount = max($relatedPosts->count(), $otherPosts->count());
+            for ($i = 0; $i < $maxCount; $i++) {
+                if (isset($relatedPosts[$i])) {
+                    $mergedPosts->push($relatedPosts[$i]);
+                }
+                if (isset($otherPosts[$i])) {
+                    $mergedPosts->push($otherPosts[$i]);
+                }
+            }
+
+            // Paginate the result
+            $perPage = 10;
+            $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            $paginatedPosts = new LengthAwarePaginator(
+                $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
+                $mergedPosts->count(),
+                $perPage,
+                $currentPage,
+                ['path' => LengthAwarePaginator::resolveCurrentPath()]
+            );
             // $relatedPostsCollection = $relatedPosts;
             // $otherPostsCollection = $otherPosts;
 
-            $mergedPosts = $relatedPosts->shuffle()->merge($otherPosts->shuffle());
+            // $mergedPosts = $relatedPosts->shuffle()->merge($otherPosts->shuffle());
             // $mergedPosts = $relatedPostsCollection->merge($otherPostsCollection);
 
             // $relatedPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
@@ -240,15 +262,15 @@ class PostImageController extends Controller
             // $mergedPosts = $relatedPostsCollection->merge($otherPostsCollection);
 
 
-            $perPage = 10;
-            $currentPage = LengthAwarePaginator::resolveCurrentPage();
-            $paginatedPosts = new LengthAwarePaginator(
-                $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
-                $mergedPosts->count(),
-                $perPage,
-                $currentPage,
-                ['path' => LengthAwarePaginator::resolveCurrentPath()]
-            );
+            // $perPage = 10;
+            // $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            // $paginatedPosts = new LengthAwarePaginator(
+            //     $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
+            //     $mergedPosts->count(),
+            //     $perPage,
+            //     $currentPage,
+            //     ['path' => LengthAwarePaginator::resolveCurrentPath()]
+            // );
 
             // $filteredPosts = collect();
             // $previousUserId = null;
