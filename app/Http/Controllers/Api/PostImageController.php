@@ -189,13 +189,14 @@ class PostImageController extends Controller
                 $postsQuery->where('object_type_id', $most_recent);
             }
 
-            $relatedPosts = (clone $postsQuery)->whereIn('user_id', $relatedUserIds)->whereNot('user_id', $authUserId);
-            $otherPosts = (clone $postsQuery)->whereNotIn('user_id', $relatedUserIds);
+            $relatedPosts = (clone $postsQuery)->whereIn('user_id', $relatedUserIds)->whereNot('user_id', $authUserId)->latest()->get();
+            $otherPosts = (clone $postsQuery)->whereNotIn('user_id', $relatedUserIds)->latest()->get();
 
-            $relatedPostsCollection = $relatedPosts->latest()->get();
-            $otherPostsCollection = $otherPosts->latest()->get();
+            // $relatedPostsCollection = $relatedPosts;
+            // $otherPostsCollection = $otherPosts;
 
-            $mergedPosts = $relatedPostsCollection->merge($otherPostsCollection);
+            $mergedPosts = $relatedPosts->shuffle()->merge($otherPosts->shuffle());
+            // $mergedPosts = $relatedPostsCollection->merge($otherPostsCollection);
 
             // $relatedPosts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
             //     ->whereDoesntHave('blockToUser')
@@ -238,30 +239,41 @@ class PostImageController extends Controller
             // $otherPostsCollection = $otherPosts->latest()->get();
             // $mergedPosts = $relatedPostsCollection->merge($otherPostsCollection);
 
-            $filteredPosts = collect();
-            $previousUserId = null;
 
-            foreach ($mergedPosts as $post) {
-                if ($post->user_id !== $previousUserId) {
-                    $filteredPosts->push($post);
-                    $previousUserId = $post->user_id;
-                }
-            }
-
-            $filteredPosts = $filteredPosts->shuffle();
             $perPage = 10;
             $currentPage = LengthAwarePaginator::resolveCurrentPage();
             $paginatedPosts = new LengthAwarePaginator(
-                $filteredPosts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
-                $filteredPosts->count(),
+                $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
+                $mergedPosts->count(),
                 $perPage,
                 $currentPage,
                 ['path' => LengthAwarePaginator::resolveCurrentPath()]
             );
 
+            // $filteredPosts = collect();
+            // $previousUserId = null;
+
+            // foreach ($mergedPosts as $post) {
+            //     if ($post->user_id !== $previousUserId) {
+            //         $filteredPosts->push($post);
+            //         $previousUserId = $post->user_id;
+            //     }
+            // }
+
+            // $filteredPosts = $filteredPosts->shuffle();
+            // $perPage = 10;
+            // $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            // $paginatedPosts = new LengthAwarePaginator(
+            //     $filteredPosts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
+            //     $filteredPosts->count(),
+            //     $perPage,
+            //     $currentPage,
+            //     ['path' => LengthAwarePaginator::resolveCurrentPath()]
+            // );
+
             // Paginate the final merged result
-            
-            
+
+
             // $currentItems = $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values();
             // $paginatedPosts = new LengthAwarePaginator($currentItems, $mergedPosts->count(), $perPage, $currentPage, [
             //     'path' => LengthAwarePaginator::resolveCurrentPath()
