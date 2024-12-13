@@ -168,9 +168,6 @@ class PostImageController extends Controller
                 ->whereDoesntHave('blockToUser')
                 ->whereDoesntHave('UserToBlock')
                 ->whereDoesntHave('userHidePost');
-                // ->whereHas('user', function ($q){
-                //     $q->whereNull('deleted_at');
-                // });
 
             if ($observer_location) {
                 $postsQuery->whereIn('observer_location_id', $observer_location);
@@ -192,8 +189,12 @@ class PostImageController extends Controller
                 $postsQuery->where('object_type_id', $most_recent);
             }
 
-            $relatedPosts = (clone $postsQuery)->whereIn('user_id', $relatedUserIds)->whereNot('user_id', $authUserId)->get()->shuffle();
-            $otherPosts = (clone $postsQuery)->whereNotIn('user_id', $relatedUserIds)->get()->shuffle();
+            $relatedPosts = (clone $postsQuery)->whereHas('user', function ($q){
+                $q->whereNull('deleted_at');
+            })->whereIn('user_id', $relatedUserIds)->whereNot('user_id', $authUserId)->get()->shuffle();
+        $otherPosts = (clone $postsQuery)->whereHas('user', function ($q){
+                $q->whereNull('deleted_at');
+            })->whereNotIn('user_id', $relatedUserIds)->get()->shuffle();
 
             // Interleave posts
             $mergedPosts = collect();
