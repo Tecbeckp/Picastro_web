@@ -31,7 +31,7 @@ class SetupController extends Controller
             // 'number_of_flats'       => 'required|numeric|min:0',
             // 'number_of_dark_flats'  => 'required|numeric|min:0',
             // 'number_of_bias'        => 'required|numeric|min:0',
-            'setup_name'          => 'required|unique:main_setups,name',
+            'setup_name'               => 'required',
             // 'telescope_name'      => 'required',
             // 'scope_type'          => 'required',
             // 'mount_name'          => 'required',
@@ -73,10 +73,10 @@ class SetupController extends Controller
                 return $this->error($validator->errors()->all());
             }
 
-            // $totalsetups = MainSetup::select('name')->where('user_id',auth()->id())->count();
-            // if($totalsetups >= 3){
-            //     return $this->error(['You have already created 3 setups, which is the maximum allowed. Please delete an existing setup if you want to create a new one.']);
-            // }
+            $namesetup = MainSetup::select('name')->where('user_id',auth()->id())->where('name', $request->setup_name)->first();
+            if($namesetup ){
+                return $this->error(['The setup name has already been taken! Try again']);
+            }
 
             try{
                 // $setups = MainSetup::select('name')->where('user_id',auth()->id())->latest()->first();
