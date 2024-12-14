@@ -191,10 +191,10 @@ class PostImageController extends Controller
 
             $relatedPosts = (clone $postsQuery)->whereHas('user', function ($q){
                 $q->whereNull('deleted_at');
-            })->whereIn('user_id', $relatedUserIds)->whereNot('user_id', $authUserId)->get()->shuffle();
+            })->whereIn('user_id', $relatedUserIds)->whereNot('user_id', $authUserId)->latest()->get()->shuffle();
         $otherPosts = (clone $postsQuery)->whereHas('user', function ($q){
                 $q->whereNull('deleted_at');
-            })->whereNotIn('user_id', $relatedUserIds)->get()->shuffle();
+            })->whereNotIn('user_id', $relatedUserIds)->latest()->get()->shuffle();
 
             // Interleave posts
             $mergedPosts = collect();

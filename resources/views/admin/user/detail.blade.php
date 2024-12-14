@@ -13,7 +13,7 @@
             <div class="row g-4">
                 <div class="col-auto">
                     <div class="avatar avatar-lg">
-                        <img src="{{$data['user']->userprofile->profile_image}}" alt="user-img" class="img-thumbnail rounded-circle" />
+                        <img src="{{$data['user']->userprofile ? $data['user']->userprofile->profile_image : null}}" alt="user-img" class="img-thumbnail rounded-circle" />
                     </div>
                 </div>
                 <!--end col-->
