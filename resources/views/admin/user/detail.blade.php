@@ -90,7 +90,7 @@
                                                         </tr>
                                                         <tr>
                                                             <th class="ps-0" scope="row">Gender :</th>
-                                                            <td class="text-muted">{{$data['user']->userprofile->pronouns}}
+                                                            <td class="text-muted">{{$data['user']->userprofile->pronouns ?? 'N/A'}}
                                                             </td>
                                                         </tr>
                                                         <tr>
