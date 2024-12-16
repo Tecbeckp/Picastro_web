@@ -113,7 +113,7 @@ class SetupController extends Controller
 
         $id = $request->id;
         if ($id) {
-            $namesetup = MainSetup::where('user_id', auth()->id())->where('name', $request->setup_name)->first();
+            $namesetup = MainSetup::where('id', '!=', $id)->where('user_id', auth()->id())->where('name', $request->setup_name)->first();
             if ($namesetup) {
                 return $this->error(['The setup name has already been taken! Try again']);
             }
