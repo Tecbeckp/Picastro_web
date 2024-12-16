@@ -13,12 +13,12 @@
         use Illuminate\Support\Facades\DB;
         $id = request('id');
     @endphp
-        <meta property="og:url" content="{{ url('profile/' . $id) }}" />
-        <meta property="og:image" content="{{ $user->userprofile->profile_image  }}" />
-        <meta property="og:type" content="User Profile" />
-        <meta property="og:title" content="{{ $user->username }}" />
-        <meta property="og:description"
-            content="{{ $user->userprofile->bio ?? $user->userprofile->first_name . ' ' . $user->userprofile->last_name }}" />
+    <meta property="og:url" content="{{ url('profile/' . $id) }}" />
+    <meta property="og:image" content="{{ $user->userprofile->profile_image }}" />
+    <meta property="og:type" content="User Profile" />
+    <meta property="og:title" content="{{ $user->username }}" />
+    <meta property="og:description"
+        content="{{ $user->userprofile->bio ?? $user->userprofile->first_name . ' ' . $user->userprofile->last_name }}" />
 
     @include('includes.style')
     <link href="{{ asset('assets/app.min.css') }}" rel="stylesheet" type="text/css" />
@@ -40,9 +40,10 @@
         }
     </style> --}}
     <style>
-        body{
+        body {
             background-color: black !important;
         }
+
         .profile-card {
             background-color: #2f2f2f;
             color: white;
@@ -107,6 +108,15 @@
             position: static !important;
             font-size: 22px !important;
         }
+
+        .truncate {
+            display: inline-block;
+            max-width: 100%;
+            /* Adjust based on parent container */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 
@@ -154,7 +164,8 @@
                                     <h5 class="mb-0">{{ $user->username }}</h5>
                                     <small class="text-muted">{{ $user->userprofile->pronouns }}</small>
                                 </div>
-                                <span class="ms-auto text-danger" style="font-size: large;">★ <span style="color: #fff !important;font-size: medium;">{{ number_format($user->total_star_count) }}</span></span>
+                                <span class="ms-auto text-danger" style="font-size: large;">★ <span
+                                        style="color: #fff !important;font-size: medium;">{{ number_format($user->total_star_count) }}</span></span>
                             </div>
 
                             <div class="stats mt-3">
@@ -175,17 +186,19 @@
                             <p class="mt-3">{{ $user->userprofile->bio }}</p>
 
                             <div class="links mt-2 d-flex gap-3">
-                                <a href="https://{{ $user->userprofile->web_site_one }}"
-                                    target="_blank">{{ Str::limit($user->userprofile->web_site_one, 20) }}</a>
-
-                                <a href="https://{{ $user->userprofile->web_site_two }}"
-                                    target="_blank">{{ Str::limit($user->userprofile->web_site_two, 20) }}</a>
+                                <a href="{{ $user->userprofile->web_site_one }}" target="_blank" class="truncate">
+                                    {{ $user->userprofile->web_site_one }}
+                                </a>
+                                <a href="{{ $user->userprofile->web_site_two }}" target="_blank" class="truncate">
+                                    {{ $user->userprofile->web_site_two }}
+                                </a>
                             </div>
 
                             <div class="d-flex justify-content-between">
                                 <div class="badges d-flex gap-2 mt-3" style="gap: 1rem !important;">
                                     @forelse ($trophies as $key => $item)
-                                        <span><img src="{{ asset($item->icon) }}" alt="Badge 1" style="border: none !important;height: auto !important;width: auto !important;border-radius: 0px !important;">&nbsp;{{$vote[$key+1]}}</span>
+                                        <span><img src="{{ asset($item->icon) }}" alt="Badge 1"
+                                                style="border: none !important;height: auto !important;width: auto !important;border-radius: 0px !important;">&nbsp;{{ $vote[$key + 1] }}</span>
                                     @empty
                                     @endforelse
                                 </div>
