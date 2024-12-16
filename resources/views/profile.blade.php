@@ -184,12 +184,17 @@
                             </div>
 
                             <p class="mt-3">{{ $user->userprofile->bio }}</p>
-
                             <div class="links mt-2 d-flex gap-3">
-                                <a href="{{ $user->userprofile->web_site_one }}" target="_blank" class="truncate">
+                                <a href="{{ Str::startsWith($user->userprofile->web_site_one, ['http://', 'https://'])
+                                    ? $user->userprofile->web_site_one
+                                    : 'https://' . $user->userprofile->web_site_one }}"
+                                    target="_blank" class="truncate">
                                     {{ $user->userprofile->web_site_one }}
                                 </a>
-                                <a href="{{ $user->userprofile->web_site_two }}" target="_blank" class="truncate">
+                                <a href="{{ Str::startsWith($user->userprofile->web_site_two, ['http://', 'https://'])
+                                    ? $user->userprofile->web_site_two
+                                    : 'https://' . $user->userprofile->web_site_two }}"
+                                    target="_blank" class="truncate">
                                     {{ $user->userprofile->web_site_two }}
                                 </a>
                             </div>
