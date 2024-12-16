@@ -42,7 +42,7 @@ class SetupController extends Controller
                         'other_accessories' => $setup->other_accessories,
                         'barlow_lens' => $setup->barlow_lens,
                         'filters' => $setup->filters,
-                        'acquistion_software' => $setup->acquisition_software,
+                        'acquistion_software' => $setup->acquistion_software,
                         'processing' => $setup->processing,
                         'deleted_at' => $setup->deleted_at,
                         'created_at' => $setup->created_at->toISOString(),
