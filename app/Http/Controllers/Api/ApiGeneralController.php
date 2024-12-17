@@ -1680,7 +1680,7 @@ class ApiGeneralController extends Controller
         }
 
         $thumbnail         = $this->imageUpload($request->file('image'), 'assets/uploads/chatImageThumbnail/');
-        $originalImageName = $this->originalImageUpload($request->file('image'), 'assets/uploads/chatImage/',true);
+        $originalImageName = $this->imageUpload($request->file('image'), 'assets/uploads/chatImage/');
 
         $data = ChatImage::create([
             'original_image' => $originalImageName,
