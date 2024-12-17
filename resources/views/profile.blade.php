@@ -213,7 +213,7 @@
                         </div>
                     </div>
                     @forelse ($posts as $item)
-                        <div class="col-6 col-sm-6" style="padding-bottom: 7px !important;">
+                        <div class="col-4 col-sm-4" style="padding-bottom: 7px !important;">
                             <div class="card small-card mb-0">
                                 <div class="card-body p-0">
                                     {{-- <span class="d-flex align-items-center isProfile">
@@ -226,7 +226,8 @@
 
                                         </span>
                                     </span> --}}
-                                    <img src="{{ $item['image'] }}" alt="Space Image" class="spaceImg">
+                                    <img src="{{ $item['image'] }}" alt="Space Image" class="spaceImg"
+                                        style="height: 170px !important;">
                                     <div class="card-footer">
                                         @if ($item['post_image_title'])
                                             <p class="mb-0">{{ $item['post_image_title'] }}
@@ -289,6 +290,43 @@
     </div>
 
     @include('includes.script')
+
+    <script>
+        // Disable right-click on the entire document
+        document.addEventListener('contextmenu', (event) => {
+            event.preventDefault(); // Prevent the default context menu
+            console.log('Right-click is disabled.');
+        });
+
+        // Variables for long-press detection
+        let longPressTimer;
+
+        // Function to start long-press detection
+        const startLongPress = (event) => {
+            longPressTimer = setTimeout(() => {
+                event.preventDefault(); // Prevent long-press default behavior
+                console.log('Long press is disabled.');
+            }, 500); // Adjust duration as needed (500ms for long press)
+        };
+
+        // Function to cancel long-press detection
+        const cancelLongPress = () => {
+            clearTimeout(longPressTimer); // Clear the timer
+        };
+
+        // Attach touch events to the entire document
+        document.addEventListener('touchstart', startLongPress);
+        document.addEventListener('touchend', cancelLongPress);
+        document.addEventListener('touchmove', cancelLongPress);
+        document.addEventListener('touchcancel', cancelLongPress);
+
+        // Optional: Add click logging to see activity
+        document.addEventListener('click', () => {
+            console.log('Element clicked!');
+        });
+    </script>
+
+
 </body>
 
 </html>
