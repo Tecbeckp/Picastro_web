@@ -639,7 +639,7 @@ class ApiGeneralController extends Controller
         $data['android_screenshot'] = IsRegistration::first()->android_screenshot;
         $data['trial_period'] = TrialPeriod::first();
         $data['app_under_maintenance'] = Setting::where('id', '1')->first()->maintenance;
-        $data['enable_plan'] = false;
+        $data['enable_plan'] = true;
         $data['comment_character_length'] = 400;
         $data['rating_info_string'] = "Enter before the end of November and leave a review a random user will have the chance of winning a prize. To be decided but up to the value of £150.";
         $used_trial = User::where('id', $request->user_id)->whereIn('trial_period_status', ['0', '2'])->first();
@@ -1428,12 +1428,12 @@ class ApiGeneralController extends Controller
                     'trophy'             => $trophies,
                     'star_card'           => $post->StarCard,
                     'user'               => [
-                        'id'             => $post->user->id,
-                        'first_name'     => $post->user->first_name,
-                        'last_name'      => $post->user->last_name,
-                        'username'       => $post->user->username,
-                        'profile_image'  => $post->user->userprofile->profile_image,
-                        'fcm_token'      => $post->user->fcm_token,
+                        'id'             => $post->user ? $post->user->id : null,
+                        'first_name'     => $post->user ? $post->user->first_name : null,
+                        'last_name'      => $post->user ? $post->user->last_name : null,
+                        'username'       => $post->user ? $post->user->username : null,
+                        'profile_image'  => $post->user ? $post->user->userprofile->profile_image : null,
+                        'fcm_token'      => $post->user ? $post->user->fcm_token : null,
                     ]
                 ];
             });
