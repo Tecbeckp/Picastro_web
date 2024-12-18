@@ -97,8 +97,12 @@ class PostImage extends Model
     
 
     public function getImageAttribute($image){
-        if($image){
-            return asset($image);
+        if ($image) {
+            $img = [];
+            foreach (json_decode($image) as $key => $value) {
+               $img[] = asset($value);
+            }
+            return $img;
         }else{
             return '';
         }

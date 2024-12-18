@@ -511,7 +511,7 @@ class PostImageController extends Controller
 
         if ($subscription) {
             $size_limit = $subscription->image_size_limit * 1024;
-            $rules['image'] = 'required|mimes:jpg,jpeg,png,webp,tif|max:' . $size_limit;
+            $rules['image.*'] = 'required|mimes:jpg,jpeg,png,webp,tif|max:'. $size_limit;
         }
         if ($request->only_image_and_description == 'false') {
 
@@ -545,14 +545,13 @@ class PostImageController extends Controller
             return $this->error(["You can't upload post images as your " . $subscription->plan_name . " subscription limit of " . $subscription->post_limit . " images has been exceeded."]);
         }
         try {
-            $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/');
-            // dd($imageName);
-            $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/');
+            $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', true);
+            $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/', false, true);
 
             $postImage                        = new PostImage();
             $postImage->user_id               = auth()->id();
-            $postImage->original_image        = $originalImageName;
-            $postImage->image                 = $imageName;
+            $postImage->original_image        = json_encode($originalImageName);
+            $postImage->image                 = json_encode($imageName);
             $postImage->description           = $request->description;
             if ($request->only_image_and_description == 'false') {
 
