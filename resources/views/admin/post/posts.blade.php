@@ -77,15 +77,23 @@
                                         $file = explode('/', $post->image);
                                         $filePath = array_slice($file, 7)[0];
                                         $filePath = public_path('assets/uploads/postimage/' . $filePath);
-                                        $fileSizeInBytes = filesize($filePath);
-                                        $fileSizeInKB = $fileSizeInBytes / 1024;
-                                        $fileSizeInMB = $fileSizeInKB / 1024;
+                                        if (file_exists($filePath)) {
+                                            $fileSizeInBytes = filesize($filePath);
+                                            $fileSizeInKB = $fileSizeInBytes / 1024;
+                                            $fileSizeInMB = $fileSizeInKB / 1024;
+                                        } else {
+                                            $fileSizeInKB = null; // Default size if file doesn't exist
+                                        }
                                     @endphp
                                     <h5 class="fs-14">
-                                        @if ($fileSizeInKB >= '1024')
-                                            {{ round($fileSizeInMB, 2) . ' MB' }}
+                                        @if ($fileSizeInKB)
+                                            @if ($fileSizeInKB >= 1024)
+                                                {{ round($fileSizeInMB, 2) . ' MB' }}
+                                            @else
+                                                {{ round($fileSizeInKB, 2) . ' KB' }}
+                                            @endif
                                         @else
-                                            {{ round($fileSizeInKB, 2) . ' KB' }}
+                                            File not found
                                         @endif
                                     </h5>
                                 </div>
