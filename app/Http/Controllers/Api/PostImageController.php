@@ -122,6 +122,8 @@ class PostImageController extends Controller
                 ->whereHas('userprofile', function ($q) {
                     $q->where('complete_profile', '1');
                 })
+                ->whereDoesntHave('blockToUser')
+                ->whereDoesntHave('UserToBlock')
                 ->where('is_registration', '1')->latest()->paginate(50);
             $users->getCollection()->transform(function ($user) {
                 $data = $user;
