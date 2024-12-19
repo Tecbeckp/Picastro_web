@@ -186,26 +186,26 @@ class ApiGeneralController extends Controller
                 'postImage.giveStar',
                 'postImage.Follow',
             ])
-            ->where('user_id', auth()->id())
-            ->where('object_type_id', $obj->id)
-            ->where('archived', $archived)
-            ->whereHas('postImage', function ($query) use ($searchTerm) {
-                if ($searchTerm) {
-                    $query->where(function ($subQuery) use ($searchTerm) {
-                        $subQuery->where('post_image_title', 'like', "%{$searchTerm}%")
-                            ->orWhere('description', 'like', "%{$searchTerm}%")
-                            ->orWhere('catalogue_number', 'like', "%{$searchTerm}%")
-                            ->orWhere('object_name', 'like', "%{$searchTerm}%");
-                    })
-                    ->orWhereHas('ObjectType', function ($r) use ($searchTerm) {
-                        $r->where('name', 'like', "%{$searchTerm}%");
-                    });
-                }
-            })
-            ->whereHas('postImage', function ($q) {
-                $q->whereNull('deleted_at');
-            })
-            ->get();            
+                ->where('user_id', auth()->id())
+                ->where('object_type_id', $obj->id)
+                ->where('archived', $archived)
+                ->whereHas('postImage', function ($query) use ($searchTerm) {
+                    if ($searchTerm) {
+                        $query->where(function ($subQuery) use ($searchTerm) {
+                            $subQuery->where('post_image_title', 'like', "%{$searchTerm}%")
+                                ->orWhere('description', 'like', "%{$searchTerm}%")
+                                ->orWhere('catalogue_number', 'like', "%{$searchTerm}%")
+                                ->orWhere('object_name', 'like', "%{$searchTerm}%");
+                        })
+                            ->orWhereHas('ObjectType', function ($r) use ($searchTerm) {
+                                $r->where('name', 'like', "%{$searchTerm}%");
+                            });
+                    }
+                })
+                ->whereHas('postImage', function ($q) {
+                    $q->whereNull('deleted_at');
+                })
+                ->get();
             // ->paginate($perPage);
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $objects->isNotEmpty() ?
@@ -383,8 +383,8 @@ class ApiGeneralController extends Controller
             'postImage.Follow',
             'postImage.votedTrophy'
         ])->whereHas('postImage', function ($q) {
-                $q->whereNull('deleted_at');
-            })->where('IOT', '1')
+            $q->whereNull('deleted_at');
+        })->where('IOT', '1')
             ->latest()->get();
         if ($data->isNotEmpty()) {
             $data->transform(function ($post) {
@@ -803,17 +803,16 @@ class ApiGeneralController extends Controller
 
     public function readAllNotification(Request $request)
     {
-        Notification::where('user_id', auth()->id())->update([
-            'is_open' => '1'
-        ]);
-        return $this->success(['Notification read Successfully'], []);
-    }
+        if ($request->type) {
+            Notification::where('user_id', auth()->id())->where('type', $request->type)->update([
+                'is_open' => '1'
+            ]);
+        } else {
+            Notification::where('user_id', auth()->id())->update([
+                'is_open' => '1'
+            ]);
+        }
 
-    public function readGorupNotification(Request $request)
-    {
-        Notification::where('user_id', auth()->id())->where('type', $request->type)->update([
-            'is_open' => '1'
-        ]);
         return $this->success(['Notification read Successfully'], []);
     }
 
@@ -1598,9 +1597,9 @@ class ApiGeneralController extends Controller
         ])->whereHas('postImage.user', function ($q) {
             $q->where('id', '!=', 43);
         })
-        ->whereHas('postImage', function ($q) {
-            $q->whereNull('deleted_at');
-        })->get();
+            ->whereHas('postImage', function ($q) {
+                $q->whereNull('deleted_at');
+            })->get();
 
         if ($data->isNotEmpty()) {
             $groupedData = $data->transform(function ($post) {
@@ -1691,7 +1690,8 @@ class ApiGeneralController extends Controller
         }
     }
 
-    public function UploadChatImage(Request $request) {
+    public function UploadChatImage(Request $request)
+    {
         $rules = [
             'image' => 'required|mimes:jpg,jpeg,png,webp,tif|max:122880'
         ];
@@ -1702,7 +1702,7 @@ class ApiGeneralController extends Controller
         }
 
         $thumbnail         = $this->imageUpload($request->file('image'), 'assets/uploads/chatImageThumbnail/');
-        $originalImageName = $this->originalImageUpload($request->file('image'), 'assets/uploads/chatImage/',true);
+        $originalImageName = $this->originalImageUpload($request->file('image'), 'assets/uploads/chatImage/', true);
 
         $data = ChatImage::create([
             'original_image' => $originalImageName,
@@ -1712,7 +1712,8 @@ class ApiGeneralController extends Controller
         return $this->success(['Uploaded successfully!'], $data);
     }
 
-    public function getChatImage(Request $request){
+    public function getChatImage(Request $request)
+    {
         $rules = [
             'image' => 'required'
         ];
@@ -1725,6 +1726,5 @@ class ApiGeneralController extends Controller
         $image = str_replace($baseUrl, '', $request->image);
         $data = ChatImage::where('thumbnail', $image)->first();
         return $this->success(['Get chat image successfully!'], $data);
-
     }
 }
