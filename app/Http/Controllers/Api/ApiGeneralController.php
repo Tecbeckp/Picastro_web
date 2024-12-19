@@ -11,7 +11,6 @@ use App\Models\BulkNotification;
 use App\Models\Content;
 use App\Models\GiveStar;
 use App\Models\HidePost;
-use App\Models\ImageOfWeek;
 use App\Models\IsRegistration;
 use App\Models\ObjectType;
 use App\Models\Notification;
@@ -44,10 +43,10 @@ use App\Models\Setting;
 use App\Models\NotificationSetting;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
-use App\Jobs\TrialPeriodEndReminderJob;
 use App\Models\ChatImage;
 use App\Models\GiftSubscription;
 use App\Models\SubscriptionPlan;
+use App\Models\WeekOfTheImage;
 use DateTime;
 
 class ApiGeneralController extends Controller
@@ -1560,7 +1559,7 @@ class ApiGeneralController extends Controller
     public function imageOfweek(Request $request)
     {
 
-        $data = ImageOfWeek::with([
+        $data = WeekOfTheImage::with([
             'postImage.user',
             'postImage.StarCard.StarCardFilter',
             'postImage.ObjectType',
@@ -1621,7 +1620,7 @@ class ApiGeneralController extends Controller
                         'fcm_token'      => $post->postImage->user->fcm_token,
                     ]
                 ];
-            })->groupBy('place'); // Group posts by "place"
+            })->groupBy('place');
 
             return $this->success(['Get Image of week successfully!'], $groupedData);
         } else {
