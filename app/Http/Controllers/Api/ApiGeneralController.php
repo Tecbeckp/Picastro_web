@@ -809,6 +809,14 @@ class ApiGeneralController extends Controller
         return $this->success(['Notification read Successfully'], []);
     }
 
+    public function readGorupNotification(Request $request)
+    {
+        Notification::where('user_id', auth()->id())->where('type', $request->type)->update([
+            'is_open' => '1'
+        ]);
+        return $this->success(['Notification read Successfully'], []);
+    }
+
     public function inviteUser(Request $request)
     {
         $rules = [

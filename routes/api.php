@@ -96,6 +96,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('get-notification', [ApiGeneralController::class, 'getNotification']);
     Route::get('read-notification', [ApiGeneralController::class, 'readNotification']);
     Route::get('read-all-notification', [ApiGeneralController::class, 'readAllNotification']);
+    Route::get('read-group-notification', [ApiGeneralController::class, 'readGorupNotification']);
     Route::post('invite-user', [ApiGeneralController::class, 'inviteUser']);
     Route::get('get-user-by-id', [ApiGeneralController::class, 'getUserById']);
     Route::get('generate-post-link', [ApiGeneralController::class, 'generateSharePostLink']);
