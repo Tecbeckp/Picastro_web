@@ -175,22 +175,37 @@ class ApiGeneralController extends Controller
         $archived = $request->input('archived', '0');
         foreach ($save_objects as $obj) {
 
-            $objects = SaveObject::with('user', 'postImage.StarCard.StarCardFilter', 'postImage.ObjectType', 'postImage.Bortle', 'postImage.ObserverLocation', 'postImage.ApproxLunarPhase', 'postImage.Telescope', 'postImage.giveStar', 'postImage.Follow')
-                ->where('user_id', auth()->id())
-                ->where('object_type_id', $obj->id)
-                ->whereHas('postImage', function ($query) use ($searchTerm) {
-                    if ($searchTerm) {
-                        $query->where('post_image_title', 'like', "%{$searchTerm}%")
+            $objects = SaveObject::with([
+                'user',
+                'postImage.StarCard.StarCardFilter',
+                'postImage.ObjectType',
+                'postImage.Bortle',
+                'postImage.ObserverLocation',
+                'postImage.ApproxLunarPhase',
+                'postImage.Telescope',
+                'postImage.giveStar',
+                'postImage.Follow',
+            ])
+            ->where('user_id', auth()->id())
+            ->where('object_type_id', $obj->id)
+            ->where('archived', $archived)
+            ->whereHas('postImage', function ($query) use ($searchTerm) {
+                if ($searchTerm) {
+                    $query->where(function ($subQuery) use ($searchTerm) {
+                        $subQuery->where('post_image_title', 'like', "%{$searchTerm}%")
                             ->orWhere('description', 'like', "%{$searchTerm}%")
                             ->orWhere('catalogue_number', 'like', "%{$searchTerm}%")
                             ->orWhere('object_name', 'like', "%{$searchTerm}%");
-                    }
-                })
-                ->whereHas('postImage', function ($q){
-                    $q->whereNull('deleted_at');
-                })
-                ->where('archived', "$archived")
-                ->get();
+                    })
+                    ->orWhereHas('ObjectType', function ($r) use ($searchTerm) {
+                        $r->where('name', 'like', "%{$searchTerm}%");
+                    });
+                }
+            })
+            ->whereHas('postImage', function ($q) {
+                $q->whereNull('deleted_at');
+            })
+            ->get();            
             // ->paginate($perPage);
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $objects->isNotEmpty() ?
