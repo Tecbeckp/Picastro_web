@@ -353,6 +353,26 @@ class ApiGeneralController extends Controller
             $update_Res->update([
                 'IOT' => '1'
             ]);
+            $post = PostImage::with('user')->where('id', $res['post_image_id'])->first();
+            if ($post) {
+                $user_notification_setting = NotificationSetting::where('user_id', $post->user_id)->first();
+                $notification = new Notification();
+                $notification->user_id = $post->user_id;
+                $notification->type    = 'Posts';
+                $notification->post_image_id    = $res['post_image_id'];
+                $notification->notification = 'Your stunning post has been crowned Image of the Month';
+                $notification->save();
+    
+                $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
+                if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->post == true)) {
+                    $this->notificationService->sendNotification(
+                        'Posts',
+                        'Your stunning post has been crowned Image of the Month',
+                        $post->user->fcm_token,
+                        json_encode($getnotification)
+                    );
+                }
+            }
         }
 
 
