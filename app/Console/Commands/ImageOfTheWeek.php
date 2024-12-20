@@ -3,12 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Models\GiveStar;
-use App\Models\ImageOfWeek;
 use App\Models\Notification;
 use App\Models\NotificationSetting;
 use App\Models\PostComment;
 use App\Models\PostImage;
 use App\Models\VoteImage;
+use App\Models\WeekOfTheImage;
 use App\Services\NotificationService;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
@@ -136,10 +136,10 @@ class ImageOfTheWeek extends Command
 
         // Group posts by position (1st, 2nd, 3rd)
 
-        ImageOfWeek::truncate();
+        WeekOfTheImage::truncate();
 
         foreach ($rankedPosts as $rankedPost) {
-            ImageOfWeek::create([
+            WeekOfTheImage::create([
                 'post_id' =>  $rankedPost['post_image_id'],
                 'vote'    =>  $rankedPost['votes'],
                 'star'    =>  $rankedPost['stars'],

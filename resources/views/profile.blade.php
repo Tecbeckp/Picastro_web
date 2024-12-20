@@ -246,7 +246,6 @@
                     @empty
                     @endforelse
 
-                    <div class="row">
                         <div class="col-12 col-sm-12" style="padding: 0">
                             <div class="profile-card small-card mb-0"
                                 style="padding: 0 !important;margin-top: 10px;background: none;">
@@ -277,8 +276,6 @@
                                 </div>
                             </div>
                         </div>
-
-                    </div>
                 </div>
                 <!-- container-fluid -->
             </div>
