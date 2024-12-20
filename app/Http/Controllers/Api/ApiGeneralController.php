@@ -204,6 +204,8 @@ class ApiGeneralController extends Controller
                 })
                 ->whereHas('postImage', function ($q) {
                     $q->whereNull('deleted_at');
+                })->whereDoesntHave('postImage', function ($query) {
+                    $query->whereHas('blockToUser')->orWhereHas('UserToBlock');
                 })
                 ->get();
             // ->paginate($perPage);
