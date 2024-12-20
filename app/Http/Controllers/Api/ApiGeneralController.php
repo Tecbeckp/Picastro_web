@@ -793,6 +793,10 @@ class ApiGeneralController extends Controller
             Notification::where('user_id', auth()->id())->where('id', $request->notification_id)->update([
                 'is_read' => '1'
             ]);
+        }elseif(isset($request->type)){
+            Notification::where('user_id', auth()->id())->where('type', $request->type)->update([
+                'is_read' => '1'
+            ]);
         } else {
             Notification::where('user_id', auth()->id())->update([
                 'is_read' => '1'
@@ -803,15 +807,9 @@ class ApiGeneralController extends Controller
 
     public function readAllNotification(Request $request)
     {
-        if ($request->type) {
-            Notification::where('user_id', auth()->id())->where('type', $request->type)->update([
-                'is_open' => '1'
-            ]);
-        } else {
             Notification::where('user_id', auth()->id())->update([
                 'is_open' => '1'
             ]);
-        }
 
         return $this->success(['Notification read Successfully'], []);
     }
