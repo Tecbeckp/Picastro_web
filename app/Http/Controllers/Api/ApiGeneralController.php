@@ -186,27 +186,31 @@ class ApiGeneralController extends Controller
                 'postImage.Telescope',
                 'postImage.giveStar',
                 'postImage.Follow',
+                'postImage.blockToUser',
+                'postImage.UserToBlock',
             ])
-                ->where('user_id', auth()->id())
-                ->where('object_type_id', $obj->id)
-                ->where('archived', $archived)
-                ->whereHas('postImage', function ($query) use ($searchTerm) {
-                    if ($searchTerm) {
-                        $query->where(function ($subQuery) use ($searchTerm) {
-                            $subQuery->where('post_image_title', 'like', "%{$searchTerm}%")
-                                ->orWhere('description', 'like', "%{$searchTerm}%")
-                                ->orWhere('catalogue_number', 'like', "%{$searchTerm}%")
-                                ->orWhere('object_name', 'like', "%{$searchTerm}%");
-                        })
-                            ->orWhereHas('ObjectType', function ($r) use ($searchTerm) {
-                                $r->where('name', 'like', "%{$searchTerm}%");
-                            });
-                    }
-                })
-                ->whereHas('postImage', function ($q) {
-                    $q->whereNull('deleted_at');
-                })
-                ->get();
+            ->where('user_id', auth()->id())
+            ->where('object_type_id', $obj->id)
+            ->where('archived', $archived)
+            ->whereDoesntHave('blockToUser')
+            ->whereDoesntHave('UserToBlock')
+            ->when($searchTerm, function ($query) use ($searchTerm) {
+                $query->whereHas('postImage', function ($subQuery) use ($searchTerm) {
+                    $subQuery->where(function ($nestedQuery) use ($searchTerm) {
+                        $nestedQuery->where('post_image_title', 'like', "%{$searchTerm}%")
+                            ->orWhere('description', 'like', "%{$searchTerm}%")
+                            ->orWhere('catalogue_number', 'like', "%{$searchTerm}%")
+                            ->orWhere('object_name', 'like', "%{$searchTerm}%");
+                    })
+                    ->orWhereHas('ObjectType', function ($typeQuery) use ($searchTerm) {
+                        $typeQuery->where('name', 'like', "%{$searchTerm}%");
+                    });
+                });
+            })
+            ->whereHas('postImage', function ($query) {
+                $query->whereNull('deleted_at');
+            })
+            ->get();
             // ->paginate($perPage);
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $objects->isNotEmpty() ?
