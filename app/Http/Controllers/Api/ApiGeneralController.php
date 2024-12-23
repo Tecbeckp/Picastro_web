@@ -1550,7 +1550,9 @@ class ApiGeneralController extends Controller
                 'email' => $request->my_email,
                 'gifted_email' => $request->email
             ]);
-
+            $html = view('emails.gift_mail')->render();
+            EmailHelper::sendMail($request->email,"Surprise! You've Been Gifted a Subscription!",$html,null);
+            
             return $this->success(['successfully.'], $data);
         }
     }
