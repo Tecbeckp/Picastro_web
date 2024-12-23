@@ -189,28 +189,30 @@ class ApiGeneralController extends Controller
                 'postImage.blockToUser',
                 'postImage.UserToBlock',
             ])
-            ->where('user_id', auth()->id())
-            ->where('object_type_id', $obj->id)
-            ->where('archived', $archived)
-            ->whereDoesntHave('blockToUser')
-            ->whereDoesntHave('UserToBlock')
-            ->when($searchTerm, function ($query) use ($searchTerm) {
-                $query->whereHas('postImage', function ($subQuery) use ($searchTerm) {
-                    $subQuery->where(function ($nestedQuery) use ($searchTerm) {
-                        $nestedQuery->where('post_image_title', 'like', "%{$searchTerm}%")
-                            ->orWhere('description', 'like', "%{$searchTerm}%")
-                            ->orWhere('catalogue_number', 'like', "%{$searchTerm}%")
-                            ->orWhere('object_name', 'like', "%{$searchTerm}%");
-                    })
-                    ->orWhereHas('ObjectType', function ($typeQuery) use ($searchTerm) {
-                        $typeQuery->where('name', 'like', "%{$searchTerm}%");
+                ->where('user_id', auth()->id())
+                ->where('object_type_id', $obj->id)
+                ->where('archived', $archived)
+                ->whereHas('postImage', function ($query) {
+                    $query->doesntHave('blockToUser')
+                        ->doesntHave('UserToBlock');
+                })
+                ->when($searchTerm, function ($query) use ($searchTerm) {
+                    $query->whereHas('postImage', function ($subQuery) use ($searchTerm) {
+                        $subQuery->where(function ($nestedQuery) use ($searchTerm) {
+                            $nestedQuery->where('post_image_title', 'like', "%{$searchTerm}%")
+                                ->orWhere('description', 'like', "%{$searchTerm}%")
+                                ->orWhere('catalogue_number', 'like', "%{$searchTerm}%")
+                                ->orWhere('object_name', 'like', "%{$searchTerm}%");
+                        })
+                            ->orWhereHas('ObjectType', function ($typeQuery) use ($searchTerm) {
+                                $typeQuery->where('name', 'like', "%{$searchTerm}%");
+                            });
                     });
-                });
-            })
-            ->whereHas('postImage', function ($query) {
-                $query->whereNull('deleted_at');
-            })
-            ->get();
+                })
+                ->whereHas('postImage', function ($query) {
+                    $query->whereNull('deleted_at');
+                })
+                ->get();
             // ->paginate($perPage);
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $objects->isNotEmpty() ?
@@ -1555,7 +1557,7 @@ class ApiGeneralController extends Controller
                 'gifted_email' => $request->email
             ]);
             $html = view('emails.gift_mail')->render();
-            EmailHelper::sendMail($request->email,"Surprise! You've Been Gifted a Subscription!",$html,null);
+            EmailHelper::sendMail($request->email, "Surprise! You've Been Gifted a Subscription!", $html, null);
 
             return $this->success(['successfully.'], $data);
         }
