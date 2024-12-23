@@ -213,7 +213,6 @@
                         </div>
                     </div>
                     @forelse ($posts as $item)
-                    @dd($item);
                         <div class="col-4 col-sm-4" style="padding-bottom: 7px !important;">
                             <div class="card small-card mb-0">
                                 <div class="card-body p-0">
