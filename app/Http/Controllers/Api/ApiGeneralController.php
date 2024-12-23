@@ -186,10 +186,14 @@ class ApiGeneralController extends Controller
                 'postImage.Telescope',
                 'postImage.giveStar',
                 'postImage.Follow',
+                'postImage.blockToUser',
+                'postImage.UserToBlock',
             ])
                 ->where('user_id', auth()->id())
                 ->where('object_type_id', $obj->id)
                 ->where('archived', $archived)
+                ->whereDoesntHave('blockToUser')
+                ->whereDoesntHave('UserToBlock')
                 ->whereHas('postImage', function ($query) use ($searchTerm) {
                     if ($searchTerm) {
                         $query->where(function ($subQuery) use ($searchTerm) {
@@ -1552,7 +1556,7 @@ class ApiGeneralController extends Controller
             ]);
             $html = view('emails.gift_mail')->render();
             EmailHelper::sendMail($request->email,"Surprise! You've Been Gifted a Subscription!",$html,null);
-            
+
             return $this->success(['successfully.'], $data);
         }
     }
