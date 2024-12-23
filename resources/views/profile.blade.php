@@ -213,6 +213,7 @@
                         </div>
                     </div>
                     @forelse ($posts as $item)
+                    @dd($item);
                         <div class="col-4 col-sm-4" style="padding-bottom: 7px !important;">
                             <div class="card small-card mb-0">
                                 <div class="card-body p-0">
@@ -231,8 +232,12 @@
                                         @if ($item['post_image_title'])
                                             <p class="mb-0">{{ $item['post_image_title'] }}
                                             </p>
-                                        @else
+                                        @elseif($item['catalogue_number'])
                                             <p class="mb-0">{{ $item['catalogue_number'] }}
+                                                <br><span class="fs-12">{{ $item['object_name'] }}</span>
+                                            </p>
+                                            @elseif(isset($item['ObjectType'])) 
+                                            <p class="mb-0">{{ $item['ObjectType']->name }}
                                                 <br><span class="fs-12">{{ $item['object_name'] }}</span>
                                             </p>
                                         @endif
