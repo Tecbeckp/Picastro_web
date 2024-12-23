@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\EmailHelper;
 use App\Http\Controllers\Controller;
 use App\Mail\ForgotPasswordMail;
 use App\Models\NotificationSetting;
@@ -122,17 +123,19 @@ class AuthController extends Controller
                 ]
             );
 
-        // $details = [
-        //     'email'             => $request->email,
-        //     'otp'               => $otp,
-        //     'is_from_register'  => $request->is_from_register,
-        //     'subject'           => $request->is_from_register == 'true' ? 'Picastro Email Verification' : 'Forgot Password'
-        // ];
-        Http::post('https://picastro.co.uk/send-email', [
-            'otp' => $otp,
-            'email' => $request->email,
-            'is_from_register' => $request->is_from_register       
-        ]);
+        $details = [
+            'email'             => $request->email,
+            'otp'               => $otp,
+            'is_from_register'  => $request->is_from_register,
+            'subject'           => $request->is_from_register == 'true' ? 'Picastro Email Verification' : 'Forgot Password'
+        ];
+        // Http::post('https://picastro.co.uk/send-email', [
+        //     'otp' => $otp,
+        //     'email' => $request->email,
+        //     'is_from_register' => $request->is_from_register       
+        // ]);
+        $html = view('emails.forgot-password',compact('details'))->render();
+        EmailHelper::sendMail($request->email,$details['subject'],$html,null);
 
     return $this->success(['OTP Send Successfully on your email address.'],$otp);
         } else {
