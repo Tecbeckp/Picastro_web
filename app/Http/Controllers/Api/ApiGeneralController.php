@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\EmailHelper;
 use App\Http\Controllers\Controller;
 use App\Mail\ContactUsMail;
 use App\Models\Coupons;
@@ -608,17 +609,14 @@ class ApiGeneralController extends Controller
         $contact->message  = $request->message;
         $contact->save();
 
-        // $details = [
-        //     'name'     => $request->name,
-        //     'email'    => $request->email,
-        //     'message'  => $request->message
-        // ];
+        $details = [
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'message'  => $request->message
+        ];
+        $html = view('emails.contact-us', compact('details'))->render();
+        EmailHelper::sendMail($request->email, 'New Contact Us Message', $html, null);
 
-        Http::post('https://picastro.co.uk/contact-us-mail', [
-            'name' => $request->username,
-            'email' => $request->email,
-            'message' => $request->message
-        ]);
         return $this->success(['Sent successfully!'], []);
     }
 
@@ -793,7 +791,7 @@ class ApiGeneralController extends Controller
             Notification::where('user_id', auth()->id())->where('id', $request->notification_id)->update([
                 'is_read' => '1'
             ]);
-        }elseif(isset($request->type)){
+        } elseif (isset($request->type)) {
             Notification::where('user_id', auth()->id())->where('type', $request->type)->update([
                 'is_read' => '1'
             ]);
@@ -807,9 +805,9 @@ class ApiGeneralController extends Controller
 
     public function readAllNotification(Request $request)
     {
-            Notification::where('user_id', auth()->id())->update([
-                'is_open' => '1'
-            ]);
+        Notification::where('user_id', auth()->id())->update([
+            'is_open' => '1'
+        ]);
 
         return $this->success(['Notification read Successfully'], []);
     }
