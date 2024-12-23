@@ -186,14 +186,10 @@ class ApiGeneralController extends Controller
                 'postImage.Telescope',
                 'postImage.giveStar',
                 'postImage.Follow',
-                'postImage.blockToUser',
-                'postImage.UserToBlock',
             ])
                 ->where('user_id', auth()->id())
                 ->where('object_type_id', $obj->id)
                 ->where('archived', $archived)
-                ->whereDoesntHave('blockToUser')
-                ->whereDoesntHave('UserToBlock')
                 ->whereHas('postImage', function ($query) use ($searchTerm) {
                     if ($searchTerm) {
                         $query->where(function ($subQuery) use ($searchTerm) {
