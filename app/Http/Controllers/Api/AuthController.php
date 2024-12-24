@@ -129,13 +129,9 @@ class AuthController extends Controller
             'is_from_register'  => $request->is_from_register,
             'subject'           => $request->is_from_register == 'true' ? 'Picastro Email Verification' : 'Forgot Password'
         ];
-        // Http::post('https://picastro.co.uk/send-email', [
-        //     'otp' => $otp,
-        //     'email' => $request->email,
-        //     'is_from_register' => $request->is_from_register       
-        // ]);
-        $html = view('emails.forgot-password',compact('details'))->render();
-        EmailHelper::sendMail($request->email,$details['subject'],$html,null);
+        Mail::to($request->email)->send(new ForgotPasswordMail($details));
+        // $html = view('emails.forgot-password',compact('details'))->render();
+        // EmailHelper::sendMail($request->email,$details['subject'],$html,null);
 
     return $this->success(['OTP Send Successfully on your email address.'],$otp);
         } else {
