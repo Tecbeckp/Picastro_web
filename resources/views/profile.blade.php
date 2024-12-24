@@ -246,36 +246,35 @@
                     @empty
                     @endforelse
 
-                        <div class="col-12 col-sm-12" style="padding: 0">
-                            <div class="profile-card small-card mb-0"
-                                style="padding: 0 !important;margin-top: 10px;background: none;">
-                                <div class="d-flex align-items-center">
-                                    <div class="card overflow-hidden card-bg-fill galaxy-border-none">
-                                        <div class="card-body p-5">
-                                            <div class="text-center">
-                                                <img src="{{ asset('assets/images/picastro.png') }}" class="profile"
-                                                    alt=""
-                                                    style="width: 50%;border: none;height: auto;border-radius: unset;">
-                                                <h1 class="text-white mb-4 mt-4">Download Picastro App</h1>
-                                                <p class="text-white mb-4">Download the app today using the links below
-                                                </p>
-                                                <a target="_blank"
-                                                    href="https://apps.apple.com/pk/app/picastro/id6446713728"><img
-                                                        src="{{ asset('assets/images/app_store.png') }}"
-                                                        alt="Playstore"
-                                                        style="width: 44% !important;border: none;height: auto;border-radius: 8px !important;"></a>
-                                                <a target="_blank"
-                                                    href="https://play.google.com/store/search?q=picastro&c=apps&hl=en"><img
-                                                        src="{{ asset('assets/images/Google-Play-Store-Logo-PNG-Transparent.png') }}"
-                                                        alt="Playstore"
-                                                        style="width: 49% !important;border-radius: 10px;border: none;height: auto;"></a>
+                    <div class="col-12 col-sm-12" style="padding: 0">
+                        <div class="profile-card small-card mb-0"
+                            style="padding: 0 !important;margin-top: 10px;background: none;">
+                            <div class="d-flex align-items-center">
+                                <div class="card overflow-hidden card-bg-fill galaxy-border-none">
+                                    <div class="card-body p-5">
+                                        <div class="text-center">
+                                            <img src="{{ asset('assets/images/picastro.png') }}" class="profile"
+                                                alt=""
+                                                style="width: 50%;border: none;height: auto;border-radius: unset;">
+                                            <h1 class="text-white mb-4 mt-4">Download Picastro App</h1>
+                                            <p class="text-white mb-4">Download the app today using the links below
+                                            </p>
+                                            <a target="_blank"
+                                                href="https://apps.apple.com/pk/app/picastro/id6446713728"><img
+                                                    src="{{ asset('assets/images/app_store.png') }}" alt="Playstore"
+                                                    style="width: 44% !important;border: none;height: auto;border-radius: 8px !important;"></a>
+                                            <a target="_blank"
+                                                href="https://play.google.com/store/search?q=picastro&c=apps&hl=en"><img
+                                                    src="{{ asset('assets/images/Google-Play-Store-Logo-PNG-Transparent.png') }}"
+                                                    alt="Playstore"
+                                                    style="width: 49% !important;border-radius: 10px;border: none;height: auto;"></a>
 
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
                 </div>
                 <!-- container-fluid -->
             </div>
