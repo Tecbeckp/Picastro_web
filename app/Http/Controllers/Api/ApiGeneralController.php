@@ -1777,7 +1777,7 @@ class ApiGeneralController extends Controller
     public function getGalleryImage()
     {
         $posts = GalleryImage::with('postImage')->where('user_id', auth()->id())->get();
-        $posts->getCollection()->transform(function ($post) {
+        $posts->transform(function ($post) {
             return [
                 'id'                 => $post->postImage->id,
                 'user_id'            => $post->postImage->user_id,
