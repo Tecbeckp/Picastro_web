@@ -36,7 +36,8 @@ class UserProfile extends Model
         }
     }
 
-    public function getGalleryPasswordAttribute(){
-        return $this->gallery_password;
+    public function getGalleryPasswordAttribute()
+    {
+        return $this->attributes['gallery_password'] ?? null;
     }
 }
