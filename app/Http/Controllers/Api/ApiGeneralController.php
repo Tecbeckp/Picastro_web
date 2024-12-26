@@ -48,6 +48,7 @@ use App\Models\ChatImage;
 use App\Models\GalleryImage;
 use App\Models\GiftSubscription;
 use App\Models\SubscriptionPlan;
+use App\Models\UserProfile;
 use App\Models\WeekOfTheImage;
 use DateTime;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -880,8 +881,12 @@ class ApiGeneralController extends Controller
             $user_id = $request->user_id;
             if ($post_id) {
                 $share_post_link = route('post', base64_encode($post_id));
-            } else {
+            } elseif ($user_id) {
                 $share_post_link = route('profile', base64_encode($user_id));
+            } else {
+                $pass = $request->gallery_password;
+                UserProfile::where('user_id', auth()->id())->update(['gallery_password' => $pass]);
+                $share_post_link = route('gallery', base64_encode(auth()->id()));
             }
             return $this->success(['Request Proccessed Successfully'], $share_post_link);
         } catch (\Throwable $th) {
@@ -1779,14 +1784,14 @@ class ApiGeneralController extends Controller
     {
         $posts = GalleryImage::with('postImage')->where('user_id', auth()->id())->latest()->get();
         $perPage = 15;
-            $currentPage = LengthAwarePaginator::resolveCurrentPage();
-            $paginatedPosts = new LengthAwarePaginator(
-                $posts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
-                $posts->count(),
-                $perPage,
-                $currentPage,
-                ['path' => LengthAwarePaginator::resolveCurrentPath()]
-            );
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $paginatedPosts = new LengthAwarePaginator(
+            $posts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
+            $posts->count(),
+            $perPage,
+            $currentPage,
+            ['path' => LengthAwarePaginator::resolveCurrentPath()]
+        );
         $paginatedPosts->transform(function ($post) {
             return [
                 'id'                 => $post->postImage->id,

@@ -14,7 +14,8 @@ class UserProfile extends Model
     protected $guarded = [];
 
     protected $appends = [
-        'max_post_mbs'
+        'max_post_mbs',
+        'gallery_password'
     ];
     public function Following()
     {
@@ -33,5 +34,9 @@ class UserProfile extends Model
         } else {
             return "0";
         }
+    }
+
+    public function getGalleryPasswordAttribute(){
+        return $this->gallery_password;
     }
 }
