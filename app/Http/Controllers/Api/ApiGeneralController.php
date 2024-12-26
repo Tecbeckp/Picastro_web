@@ -890,7 +890,7 @@ class ApiGeneralController extends Controller
             }
             return $this->success(['Request Proccessed Successfully'], $share_post_link);
         } catch (\Throwable $th) {
-            return $this->error([$th]);
+            return $this->error(['Internal Server Error']);
         }
     }
 
