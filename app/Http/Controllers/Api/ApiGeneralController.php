@@ -45,6 +45,7 @@ use App\Models\NotificationSetting;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use App\Models\ChatImage;
+use App\Models\GalleryImage;
 use App\Models\GiftSubscription;
 use App\Models\SubscriptionPlan;
 use App\Models\WeekOfTheImage;
@@ -1730,5 +1731,89 @@ class ApiGeneralController extends Controller
         $image = str_replace($baseUrl, '', $request->image);
         $data = ChatImage::where('thumbnail', $image)->first();
         return $this->success(['Get chat image successfully!'], $data);
+    }
+
+    public function saveGalleryImage(Request $request)
+    {
+
+        $rules = [
+            'id' => 'required|numeric|exists:post_images,id'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+        if (isset($request->add) && $request->add == true) {
+            $total =  GalleryImage::where('user_id', auth()->id())->count();
+            if ($total < 15) {
+                GalleryImage::updateOrCreate(
+                    [
+                        'user_id' => auth()->id(),
+                        'post_image_id' => $request->id
+                    ],
+                    [
+                        'user_id' => auth()->id(),
+                        'post_image_id' => $request->id
+                    ]
+                );
+                return $this->success(['Saved successfully!'], null);
+            } else {
+                return $this->error(['You can only save up to 15 images.']);
+            }
+        } elseif (isset($request->remove) && $request->remove == true) {
+            $data =  GalleryImage::where('user_id', auth()->id())->where('post_image_id', $request->id)->first();
+            if ($data) {
+                $data->delete();
+                return $this->success(['Removed successfully!'], null);
+            } else {
+                return $this->error(['Something went wrong.']);
+            }
+        } else {
+            return $this->error(['Something went wrong.']);
+        }
+    }
+
+    public function getGalleryImage()
+    {
+        $posts = GalleryImage::with('postImage')->where('user_id', auth()->id())->get();
+        $posts->getCollection()->transform(function ($post) {
+            return [
+                'id'                 => $post->postImage->id,
+                'user_id'            => $post->postImage->user_id,
+                'post_image_title'   => $post->postImage->post_image_title,
+                'image'              => $post->postImage->image,
+                'original_image'     => $post->postImage->original_image,
+                'description'        => $post->postImage->description,
+                'video_length'       => $post->postImage->video_length,
+                'number_of_frame'    => $post->postImage->number_of_frame,
+                'number_of_video'    => $post->postImage->number_of_video,
+                'exposure_time'      => $post->postImage->exposure_time,
+                'total_hours'        => $post->postImage->total_hours,
+                'additional_minutes' => $post->postImage->additional_minutes,
+                'catalogue_number'   => $post->postImage->catalogue_number,
+                'object_name'        => $post->postImage->object_name,
+                'ir_pass'            => $post->postImage->ir_pass,
+                'planet_name'        => $post->postImage->planet_name,
+                'ObjectType'         => $post->postImage->ObjectType,
+                'Bortle'             => $post->postImage->Bortle,
+                'ObserverLocation'   => $post->postImage->ObserverLocation,
+                'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
+                'location'           => $post->postImage->location,
+                'Telescope'          => $post->postImage->Telescope,
+                'only_image_and_description' => $post->postImage->only_image_and_description,
+                'star_card'          => $post->postImage->StarCard,
+                'user'               => [
+                    'id'             => $post->postImage->user ? $post->postImage->user->id : null,
+                    'first_name'     => $post->postImage->user ? $post->postImage->user->first_name : null,
+                    'last_name'      => $post->postImage->user ? $post->postImage->user->last_name : null,
+                    'username'       => $post->postImage->user ? $post->postImage->user->username : null,
+                    'profile_image'  => $post->postImage->user && $post->postImage->user->userprofile ? $post->postImage->user->userprofile->profile_image : null,
+                    'fcm_token'      => $post->postImage->user ? $post->postImage->user->fcm_token : null,
+                ]
+            ];
+        });
+
+        return $this->success(['Get successfully.'], $posts);
     }
 }
