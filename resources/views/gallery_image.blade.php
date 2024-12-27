@@ -132,7 +132,7 @@
                         <div class="col-6 col-sm-6" style="padding-bottom: 7px !important;">
                             <div class="card small-card mb-0">
                                 <div class="card-body p-0">
-                                    <img src="{{ $item['image'] }}" alt="Space Image" class="spaceImg">
+                                    <img src="{{ $item['original_image'] }}" alt="Space Image" class="spaceImg">
                                 </div>
                             </div>
                         </div>
