@@ -128,62 +128,6 @@
             <div class="container-fluid">
                 <!-- App Listing -->
                 <div class="row">
-                    <div class="col-12 col-sm-12" style="padding: 0;padding-bottom: 10px !important;">
-                        <div class="profile-card small-card mb-0">
-                            <div class="d-flex align-items-center">
-                                <img src="{{ $user->userprofile->profile_image }}" alt="Profile Picture">
-                                <div class="ms-3">
-                                    <h5 class="mb-0">{{ $user->username }}</h5>
-                                    <small class="text-muted">{{ $user->userprofile->pronouns }}</small>
-                                </div>
-                                <span class="ms-auto text-danger" style="font-size: large;">★ <span
-                                        style="color: #fff !important;font-size: medium;">{{ number_format($user->total_star_count) }}</span></span>
-                            </div>
-
-                            <div class="stats mt-3">
-                                <div>
-                                    <span class="fw-bold">{{ $posts->count() }}</span>
-                                    <div>Posts</div>
-                                </div>
-                                <div>
-                                    <span class="fw-bold">{{ $user->userprofile->followers }}</span>
-                                    <div>Followers</div>
-                                </div>
-                                <div>
-                                    <span class="fw-bold">{{ $user->userprofile->following }}</span>
-                                    <div>Following</div>
-                                </div>
-                            </div>
-
-                            <p class="mt-3">{{ $user->userprofile->bio }}</p>
-                            <div class="links mt-2 d-flex gap-3">
-                                <a href="{{ Str::startsWith($user->userprofile->web_site_one, ['http://', 'https://'])
-                                    ? $user->userprofile->web_site_one
-                                    : 'https://' . $user->userprofile->web_site_one }}"
-                                    target="_blank" class="truncate">
-                                    {{ $user->userprofile->web_site_one }}
-                                </a>
-                                <a href="{{ Str::startsWith($user->userprofile->web_site_two, ['http://', 'https://'])
-                                    ? $user->userprofile->web_site_two
-                                    : 'https://' . $user->userprofile->web_site_two }}"
-                                    target="_blank" class="truncate">
-                                    {{ $user->userprofile->web_site_two }}
-                                </a>
-                            </div>
-
-                            <div class="d-flex justify-content-between">
-                                <div class="badges d-flex gap-2 mt-3" style="gap: 1rem !important;">
-                                    @forelse ($trophies as $key => $item)
-                                        <span><img src="{{ asset($item->icon) }}" alt="Badge 1"
-                                                style="border: none !important;height: auto !important;width: auto !important;border-radius: 0px !important;">&nbsp;{{ $vote[$key + 1] }}</span>
-                                    @empty
-                                    @endforelse
-                                </div>
-
-                                {{-- <button class="btn btn-follow">Follow</button> --}}
-                            </div>
-                        </div>
-                    </div>
                     @forelse ($posts as $item)
                         <div class="col-6 col-sm-4" style="padding-bottom: 7px !important;">
                             <div class="card small-card mb-0">
@@ -210,36 +154,6 @@
                         </div>
                     @empty
                     @endforelse
-
-                    <div class="col-12 col-sm-12" style="padding: 0">
-                        <div class="profile-card small-card mb-0"
-                            style="padding: 0 !important;margin-top: 10px;background: none;">
-                            <div class="d-flex align-items-center">
-                                <div class="card overflow-hidden card-bg-fill galaxy-border-none">
-                                    <div class="card-body p-5">
-                                        <div class="text-center">
-                                            <img src="{{ asset('assets/images/picastro.png') }}" class="profile"
-                                                alt=""
-                                                style="width: 50%;border: none;height: auto;border-radius: unset;">
-                                            <h1 class="text-white mb-4 mt-4">Download Picastro App</h1>
-                                            <p class="text-white mb-4">Download the app today using the links below
-                                            </p>
-                                            <a target="_blank"
-                                                href="https://apps.apple.com/pk/app/picastro/id6446713728"><img
-                                                    src="{{ asset('assets/images/app_store.png') }}" alt="Playstore"
-                                                    style="width: 44% !important;border: none;height: auto;border-radius: 8px !important;"></a>
-                                            <a target="_blank"
-                                                href="https://play.google.com/store/search?q=picastro&c=apps&hl=en"><img
-                                                    src="{{ asset('assets/images/Google-Play-Store-Logo-PNG-Transparent.png') }}"
-                                                    alt="Playstore"
-                                                    style="width: 49% !important;border-radius: 10px;border: none;height: auto;"></a>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <!-- container-fluid -->
             </div>
