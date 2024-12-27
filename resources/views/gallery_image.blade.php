@@ -129,26 +129,10 @@
                 <!-- App Listing -->
                 <div class="row">
                     @forelse ($posts as $item)
-                        <div class="col-6 col-sm-4" style="padding-bottom: 7px !important;">
+                        <div class="col-6 col-sm-6" style="padding-bottom: 7px !important;">
                             <div class="card small-card mb-0">
                                 <div class="card-body p-0">
                                     <img src="{{ $item['image'] }}" alt="Space Image" class="spaceImg">
-                                    <div class="card-footer">
-                                        @if ($item['post_image_title'])
-                                            <p class="mb-0">{{ $item['post_image_title'] }}
-                                            </p>
-                                        @elseif($item['catalogue_number'])
-                                            <p class="mb-0">{{ $item['catalogue_number'] }}
-                                                <br><span class="fs-12">{{ $item['object_name'] }}</span>
-                                            </p>
-                                        @elseif(isset($item['ObjectType']))
-                                            <p class="mb-0">{{ $item['ObjectType']->name }}
-                                                <br><span class="fs-12">{{ $item['object_name'] }}</span>
-                                            </p>
-                                        @endif
-
-                                        {{-- <i class="bx bx-star"></i> --}}
-                                    </div>
                                 </div>
                             </div>
                         </div>
