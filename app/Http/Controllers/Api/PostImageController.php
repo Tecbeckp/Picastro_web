@@ -10,6 +10,7 @@ use App\Models\MainSetup;
 use App\Models\ObjectType;
 use App\Models\ObserverLocation;
 use App\Models\FollowerList;
+use App\Models\GalleryImage;
 use App\Models\PostImage;
 use App\Models\StarCard;
 use App\Models\StarCardFilter;
@@ -401,9 +402,9 @@ class PostImageController extends Controller
     public function galleryPostImage(Request $request, $id)
     {
 
-        $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->whereDoesntHave('blockToUser')->whereDoesntHave('UserToBlock');
+        $posts = GalleryImage::with('postImage.user', 'postImage.StarCard.StarCardFilter', 'postImage.ObjectType', 'postImage.Bortle', 'postImage.ObserverLocation', 'postImage.ApproxLunarPhase', 'postImage.Telescope', 'postImage.giveStar', 'postImage.totalStar', 'postImage.Follow', 'postImage.votedTrophy');
     
-        $posts = $posts->where('user_id', base64_decode($id))->latest()->limit('14')->get();
+        $posts = $posts->where('user_id', base64_decode($id))->latest()->get();
         $user = User::with('userprofile')->withCount('TotalStar')->where('id', base64_decode($id, true))->first();
         $trophies = Trophy::select('id', 'name', 'icon')->get();
         $vote = [];
@@ -415,45 +416,37 @@ class PostImageController extends Controller
         $posts->transform(function ($post) use ($trophies) {
 
             return [
-                'id'                 => $post->id,
-                'user_id'            => $post->user_id,
-                'post_image_title'   => $post->post_image_title,
-                'image'              => $post->image,
-                'original_image'     => $post->original_image,
-                'description'        => $post->description,
-                'video_length'       => $post->video_length,
-                'number_of_frame'    => $post->number_of_frame,
-                'number_of_video'    => $post->number_of_video,
-                'exposure_time'      => $post->exposure_time,
-                'total_hours'        => $post->total_hours,
-                'additional_minutes' => $post->additional_minutes,
-                'catalogue_number'   => $post->catalogue_number,
-                'object_name'        => $post->object_name,
-                'ir_pass'            => $post->ir_pass,
-                'planet_name'        => $post->planet_name,
-                'ObjectType'         => $post->ObjectType,
-                'Bortle'             => $post->Bortle,
-                'ObserverLocation'   => $post->ObserverLocation,
-                'ApproxLunarPhase'   => $post->ApproxLunarPhase,
-                'location'           => $post->location,
-                'Telescope'          => $post->Telescope,
-                'only_image_and_description' => $post->only_image_and_description,
-                'giveStar'           => $post->giveStar ? true : false,
-                'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
-                'Follow'             => $post->Follow ? true : false,
-                'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
-                'gold_trophy'        => $post->gold_trophy,
-                'silver_trophy'      => $post->silver_trophy,
-                'bronze_trophy'      => $post->bronze_trophy,
-                'trophy'             => $trophies,
-                'star_card'          => $post->StarCard,
+                'id'                 => $post->postImage->id,
+                'user_id'            => $post->postImage->user_id,
+                'post_image_title'   => $post->postImage->post_image_title,
+                'image'              => $post->postImage->image,
+                'original_image'     => $post->postImage->original_image,
+                'description'        => $post->postImage->description,
+                'video_length'       => $post->postImage->video_length,
+                'number_of_frame'    => $post->postImage->number_of_frame,
+                'number_of_video'    => $post->postImage->number_of_video,
+                'exposure_time'      => $post->postImage->exposure_time,
+                'total_hours'        => $post->postImage->total_hours,
+                'additional_minutes' => $post->postImage->additional_minutes,
+                'catalogue_number'   => $post->postImage->catalogue_number,
+                'object_name'        => $post->postImage->object_name,
+                'ir_pass'            => $post->postImage->ir_pass,
+                'planet_name'        => $post->postImage->planet_name,
+                'ObjectType'         => $post->postImage->ObjectType,
+                'Bortle'             => $post->postImage->Bortle,
+                'ObserverLocation'   => $post->postImage->ObserverLocation,
+                'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
+                'location'           => $post->postImage->location,
+                'Telescope'          => $post->postImage->Telescope,
+                'only_image_and_description' => $post->postImage->only_image_and_description,
+                'star_card'          => $post->postImage->StarCard,
                 'user'               => [
-                    'id'             => $post->user->id,
-                    'first_name'     => $post->user->first_name,
-                    'last_name'      => $post->user->last_name,
-                    'username'       => $post->user->username,
-                    'profile_image'  => $post->user->userprofile->profile_image,
-                    'fcm_token'      => $post->user->fcm_token,
+                    'id'             => $post->postImage->user->id,
+                    'first_name'     => $post->postImage->user->first_name,
+                    'last_name'      => $post->postImage->user->last_name,
+                    'username'       => $post->postImage->user->username,
+                    'profile_image'  => $post->postImage->user->userprofile->profile_image,
+                    'fcm_token'      => $post->postImage->user->fcm_token,
                 ]
             ];
         });

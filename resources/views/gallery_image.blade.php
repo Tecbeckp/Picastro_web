@@ -22,23 +22,6 @@
 
     @include('includes.style')
     <link href="{{ asset('assets/app.min.css') }}" rel="stylesheet" type="text/css" />
-    {{-- <style>
-        .btn-theme-red{
-            background: #ED1C24;
-            border-color: #ED1C24;
-        }
-        .auth-bg-cover {
-            background: linear-gradient(-45deg, #4d2425 50%, #333333);
-        }
-        .w-50{
-            width: 45% !important;
-            border-radius: 10px 
-        }
-        .card-body.p-5{
-            padding: 75px 30px !important;
-            border-radius: 8px;
-        }
-    </style> --}}
     <style>
         body {
             background-color: black !important;
@@ -117,6 +100,10 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+        
+        .main-content-app{
+            max-width: 100%;
+        }
     </style>
 </head>
 
@@ -128,11 +115,23 @@
             <div class="container-fluid">
                 <!-- App Listing -->
                 <div class="row">
+                    <div class="col-12 col-sm-12" style="padding: 0;padding-bottom: 10px !important;">
+                        <div class="profile-card small-card mb-0">
+                            <div class="d-flex align-items-center">
+                                <img src="{{ $user->userprofile->profile_image }}" alt="Profile Picture">
+                                <div class="ms-3">
+                                    <h5 class="mb-0">{{ $user->username }}</h5>
+                                    <small class="text-muted">{{ $user->userprofile->pronouns }}</small>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                     @forelse ($posts as $item)
                         <div class="col-6 col-sm-6" style="padding-bottom: 7px !important;">
                             <div class="card small-card mb-0">
                                 <div class="card-body p-0">
-                                    <img src="{{ $item['original_image'] }}" alt="Space Image" class="spaceImg">
+                                    <img src="{{ $item['original_image'] }}" alt="Space Image" class="spaceImg" style="height: auto !important;">
                                 </div>
                             </div>
                         </div>
@@ -146,32 +145,63 @@
         </div>
         <!-- end main content-->
 
-    </div>
 
+    </div>
+<div class="modal fade" id="autoLoadModal" tabindex="-1" aria-labelledby="autoLoadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="autoLoadForm" method="POST" action="">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="autoLoadModalLabel">Enter Password</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required>
+                        @error('password')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
     @include('includes.script')
-    <script>
-        // Disable right-click context menu for the entire page
-        document.addEventListener('contextmenu', (event) => event.preventDefault());
-    
-        // Disable dragging on all images
-        document.addEventListener('dragstart', (event) => {
-            if (event.target.tagName.toLowerCase() === 'img') {
-                event.preventDefault();
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var autoLoadModal = new bootstrap.Modal(document.getElementById('autoLoadModal'), {
+            backdrop: 'static', // Prevent clicking outside the modal to close it
+            keyboard: false     // Disable closing with the Esc key
+        });
+        autoLoadModal.show();
+
+        document.getElementById('autoLoadForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const passwordInput = document.getElementById('password').value;
+
+            // Replace this with actual password validation logic
+            if (passwordInput == {{$user->userprofile->gallery_password}}) {
+                autoLoadModal.hide(); // Close the modal
+                document.body.classList.remove('modal-open'); // Removes blur
+                document.querySelector('.main-content-app').style.filter = 'none';
+            } else {
+                alert("Invalid password. Please try again.");
             }
         });
+    });
     
-        // Optional: Disable specific keyboard shortcuts for inspecting
-        document.addEventListener('keydown', (event) => {
-            // Prevent Ctrl+Shift+I (DevTools in most browsers)
-            if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'I') {
-                event.preventDefault();
-            }
-            // Prevent F12 key
-            if (event.key === 'F12') {
-                event.preventDefault();
-            }
-        });
-    </script>    
+    
+</script>
+
+
 </body>
 
 </html>
