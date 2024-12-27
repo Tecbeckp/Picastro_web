@@ -398,6 +398,67 @@ class PostImageController extends Controller
         return view('profile', compact('posts', 'user', 'trophies', 'vote'));
     }
 
+    public function galleryPostImage(Request $request, $id)
+    {
+
+        $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->whereDoesntHave('blockToUser')->whereDoesntHave('UserToBlock');
+    
+        $posts = $posts->where('user_id', base64_decode($id))->latest()->limit('14')->get();
+        $user = User::with('userprofile')->withCount('TotalStar')->where('id', base64_decode($id, true))->first();
+        $trophies = Trophy::select('id', 'name', 'icon')->get();
+        $vote = [];
+        foreach ($trophies as $trophy) {
+            $vote[$trophy->id] = VoteImage::where('trophy_id', $trophy->id)
+                ->where('post_user_id', $user->id)
+                ->count();
+        }
+        $posts->transform(function ($post) use ($trophies) {
+
+            return [
+                'id'                 => $post->id,
+                'user_id'            => $post->user_id,
+                'post_image_title'   => $post->post_image_title,
+                'image'              => $post->image,
+                'original_image'     => $post->original_image,
+                'description'        => $post->description,
+                'video_length'       => $post->video_length,
+                'number_of_frame'    => $post->number_of_frame,
+                'number_of_video'    => $post->number_of_video,
+                'exposure_time'      => $post->exposure_time,
+                'total_hours'        => $post->total_hours,
+                'additional_minutes' => $post->additional_minutes,
+                'catalogue_number'   => $post->catalogue_number,
+                'object_name'        => $post->object_name,
+                'ir_pass'            => $post->ir_pass,
+                'planet_name'        => $post->planet_name,
+                'ObjectType'         => $post->ObjectType,
+                'Bortle'             => $post->Bortle,
+                'ObserverLocation'   => $post->ObserverLocation,
+                'ApproxLunarPhase'   => $post->ApproxLunarPhase,
+                'location'           => $post->location,
+                'Telescope'          => $post->Telescope,
+                'only_image_and_description' => $post->only_image_and_description,
+                'giveStar'           => $post->giveStar ? true : false,
+                'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
+                'Follow'             => $post->Follow ? true : false,
+                'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
+                'gold_trophy'        => $post->gold_trophy,
+                'silver_trophy'      => $post->silver_trophy,
+                'bronze_trophy'      => $post->bronze_trophy,
+                'trophy'             => $trophies,
+                'star_card'          => $post->StarCard,
+                'user'               => [
+                    'id'             => $post->user->id,
+                    'first_name'     => $post->user->first_name,
+                    'last_name'      => $post->user->last_name,
+                    'username'       => $post->user->username,
+                    'profile_image'  => $post->user->userprofile->profile_image,
+                    'fcm_token'      => $post->user->fcm_token,
+                ]
+            ];
+        });
+        return view('gallery_image', compact('posts', 'user', 'trophies', 'vote'));
+    }
     public function userPostImage(Request $request)
     {
         $rules = [
