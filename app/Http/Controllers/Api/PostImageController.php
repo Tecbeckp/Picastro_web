@@ -1045,6 +1045,10 @@ class PostImageController extends Controller
             $PostImage =  PostImage::find($id);
             if ($PostImage) {
                 $PostImage->delete();
+                $gallery_image = GalleryImage::where('user_id', auth()->id())->where('post_image_id', $id)->first();
+                if ($gallery_image) {
+                    $gallery_image->delete();
+                }
                 return $this->success(['Post deleted successfully!'], []);
             } else {
                 return $this->error(['Please enter valid post id']);
