@@ -202,8 +202,6 @@
                                                 <br><span class="fs-12">{{ $item['object_name'] }}</span>
                                             </p>
                                         @endif
-
-                                        {{-- <i class="bx bx-star"></i> --}}
                                     </div>
                                 </div>
                             </div>
