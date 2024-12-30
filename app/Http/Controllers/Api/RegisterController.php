@@ -10,6 +10,7 @@ use App\Models\UserProfile;
 use App\Rules\ValidEmail;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
@@ -73,7 +74,7 @@ class RegisterController extends Controller
             } else {
                 $user_account_id = null;
             }
-
+            Log::info($useraccount);
             $user = User::create([
                 'first_name'      => $request->first_name,
                 'last_name'       => $request->last_name,
