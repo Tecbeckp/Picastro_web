@@ -1782,7 +1782,10 @@ class ApiGeneralController extends Controller
 
     public function getGalleryImage()
     {
-        $posts = GalleryImage::with('postImage')->where('user_id', auth()->id())->latest()->get();
+        $posts = GalleryImage::with('postImage')
+        ->whereHas('postImage', function($q){
+            $q->whereNull('deleted_at');
+        })->where('user_id', auth()->id())->latest()->get();
         $perPage = 15;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $paginatedPosts = new LengthAwarePaginator(
