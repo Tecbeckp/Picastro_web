@@ -123,7 +123,7 @@ class PostImageController extends Controller
                 ->whereHas('userprofile', function ($q) {
                     $q->where('complete_profile', '1');
                 })
-                ->whereNotIn('id',['1219','1215','1213','1207','1185','1176','1169','1133','1127','1112','1111','1099','1089','1025','1024','974','972'])
+                ->whereNotIn('id', ['1219', '1215', '1213', '1207', '1185', '1176', '1169', '1133', '1127', '1112', '1111', '1099', '1089', '1025', '1024', '974', '972'])
                 ->whereDoesntHave('blockToUser')
                 ->whereDoesntHave('UserToBlock')
                 ->where('is_registration', '1')->latest()->paginate(50);
@@ -193,10 +193,10 @@ class PostImageController extends Controller
                 $postsQuery->where('object_type_id', $most_recent);
             }
 
-            $relatedPosts = (clone $postsQuery)->whereHas('user', function ($q){
+            $relatedPosts = (clone $postsQuery)->whereHas('user', function ($q) {
                 $q->whereNull('deleted_at');
             })->whereIn('user_id', $relatedUserIds)->whereNot('user_id', $authUserId)->latest()->get()->shuffle();
-        $otherPosts = (clone $postsQuery)->whereHas('user', function ($q){
+            $otherPosts = (clone $postsQuery)->whereHas('user', function ($q) {
                 $q->whereNull('deleted_at');
             })->whereNotIn('user_id', $relatedUserIds)->latest()->get()->shuffle();
 
@@ -403,8 +403,10 @@ class PostImageController extends Controller
     {
 
         $posts = GalleryImage::with('postImage.user', 'postImage.StarCard.StarCardFilter', 'postImage.ObjectType', 'postImage.Bortle', 'postImage.ObserverLocation', 'postImage.ApproxLunarPhase', 'postImage.Telescope', 'postImage.giveStar', 'postImage.totalStar', 'postImage.Follow', 'postImage.votedTrophy');
-    
-        $posts = $posts->where('user_id', base64_decode($id))->latest()->get();
+
+        $posts = $posts->whereHas('postImage', function ($q) {
+            $q->whereNull('deleted_at');
+        })->where('user_id', base64_decode($id))->latest()->get();
         $user = User::with('userprofile')->withCount('TotalStar')->where('id', base64_decode($id, true))->first();
         $trophies = Trophy::select('id', 'name', 'icon')->get();
         $vote = [];
