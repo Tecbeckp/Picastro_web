@@ -202,7 +202,8 @@ class PostImageController extends Controller
                 ->whereNot('user_id', $authUserId)
                 ->latest()
                 ->get()
-                ->unique('id'); // Ensure uniqueness
+                ->shuffle()
+                ->unique('id');
 
             // Fetch other posts
             $otherPosts = (clone $postsQuery)
@@ -212,7 +213,8 @@ class PostImageController extends Controller
                 ->whereNotIn('user_id', $relatedUserIds)
                 ->latest()
                 ->get()
-                ->unique('id'); // Ensure uniqueness
+                ->shuffle()
+                ->unique('id');
 
             // $relatedPosts = (clone $postsQuery)->whereHas('user', function ($q) {
             //     $q->whereNull('deleted_at');
