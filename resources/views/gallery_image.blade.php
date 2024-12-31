@@ -172,6 +172,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
+                        <input type="hidden" value="{{$user->userprofile->gallery_password}}" id="current_password" />
                         <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required>
                         @error('password')
                             <span class="invalid-feedback" role="alert">
@@ -195,14 +196,14 @@
             keyboard: false     // Disable closing with the Esc key
         });
         autoLoadModal.show();
-
         document.getElementById('autoLoadForm').addEventListener('submit', function (event) {
             event.preventDefault(); // Prevent default form submission
 
             const passwordInput = document.getElementById('password').value;
-
+            const currentPassword = document.getElementById('current_password').value;
+            
             // Replace this with actual password validation logic
-            if (passwordInput == {{$user->userprofile->gallery_password}}) {
+            if (passwordInput == currentPassword) {
                 autoLoadModal.hide(); // Close the modal
                 document.body.classList.remove('modal-open'); // Removes blur
                 document.querySelector('.main-content-app').style.filter = 'none';
