@@ -29,8 +29,8 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $rules = [
-            'email' => ['required', 'email', new ValidEmail],
-            'password'          => 'required_unless:user_id,null|min:8'
+            'email'    => ['required', 'email', new ValidEmail],
+            'password' => 'required_if:user_id,null|min:8'
         ];
 
         $validator = Validator::make($request->all(), $rules, [
