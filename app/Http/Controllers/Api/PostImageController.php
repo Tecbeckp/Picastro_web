@@ -27,6 +27,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 class PostImageController extends Controller
@@ -209,20 +210,12 @@ class PostImageController extends Controller
                 ->latest()
                 ->get()
                 ->shuffle();
-
-            // $relatedPosts = (clone $postsQuery)->whereHas('user', function ($q) {
-            //     $q->whereNull('deleted_at');
-            // })->whereIn('user_id', $relatedUserIds)->whereNot('user_id', $authUserId)->latest()->get()->shuffle();
-            // $otherPosts = (clone $postsQuery)->whereHas('user', function ($q) {
-            //     $q->whereNull('deleted_at');
-            // })->whereNotIn('user_id', $relatedUserIds)->latest()->get()->shuffle();
-
             // Interleave posts
             $mergedPosts = collect();
 
             $relatedIterator = $relatedPosts->values()->getIterator();
             $otherIterator = $otherPosts->values()->getIterator();
-
+           
             while ($relatedIterator->valid() || $otherIterator->valid()) {
                 if ($relatedIterator->valid()) {
                     $mergedPosts->push($relatedIterator->current());
@@ -232,6 +225,8 @@ class PostImageController extends Controller
                     $mergedPosts->push($otherIterator->current());
                     $otherIterator->next();
                 }
+                Log::info($relatedIterator);
+                log::info($otherIterator);
             }
 
             $mergedPosts = $mergedPosts->unique('id');
