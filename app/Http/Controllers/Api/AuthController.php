@@ -69,16 +69,14 @@ class AuthController extends Controller
                 ]);
             }
 
-            $useraccount = User::where('id', Auth::id())->first();
-            if ($useraccount && $useraccount->user_account_id != null) {
-                $user_account_id = $useraccount->user_account_id;
+            $user = User::with('userprofile')->withCount('TotalStar')->where('id', Auth::id())->first();
+            if ($user && $user->user_account_id != null) {
+                $user_account_id = $user->user_account_id;
                 $user_accounts = User::with('userprofile')->where('id', $user_account_id)->get();
             } else {
-                $user_account_id = $useraccount->id;
+                $user_account_id = $user->id;
                 $user_accounts = User::with('userprofile')->where('user_account_id', $user_account_id)->get();
             }
-
-            $user = User::with('userprofile')->withCount('TotalStar')->where('id', Auth::id())->first();
             $token = $user->createToken('Picastro')->plainTextToken;
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $vote = [];
