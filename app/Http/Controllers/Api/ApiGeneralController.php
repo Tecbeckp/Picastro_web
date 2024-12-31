@@ -751,7 +751,6 @@ class ApiGeneralController extends Controller
 
     public function getNotification()
     {
-
         $notifications = Notification::where('user_id', auth()->id())
             ->where('is_read', '0')->latest()->get();
 

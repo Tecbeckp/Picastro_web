@@ -227,7 +227,7 @@ class PostImageController extends Controller
                 }
             }
 
-            $mergedPosts = $mergedPosts->unique('id');
+            $mergedPosts = $mergedPosts->unique('id')->values();
             // Paginate the result
             $perPage = 10;
             $currentPage = LengthAwarePaginator::resolveCurrentPage();
