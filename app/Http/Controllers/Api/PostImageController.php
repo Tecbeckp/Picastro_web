@@ -192,29 +192,23 @@ class PostImageController extends Controller
             if ($most_recent) {
                 $postsQuery->where('object_type_id', $most_recent);
             }
-
+            $postsQuery->whereHas('user', function ($q) {
+                $q->whereNull('deleted_at');
+            });
             // Fetch posts related to the user
             $relatedPosts = (clone $postsQuery)
-                ->whereHas('user', function ($q) {
-                    $q->whereNull('deleted_at');
-                })
                 ->whereIn('user_id', $relatedUserIds)
                 ->whereNot('user_id', $authUserId)
                 ->latest()
                 ->get()
-                ->shuffle()
-                ->unique('id');
+                ->shuffle();
 
             // Fetch other posts
             $otherPosts = (clone $postsQuery)
-                ->whereHas('user', function ($q) {
-                    $q->whereNull('deleted_at');
-                })
                 ->whereNotIn('user_id', $relatedUserIds)
                 ->latest()
                 ->get()
-                ->shuffle()
-                ->unique('id');
+                ->shuffle();
 
             // $relatedPosts = (clone $postsQuery)->whereHas('user', function ($q) {
             //     $q->whereNull('deleted_at');
