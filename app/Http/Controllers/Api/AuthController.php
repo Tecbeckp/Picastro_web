@@ -53,7 +53,7 @@ class AuthController extends Controller
                 $auth = null;
             }
         } elseif (isset($request->user_id) && $request->user_id != null) {
-            $user_log = User::where('id',$request->user_id)->where('email', request('email'))->first();
+            $user_log = User::where('id', $request->user_id)->where('email', request('email'))->first();
             if (!is_null($user_log)) {
                 $auth = Auth::loginUsingId($user_log->id);
             } else {
@@ -69,15 +69,16 @@ class AuthController extends Controller
                 ]);
             }
 
-                $useraccount = User::where('id', Auth::id())->first();
-                if ($useraccount && $useraccount->user_account_id != null) {
-                    $user_account_id = $useraccount->user_account_id;
-                } else {
-                    $user_account_id = $useraccount->id;
-                }
+            $useraccount = User::where('id', Auth::id())->first();
+            if ($useraccount && $useraccount->user_account_id != null) {
+                $user_account_id = $useraccount->user_account_id;
+                $user_accounts = User::with('userprofile')->where('user_account_id', $user_account_id)->get();
+            } else {
+                $user_account_id = $useraccount->id;
+                $user_accounts = User::with('userprofile')->where('id', $user_account_id)->get();
+            }
 
             $user = User::with('userprofile')->withCount('TotalStar')->where('id', Auth::id())->first();
-            $user_accounts = User::with('userprofile')->where('id', $user_account_id)->get();
             $token = $user->createToken('Picastro')->plainTextToken;
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $vote = [];
