@@ -225,8 +225,6 @@ class PostImageController extends Controller
                     $mergedPosts->push($otherIterator->current());
                     $otherIterator->next();
                 }
-                Log::info($relatedIterator);
-                log::info($otherIterator);
             }
 
             $mergedPosts = $mergedPosts->unique('id');
