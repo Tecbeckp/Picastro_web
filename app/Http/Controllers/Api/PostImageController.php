@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\SendNotificationJob;
+use App\Jobs\SendPostNotificationJob;
 use App\Models\ApproxLunarPhase;
 use App\Models\Bortle;
 use App\Models\MainSetup;
@@ -704,7 +704,7 @@ class PostImageController extends Controller
                 }
             }
 
-            dispatch(new SendNotificationJob($this->notificationService, auth()->id(), $postImage))->delay(now()->addSeconds(3));
+            dispatch(new SendPostNotificationJob($this->notificationService, auth()->id(), $postImage))->delay(now()->addSeconds(3));
             return $this->success(['Post uploaded successfully!'], []);
         } catch (ValidationException $e) {
             return $this->error($e->errors());
