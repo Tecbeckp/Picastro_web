@@ -57,14 +57,14 @@ class SendNotificationJob implements ShouldQueue
 
                 $notification = new Notification();
                 $notification->user_id = $user->id;
-                $notification->type    = 'New Post';
+                $notification->type    = 'Posts';
                 $notification->post_image_id    = $this->post->id;
                 $notification->notification = $loginUser->username . ' added a new post';
                 $notification->save();
                 $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
                 if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->post == true)) {
                     $this->notificationService->sendNotification(
-                        'New Post',
+                        'Posts',
                         $loginUser->username . ' added a new post',
                         $user->fcm_token,
                         json_encode($getnotification)
