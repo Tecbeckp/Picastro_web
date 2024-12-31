@@ -72,14 +72,10 @@ class AuthController extends Controller
             $user = User::with('userprofile')->withCount('TotalStar')->where('id', Auth::id())->first();
             if ($user && $user->user_account_id != null) {
                 $user_account_id = $user->user_account_id;
-                $user_accounts = User::with('userprofile')->where('id', $user_account_id)->whereNot('id', Auth::id())->whereHas('user', function ($q) use ($user_account_id) {
-                    $q->orwhere('user_account_id', $user_account_id);
-                })->get();
+                $user_accounts = User::with('userprofile')->where('id', $user_account_id)->whereNot('id', Auth::id())->orwhere('user_account_id', $user_account_id)->get();
             } else {
                 $user_account_id = $user->id;
-                $user_accounts = User::with('userprofile')->where('user_account_id', $user_account_id)->whereNot('id', Auth::id())->whereHas('user', function ($q) use ($user_account_id) {
-                    $q->orwhere('id', $user_account_id);
-                })->get();
+                $user_accounts = User::with('userprofile')->where('user_account_id', $user_account_id)->whereNot('id', Auth::id())->orwhere('id', $user_account_id)->get();
             }
             $token = $user->createToken('Picastro')->plainTextToken;
             $trophies = Trophy::select('id', 'name', 'icon')->get();
