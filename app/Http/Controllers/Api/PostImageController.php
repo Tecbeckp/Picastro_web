@@ -193,12 +193,33 @@ class PostImageController extends Controller
                 $postsQuery->where('object_type_id', $most_recent);
             }
 
-            $relatedPosts = (clone $postsQuery)->whereHas('user', function ($q) {
-                $q->whereNull('deleted_at');
-            })->whereIn('user_id', $relatedUserIds)->whereNot('user_id', $authUserId)->latest()->get()->shuffle();
-            $otherPosts = (clone $postsQuery)->whereHas('user', function ($q) {
-                $q->whereNull('deleted_at');
-            })->whereNotIn('user_id', $relatedUserIds)->latest()->get()->shuffle();
+            // Fetch posts related to the user
+            $relatedPosts = (clone $postsQuery)
+                ->whereHas('user', function ($q) {
+                    $q->whereNull('deleted_at');
+                })
+                ->whereIn('user_id', $relatedUserIds)
+                ->whereNot('user_id', $authUserId)
+                ->latest()
+                ->get()
+                ->unique('id'); // Ensure uniqueness
+
+            // Fetch other posts
+            $otherPosts = (clone $postsQuery)
+                ->whereHas('user', function ($q) {
+                    $q->whereNull('deleted_at');
+                })
+                ->whereNotIn('user_id', $relatedUserIds)
+                ->latest()
+                ->get()
+                ->unique('id'); // Ensure uniqueness
+
+            // $relatedPosts = (clone $postsQuery)->whereHas('user', function ($q) {
+            //     $q->whereNull('deleted_at');
+            // })->whereIn('user_id', $relatedUserIds)->whereNot('user_id', $authUserId)->latest()->get()->shuffle();
+            // $otherPosts = (clone $postsQuery)->whereHas('user', function ($q) {
+            //     $q->whereNull('deleted_at');
+            // })->whereNotIn('user_id', $relatedUserIds)->latest()->get()->shuffle();
 
             // Interleave posts
             $mergedPosts = collect();
@@ -216,6 +237,8 @@ class PostImageController extends Controller
                     $otherIterator->next();
                 }
             }
+
+            $mergedPosts = $mergedPosts->unique('id');
             // Paginate the result
             $perPage = 10;
             $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -226,27 +249,6 @@ class PostImageController extends Controller
                 $currentPage,
                 ['path' => LengthAwarePaginator::resolveCurrentPath()]
             );
-            // $maxCount = max($relatedPosts->count(), $otherPosts->count());
-            // for ($i = 0; $i < $maxCount; $i++) {
-            //     if (isset($relatedPosts[$i])) {
-            //         $mergedPosts->push($relatedPosts[$i]);
-            //     }
-            //     if (isset($otherPosts[$i])) {
-            //         $mergedPosts->push($otherPosts[$i]);
-            //     }
-            // }
-
-            // Paginate the result
-            // $perPage = 10;
-            // $currentPage = LengthAwarePaginator::resolveCurrentPage();
-            // $paginatedPosts = new LengthAwarePaginator(
-            //     $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
-            //     $mergedPosts->count(),
-            //     $perPage,
-            //     $currentPage,
-            //     ['path' => LengthAwarePaginator::resolveCurrentPath()]
-            // );
-
             $trophies = Trophy::select('id', 'name', 'icon')->get();
 
             $paginatedPosts->getCollection()->transform(function ($post) use ($trophies) {
