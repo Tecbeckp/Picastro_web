@@ -202,14 +202,15 @@ class PostImageController extends Controller
                 ->whereNot('user_id', $authUserId)
                 ->latest()
                 ->get()
-                ->shuffle();
+                ->unique('id');
+                
 
             // Fetch other posts
             $otherPosts = (clone $postsQuery)
                 ->whereNotIn('user_id', $relatedUserIds)
                 ->latest()
                 ->get()
-                ->shuffle();
+                ->unique('id');
             // Interleave posts
             $mergedPosts = collect();
 
@@ -227,7 +228,7 @@ class PostImageController extends Controller
                 }
             }
 
-            $mergedPosts = $mergedPosts->unique('id')->values();
+            $mergedPosts = $mergedPosts->shuffle();;
             // Paginate the result
             $perPage = 10;
             $currentPage = LengthAwarePaginator::resolveCurrentPage();
