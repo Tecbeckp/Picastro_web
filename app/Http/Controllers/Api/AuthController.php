@@ -69,16 +69,12 @@ class AuthController extends Controller
                 ]);
             }
 
-            if (isset($request->user_id) && $request->user_id != null) {
-                $useraccount = User::where('id', $request->user_account_id)->first();
+                $useraccount = User::where('id', Auth::id())->first();
                 if ($useraccount && $useraccount->user_account_id != null) {
                     $user_account_id = $useraccount->user_account_id;
                 } else {
                     $user_account_id = $useraccount->id;
                 }
-            } else {
-                $user_account_id = null;
-            }
 
             $user = User::with('userprofile')->withCount('TotalStar')->where('id', Auth::id())->first();
             $user_accounts = User::with('userprofile')->where('id', $user_account_id)->get();
