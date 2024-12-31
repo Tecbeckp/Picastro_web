@@ -32,8 +32,8 @@ class ImageOfTheWeek extends Command
      */
     public function handle()
     {
-        $startOfWeek = Carbon::now()->subWeek()->startOfWeek(); // Start of the current week (Sunday)
-        $endOfWeek = Carbon::now()->subWeek()->endOfWeek(); // End of the current week (Saturday)
+        $startOfWeek = Carbon::now()->startOfWeek(); // Start of the current week (Sunday)
+        $endOfWeek = Carbon::now()->endOfWeek(); // End of the current week (Saturday)
 
         // Get the post_image_ids for the current week
         $posts_id = PostImage::where('created_at', '>=', $startOfWeek)
