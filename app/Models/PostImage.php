@@ -11,7 +11,7 @@ class PostImage extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $guarded=[];
+    protected $guarded = [];
 
     protected $appends = [
         'gold_trophy',
@@ -24,23 +24,23 @@ class PostImage extends Model
     }
     public function ObjectType()
     {
-        return $this->belongsTo(ObjectType::class)->select('id','name');
+        return $this->belongsTo(ObjectType::class)->select('id', 'name');
     }
     public function Bortle()
     {
-        return $this->belongsTo(Bortle::class)->select('id','bortle_number');
+        return $this->belongsTo(Bortle::class)->select('id', 'bortle_number');
     }
     public function ObserverLocation()
     {
-        return $this->belongsTo(ObserverLocation::class)->select('id','name');
+        return $this->belongsTo(ObserverLocation::class)->select('id', 'name');
     }
     public function ApproxLunarPhase()
     {
-        return $this->belongsTo(ApproxLunarPhase::class)->select('id','number');
+        return $this->belongsTo(ApproxLunarPhase::class)->select('id', 'number');
     }
     public function Telescope()
     {
-        return $this->belongsTo(Telescope::class)->select('id','name');
+        return $this->belongsTo(Telescope::class)->select('id', 'name');
     }
     public function GiveStar()
     {
@@ -56,12 +56,12 @@ class PostImage extends Model
     }
     public function votedTrophy()
     {
-        return $this->hasOne(VoteImage::class, 'post_image_id', 'id')->where('user_id',auth()->id());
+        return $this->hasOne(VoteImage::class, 'post_image_id', 'id')->where('user_id', auth()->id());
     }
 
     public function totalGoldTrophies()
     {
-        return $this->hasMany(VoteImage::class, 'post_image_id', 'id')->where('trophy_id',1);
+        return $this->hasMany(VoteImage::class, 'post_image_id', 'id')->where('trophy_id', 1);
     }
     public function Follow()
     {
@@ -72,73 +72,89 @@ class PostImage extends Model
     {
         return $this->hasMany(FollowerList::class, 'user_id', 'user_id');
     }
-    public function blockToUser(){
-        return $this->hasOne(BlockToUser::class, 'block_user_id', 'user_id')->where('user_id',auth()->id());
+    public function blockToUser()
+    {
+        return $this->hasOne(BlockToUser::class, 'block_user_id', 'user_id')->where('user_id', auth()->id());
     }
-    public function UserToBlock(){
-        return $this->hasOne(BlockToUser::class, 'user_id', 'user_id')->where('block_user_id',auth()->id());
+    public function UserToBlock()
+    {
+        return $this->hasOne(BlockToUser::class, 'user_id', 'user_id')->where('block_user_id', auth()->id());
     }
 
-    public function userHidePost(){
-        return $this->hasOne(HidePost::class, 'post_id', 'id')->where('user_id',auth()->id());
+    public function userHidePost()
+    {
+        return $this->hasOne(HidePost::class, 'post_id', 'id')->where('user_id', auth()->id());
     }
 
     public function getLocationAttribute()
     {
-        if(in_array($this->observer_location_id, [1, 2, 3, 4, 6])){
+        if (in_array($this->observer_location_id, [1, 2, 3, 4, 6])) {
             $name = 'NH';
-        }elseif(in_array($this->observer_location_id, [5, 7, 8])){
+        } elseif (in_array($this->observer_location_id, [5, 7, 8])) {
             $name = 'SH';
-        }else{
+        } else {
             $name = null;
         }
         return $name;
     }
-    
 
-    public function getImageAttribute($image){
+
+    // public function getImageAttribute($image){
+    //     if ($image) {
+    //         $img = [];
+    //         foreach (json_decode($image) as $key => $value) {
+    //            $img[] = asset($value);
+    //         }
+    //         return $img;
+    //     }else{
+    //         return '';
+    //     }
+    // }
+    public function getImageAttribute($image)
+    {
         if ($image) {
-            $img = [];
-            foreach (json_decode($image) as $key => $value) {
-               $img[] = asset($value);
-            }
+            $img = asset($image);
             return $img;
-        }else{
+        } else {
             return '';
         }
     }
-    public function getOnlyImageAndDescriptionAttribute($only_image_and_description){
-        if($only_image_and_description == '0'){
+    public function getOnlyImageAndDescriptionAttribute($only_image_and_description)
+    {
+        if ($only_image_and_description == '0') {
             return false;
-        }else{
+        } else {
             return true;
         }
     }
 
-    public function getGoldTrophyAttribute(){
+    public function getGoldTrophyAttribute()
+    {
         $data = VoteImage::where('trophy_id', 1)->where('post_image_id', $this->id)->first();
-        if($data){
+        if ($data) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    public function getSilverTrophyAttribute(){
+    public function getSilverTrophyAttribute()
+    {
         $data = VoteImage::where('trophy_id', 2)->where('post_image_id', $this->id)->first();
-        if($data){
+        if ($data) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
 
-    public function getBronzeTrophyAttribute(){
+    public function getBronzeTrophyAttribute()
+    {
         $data = VoteImage::where('trophy_id', 3)->where('post_image_id', $this->id)->first();
-        if($data){
+        if ($data) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
