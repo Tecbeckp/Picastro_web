@@ -200,17 +200,13 @@ class PostImageController extends Controller
             $relatedPosts = (clone $postsQuery)
                 ->whereIn('user_id', $relatedUserIds)
                 ->whereNot('user_id', $authUserId)
-                ->latest()
-                ->get()
-                ->unique('id');
+                ->latest()->paginate(10);
                 
 
             // Fetch other posts
             $otherPosts = (clone $postsQuery)
                 ->whereNotIn('user_id', $relatedUserIds)
-                ->latest()
-                ->get()
-                ->unique('id');
+                ->latest()->paginate(10);
             // Interleave posts
             $mergedPosts = collect();
 
@@ -230,18 +226,18 @@ class PostImageController extends Controller
 
             $mergedPosts = $mergedPosts->shuffle();;
             // Paginate the result
-            $perPage = 10;
-            $currentPage = LengthAwarePaginator::resolveCurrentPage();
-            $paginatedPosts = new LengthAwarePaginator(
-                $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
-                $mergedPosts->count(),
-                $perPage,
-                $currentPage,
-                ['path' => LengthAwarePaginator::resolveCurrentPath()]
-            );
+            // $perPage = 10;
+            // $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            // $paginatedPosts = new LengthAwarePaginator(
+            //     $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
+            //     $mergedPosts->count(),
+            //     $perPage,
+            //     $currentPage,
+            //     ['path' => LengthAwarePaginator::resolveCurrentPath()]
+            // );
             $trophies = Trophy::select('id', 'name', 'icon')->get();
 
-            $paginatedPosts->getCollection()->transform(function ($post) use ($trophies) {
+            $mergedPosts->getCollection()->transform(function ($post) use ($trophies) {
                 return [
                     'id'                 => $post->id,
                     'user_id'            => $post->user_id,
@@ -286,7 +282,7 @@ class PostImageController extends Controller
                 ];
             });
 
-            return $this->success([], $paginatedPosts);
+            return $this->success([], $mergedPosts);
         }
     }
 
