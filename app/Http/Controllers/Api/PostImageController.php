@@ -237,7 +237,7 @@ class PostImageController extends Controller
             // );
             $trophies = Trophy::select('id', 'name', 'icon')->get();
 
-            $mergedPosts->getCollection()->transform(function ($post) use ($trophies) {
+            $mergedPosts->transform(function ($post) use ($trophies) {
                 return [
                     'id'                 => $post->id,
                     'user_id'            => $post->user_id,
