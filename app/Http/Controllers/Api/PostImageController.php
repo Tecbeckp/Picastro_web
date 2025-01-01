@@ -200,13 +200,13 @@ class PostImageController extends Controller
             $relatedPosts = (clone $postsQuery)
                 ->whereIn('user_id', $relatedUserIds)
                 ->whereNot('user_id', $authUserId)
-                ->latest()->paginate(10);
+                ->latest()->get();
 
 
             // Fetch other posts
             $otherPosts = (clone $postsQuery)
                 ->whereNotIn('user_id', $relatedUserIds)
-                ->latest()->paginate(10);
+                ->latest()->get();
             // Interleave posts
             $mergedPosts = collect();
 
