@@ -680,7 +680,11 @@ class ApiGeneralController extends Controller
         $data['android_screenshot'] = IsRegistration::first()->android_screenshot;
         $data['trial_period'] = TrialPeriod::first();
         $data['app_under_maintenance'] = Setting::where('id', '1')->first()->maintenance;
-        $data['enable_plan'] = true;
+        if($request->platform_type == 'ios'){
+            $data['enable_plan'] = true;
+        }else{
+            $data['enable_plan'] = true;
+        }
         $data['comment_character_length'] = 400;
         $data['rating_info_string'] = "Enter before the end of November and leave a review a random user will have the chance of winning a prize. To be decided but up to the value of £150.";
         $used_trial = User::where('id', $request->user_id)->whereIn('trial_period_status', ['0', '2'])->first();
