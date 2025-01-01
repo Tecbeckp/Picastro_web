@@ -227,7 +227,7 @@ class PostImageController extends Controller
             // Remove duplicates based on post IDs
             $mergedPosts = $mergedPosts->unique('id');
             // Shuffle the result if needed
-            $mergedPosts = $mergedPosts->shuffle();
+            $mergedPosts = $mergedPosts->inRandomOrder();
             // Paginate the result
             $currentPage = request()->get('page', 1); // Get current page or default to 1
             $perPage = 10;
