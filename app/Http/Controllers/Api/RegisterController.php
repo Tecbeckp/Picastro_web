@@ -74,7 +74,6 @@ class RegisterController extends Controller
             } else {
                 $user_account_id = null;
             }
-            Log::info($useraccount);
             $user = User::create([
                 'first_name'      => $request->first_name,
                 'last_name'       => $request->last_name,
@@ -91,6 +90,11 @@ class RegisterController extends Controller
             'profile_image' => 'https://picastroapp.s3.eu-west-2.amazonaws.com/profileImages/default-user.png'
         ]);
 
+        if ($request->current_user_id) {
+            User::where('id', $request->current_user_id)->update([
+                'fcm_token' => null
+            ]);
+        }
         $user = User::with('userprofile')->where('id', $user->id)->first();
 
         $user_accounts = User::with('userprofile')->where('id', $user_account_id)->get();
@@ -103,10 +107,7 @@ class RegisterController extends Controller
             'user' => $user,
             'user_accounts' => $user_accounts ?? null
         ];
-
-        if ($user->status == 1) {
-            return $this->success(['User Registered Successfully'], $data);
-        }
+        return $this->success(['User Registered Successfully'], $data);
     }
 
     public function signupTest(Request $request)

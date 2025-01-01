@@ -60,14 +60,32 @@ class AuthController extends Controller
                 $auth = null;
             }
         } else {
+            if ($request->user_account_id) {
+                $useraccount = User::where('id', $request->user_account_id)->first();
+                if ($useraccount && $useraccount->user_account_id != null) {
+                    $user_account_id = $useraccount->user_account_id;
+                } else {
+                    $user_account_id = $useraccount->id;
+                }
+            } else {
+                $user_account_id = null;
+            }
             $auth = Auth::attempt(['email' => $request->email, 'password' => $request->password]);
         }
         if ($auth) {
+            if($request->current_user_id){
+                User::where('id', $request->current_user_id)->update([
+                    'fcm_token' => null
+                ]);
+            }
             if ($request->fcm_token && $this->getClientIP() != '58.65.222.176' && $this->getClientIP() != '137.59.225.170') {
                 user::where('id', Auth::id())->update([
                     'fcm_token'     => $request->fcm_token
                 ]);
             }
+            User::where('id', Auth::id())->update([
+                'user_account_id' => $user_account_id
+            ]);
 
             $user = User::with('userprofile')->withCount('TotalStar')->where('id', Auth::id())->first();
             if ($user && $user->user_account_id != null) {
@@ -76,12 +94,12 @@ class AuthController extends Controller
                 $user_account_id = $user->id;
             }
             $user_accounts = User::with('userprofile')
-                    ->where(function ($query) use ($user_account_id) {
-                        $query->where('user_account_id', $user_account_id)
-                            ->orWhere('id', $user_account_id);
-                    })
-                    ->whereNot('id', Auth::id())
-                    ->get();
+                ->where(function ($query) use ($user_account_id) {
+                    $query->where('user_account_id', $user_account_id)
+                        ->orWhere('id', $user_account_id);
+                })
+                ->whereNot('id', Auth::id())
+                ->get();
             $token = $user->createToken('Picastro')->plainTextToken;
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $vote = [];
