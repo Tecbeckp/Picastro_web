@@ -283,7 +283,7 @@ class PostImageController extends Controller
                 ];
             });
 
-            return $this->success([], $mergedPosts);
+            return $this->success([], $paginatedPosts);
         }
     }
 
