@@ -60,7 +60,10 @@ class AuthController extends Controller
                 $auth = null;
             }
         } else {
-            if ($request->user_account_id) {
+            $auth = Auth::attempt(['email' => $request->email, 'password' => $request->password]);
+        }
+        if ($auth) {
+            if (isset($request->user_account_id) && $request->user_account_id != null) {
                 $useraccount = User::where('id', $request->user_account_id)->first();
                 if ($useraccount && $useraccount->user_account_id != null) {
                     $user_account_id = $useraccount->user_account_id;
@@ -70,10 +73,7 @@ class AuthController extends Controller
             } else {
                 $user_account_id = null;
             }
-            $auth = Auth::attempt(['email' => $request->email, 'password' => $request->password]);
-        }
-        if ($auth) {
-            if($request->current_user_id){
+            if(isset($request->current_user_id)){
                 User::where('id', $request->current_user_id)->update([
                     'fcm_token' => null
                 ]);
