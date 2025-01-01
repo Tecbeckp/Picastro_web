@@ -29,7 +29,8 @@ class User extends Authenticatable
         'fcm_token',
         'is_registration',
         'gift_subscription',
-        'subscription_id'
+        'subscription_id',
+        'user_account_id'
     ];
 
     /**

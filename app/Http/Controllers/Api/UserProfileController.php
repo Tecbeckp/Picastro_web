@@ -20,14 +20,15 @@ class UserProfileController extends Controller
     use ApiResponseTrait;
     use UploadImageTrait;
 
-    public function profileSetup(Request $request){
-        $rules = [  
+    public function profileSetup(Request $request)
+    {
+        $rules = [
             'username'      => 'required|unique:users|max:20|alpha_dash',
             'pronouns'      => 'required',
             'bio'           => 'required|max:250',
             'profile_image' => 'nullable|mimes:jpg,jpeg,png,webp'
         ];
-        
+
         $validator = Validator::make($request->all(), $rules, [
             'username.unique'       => 'The username has already been taken! Try again',
             'username.required'     => 'Username is required.',
@@ -39,7 +40,7 @@ class UserProfileController extends Controller
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-        
+
         $data = [
             'pronouns'         => $request->pronouns,
             'bio'              => $request->bio,
@@ -50,21 +51,22 @@ class UserProfileController extends Controller
             $imageName = $this->originalImageUpload($request->file('profile_image'), 'profileImages/');
             $data['profile_image'] = $imageName;
         }
-        
+
         UserProfile::where('user_id', auth()->id())->update($data);
 
         User::where('id', auth()->id())->update([
             'username' => $request->username,
         ]);
         $user = User::with('userprofile')->where('id', auth()->id())->first();
-        $result =[
+        $result = [
             'user' => $user
         ];
 
-        return $this->success(['Profile setup Successfully'],$result);
+        return $this->success(['Profile setup Successfully'], $result);
     }
 
-    public function updateProfile(Request $request){
+    public function updateProfile(Request $request)
+    {
         $rules = [
             'experience_level'  => 'required',
             'first_name'        => 'required',
@@ -74,7 +76,7 @@ class UserProfileController extends Controller
             'web_site_link'     => 'nullable|url',
             'drive_link'        => 'nullable|url',
             'profile_image'     => 'nullable|mimes:jpg,jpeg,png,webp'
-            
+
         ];
         $validator = Validator::make($request->all(), $rules, [
             'experience_level.required' => 'Experience level is required.',
@@ -93,18 +95,18 @@ class UserProfileController extends Controller
             'web_site_link'    => $request->web_site_link,
             'drive_link'       => $request->drive_link
         ];
-        
+
         if ($request->file('profile_image')) {
             $imageName = $this->originalImageUpload($request->file('profile_image'), 'profileImages/');
             $data['profile_image'] = $imageName;
         }
-        User::where('id',auth()->id())->update(
+        User::where('id', auth()->id())->update(
             [
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name
             ]
         );
-        
+
         UserProfile::updateOrCreate(
             [
                 'user_id' => auth()->id(),
@@ -113,13 +115,13 @@ class UserProfileController extends Controller
         );
 
         return $this->success(['Profile Updated Successfully'], []);
-
     }
 
-    public function updateFcmToken(Request $request){
+    public function updateFcmToken(Request $request)
+    {
         $rules = [
             'fcm_token'  => 'required'
-            
+
         ];
         $validator = Validator::make($request->all(), $rules, [
             'experience_level.required' => 'fcm token is required.'
@@ -128,28 +130,41 @@ class UserProfileController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        User::where('id',auth()->id())->update([
+        User::where('id', auth()->id())->update([
             'fcm_token' => $request->fcm_token
         ]);
 
         return $this->success(['Updated Successfully'], []);
     }
-    public function getUserProfile(){
+    public function getUserProfile()
+    {
 
         $user = User::with('userprofile')->withCount('TotalStar')->where('id', Auth::id())->first();
-        
+
+        if ($user && $user->user_account_id != null) {
+            $user_account_id = $user->user_account_id;
+        } else {
+            $user_account_id = $user->id;
+        }
+        $user_accounts = User::with('userprofile')
+            ->where(function ($query) use ($user_account_id) {
+                $query->where('user_account_id', $user_account_id)
+                    ->orWhere('id', $user_account_id);
+            })
+            ->whereNot('id', Auth::id())
+            ->get();
         $trophies = Trophy::select('id', 'name', 'icon')->get();
         $vote = [];
-        
-        foreach($trophies as $trophy) {
+
+        foreach ($trophies as $trophy) {
             $vote[$trophy->id] = VoteImage::where('trophy_id', $trophy->id)
-                                           ->where('post_user_id', auth()->id())
-                                           ->count();
+                ->where('post_user_id', auth()->id())
+                ->count();
         }
-        
+
         $data = [
             'user'      => $user,
-            'posts'     => PostImage::where('user_id',auth()->id())->count(),
+            'posts'     => PostImage::where('user_id', auth()->id())->count(),
             'trophies'  => $trophies->map(function ($trophy) use ($vote) {
                 return [
                     'id' => $trophy->id,
@@ -158,14 +173,14 @@ class UserProfileController extends Controller
                     'total_trophy' => $vote[$trophy->id] ?? 0
                 ];
             }),
-            'notification_setting' => NotificationSetting::where('user_id',auth()->id())->first()
+            'notification_setting' => NotificationSetting::where('user_id', auth()->id())->first(),
+            'user_accounts'        => $user_accounts
         ];
 
-        if($user){
+        if ($user) {
             return $this->success(['Successfully Get user profile'], $data);
-        }else{
+        } else {
             return $this->error(['Something went wrong']);
         }
     }
-
 }

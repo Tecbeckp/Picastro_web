@@ -10,6 +10,7 @@ use App\Models\UserProfile;
 use App\Rules\ValidEmail;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
@@ -52,7 +53,7 @@ class RegisterController extends Controller
         if ($new_user && $new_user->is_registration == '1') {
             return $this->error(['Email has already been taken.']);
         } elseif ($new_user && $new_user->is_registration == '0') {
-             User::where('email', $request->email)->update([
+            User::where('email', $request->email)->update([
                 'first_name'      => $request->first_name,
                 'last_name'       => $request->last_name,
                 'email'           => $request->email,
@@ -61,15 +62,27 @@ class RegisterController extends Controller
                 'platform_type'   => $request->platform_type,
                 'is_registration' => '1'
             ]);
-           $user = User::where('email', $request->email)->first();
+            $user = User::where('email', $request->email)->first();
         } else {
+            if ($request->user_account_id) {
+                $useraccount = User::where('id', $request->user_account_id)->first();
+                if ($useraccount && $useraccount->user_account_id != null) {
+                    $user_account_id = $useraccount->user_account_id;
+                } else {
+                    $user_account_id = $useraccount->id;
+                }
+            } else {
+                $user_account_id = null;
+            }
+            Log::info($useraccount);
             $user = User::create([
                 'first_name'      => $request->first_name,
                 'last_name'       => $request->last_name,
                 'email'           => $request->email,
                 'password'        => Hash::make($request->password),
                 'fcm_token'       => $request->fcm_token,
-                'platform_type'   => $request->platform_type
+                'platform_type'   => $request->platform_type,
+                'user_account_id' => $user_account_id
             ]);
         }
 
@@ -79,6 +92,8 @@ class RegisterController extends Controller
         ]);
 
         $user = User::with('userprofile')->where('id', $user->id)->first();
+
+        $user_accounts = User::with('userprofile')->where('id', $user_account_id)->get();
         $token = $user->createToken('Picastro')->plainTextToken;
         $data = [
             'token' => [
@@ -86,6 +101,7 @@ class RegisterController extends Controller
                 'token_type' => 'Bearer',
             ],
             'user' => $user,
+            'user_accounts' => $user_accounts ?? null
         ];
 
         if ($user->status == 1) {

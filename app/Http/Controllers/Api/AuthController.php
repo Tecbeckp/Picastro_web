@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\EmailHelper;
 use App\Http\Controllers\Controller;
 use App\Mail\ForgotPasswordMail;
 use App\Models\NotificationSetting;
@@ -28,8 +29,8 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $rules = [
-            'email' => ['required', 'email', new ValidEmail],
-            'password'          => 'required|min:8'
+            'email'    => ['required', 'email', new ValidEmail],
+            'password' => 'required_if:user_id,null|min:8'
         ];
 
         $validator = Validator::make($request->all(), $rules, [
@@ -48,6 +49,15 @@ class AuthController extends Controller
             $user_log = User::where('email', request('email'))->first();
             if (!is_null($user_log)) {
                 $auth = Auth::loginUsingId($user_log->id);
+            } else {
+                $auth = null;
+            }
+        } elseif (isset($request->user_id) && $request->user_id != null) {
+            $user_log = User::where('id', $request->user_id)->where('email', request('email'))->first();
+            if (!is_null($user_log)) {
+                $auth = Auth::loginUsingId($user_log->id);
+            } else {
+                $auth = null;
             }
         } else {
             $auth = Auth::attempt(['email' => $request->email, 'password' => $request->password]);
@@ -60,6 +70,18 @@ class AuthController extends Controller
             }
 
             $user = User::with('userprofile')->withCount('TotalStar')->where('id', Auth::id())->first();
+            if ($user && $user->user_account_id != null) {
+                $user_account_id = $user->user_account_id;
+            } else {
+                $user_account_id = $user->id;
+            }
+            $user_accounts = User::with('userprofile')
+                    ->where(function ($query) use ($user_account_id) {
+                        $query->where('user_account_id', $user_account_id)
+                            ->orWhere('id', $user_account_id);
+                    })
+                    ->whereNot('id', Auth::id())
+                    ->get();
             $token = $user->createToken('Picastro')->plainTextToken;
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $vote = [];
@@ -84,7 +106,8 @@ class AuthController extends Controller
                         'total_trophy' => $vote[$trophy->id] ?? 0
                     ];
                 }),
-            'notification_setting' => NotificationSetting::where('user_id',auth()->id())->first()
+                'notification_setting' => NotificationSetting::where('user_id', auth()->id())->first(),
+                'user_accounts'        => $user_accounts
             ];
 
             if ($user->status == 1) {
@@ -105,11 +128,11 @@ class AuthController extends Controller
         ], [
             'email.required' => 'Email Address is required.'
         ]);
-    
+
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-    
+
         $user = User::where('email', $request->email)->first();
         if ($user || (isset($request->is_from_register) && $request->is_from_register == 'true')) {
             $otp = rand(1000, 9999);
@@ -122,19 +145,17 @@ class AuthController extends Controller
                 ]
             );
 
-        // $details = [
-        //     'email'             => $request->email,
-        //     'otp'               => $otp,
-        //     'is_from_register'  => $request->is_from_register,
-        //     'subject'           => $request->is_from_register == 'true' ? 'Picastro Email Verification' : 'Forgot Password'
-        // ];
-        Http::post('https://picastro.co.uk/send-email', [
-            'otp' => $otp,
-            'email' => $request->email,
-            'is_from_register' => $request->is_from_register       
-        ]);
+            $details = [
+                'email'             => $request->email,
+                'otp'               => $otp,
+                'is_from_register'  => $request->is_from_register,
+                'subject'           => $request->is_from_register == 'true' ? 'Picastro Email Verification' : 'Forgot Password'
+            ];
+            Mail::to($request->email)->send(new ForgotPasswordMail($details));
+            // $html = view('emails.forgot-password',compact('details'))->render();
+            // EmailHelper::sendMail($request->email,$details['subject'],$html,null);
 
-    return $this->success(['OTP Send Successfully on your email address.'],$otp);
+            return $this->success(['OTP Send Successfully on your email address.'], $otp);
         } else {
             return $this->error(['The provided email does not match our records. Please check your email address and try again.']);
         }

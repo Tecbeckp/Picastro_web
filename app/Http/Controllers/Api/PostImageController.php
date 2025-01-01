@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\SendNotificationJob;
+use App\Jobs\SendPostNotificationJob;
 use App\Models\ApproxLunarPhase;
 use App\Models\Bortle;
 use App\Models\MainSetup;
 use App\Models\ObjectType;
 use App\Models\ObserverLocation;
 use App\Models\FollowerList;
+use App\Models\GalleryImage;
 use App\Models\PostImage;
 use App\Models\StarCard;
 use App\Models\StarCardFilter;
@@ -26,6 +27,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 class PostImageController extends Controller
@@ -122,6 +124,7 @@ class PostImageController extends Controller
                 ->whereHas('userprofile', function ($q) {
                     $q->where('complete_profile', '1');
                 })
+                ->whereNotIn('id', ['1219', '1215', '1213', '1207', '1185', '1176', '1169', '1133', '1127', '1112', '1111', '1099', '1089', '1025', '1024', '974', '972'])
                 ->whereDoesntHave('blockToUser')
                 ->whereDoesntHave('UserToBlock')
                 ->where('is_registration', '1')->latest()->paginate(50);
@@ -190,20 +193,30 @@ class PostImageController extends Controller
             if ($most_recent) {
                 $postsQuery->where('object_type_id', $most_recent);
             }
-
-            $relatedPosts = (clone $postsQuery)->whereHas('user', function ($q){
+            $postsQuery->whereHas('user', function ($q) {
                 $q->whereNull('deleted_at');
-            })->whereIn('user_id', $relatedUserIds)->whereNot('user_id', $authUserId)->latest()->get()->shuffle();
-        $otherPosts = (clone $postsQuery)->whereHas('user', function ($q){
-                $q->whereNull('deleted_at');
-            })->whereNotIn('user_id', $relatedUserIds)->latest()->get()->shuffle();
+            });
+            // Fetch posts related to the user
+            $relatedPosts = (clone $postsQuery)
+                ->whereIn('user_id', $relatedUserIds)
+                ->whereNot('user_id', $authUserId)
+                ->latest()
+                ->get()
+                ->unique('id');
+                
 
+            // Fetch other posts
+            $otherPosts = (clone $postsQuery)
+                ->whereNotIn('user_id', $relatedUserIds)
+                ->latest()
+                ->get()
+                ->unique('id');
             // Interleave posts
             $mergedPosts = collect();
 
             $relatedIterator = $relatedPosts->values()->getIterator();
             $otherIterator = $otherPosts->values()->getIterator();
-
+           
             while ($relatedIterator->valid() || $otherIterator->valid()) {
                 if ($relatedIterator->valid()) {
                     $mergedPosts->push($relatedIterator->current());
@@ -214,6 +227,8 @@ class PostImageController extends Controller
                     $otherIterator->next();
                 }
             }
+
+            $mergedPosts = $mergedPosts->shuffle();;
             // Paginate the result
             $perPage = 10;
             $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -224,27 +239,6 @@ class PostImageController extends Controller
                 $currentPage,
                 ['path' => LengthAwarePaginator::resolveCurrentPath()]
             );
-            // $maxCount = max($relatedPosts->count(), $otherPosts->count());
-            // for ($i = 0; $i < $maxCount; $i++) {
-            //     if (isset($relatedPosts[$i])) {
-            //         $mergedPosts->push($relatedPosts[$i]);
-            //     }
-            //     if (isset($otherPosts[$i])) {
-            //         $mergedPosts->push($otherPosts[$i]);
-            //     }
-            // }
-
-            // Paginate the result
-            // $perPage = 10;
-            // $currentPage = LengthAwarePaginator::resolveCurrentPage();
-            // $paginatedPosts = new LengthAwarePaginator(
-            //     $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
-            //     $mergedPosts->count(),
-            //     $perPage,
-            //     $currentPage,
-            //     ['path' => LengthAwarePaginator::resolveCurrentPath()]
-            // );
-
             $trophies = Trophy::select('id', 'name', 'icon')->get();
 
             $paginatedPosts->getCollection()->transform(function ($post) use ($trophies) {
@@ -397,6 +391,61 @@ class PostImageController extends Controller
         return view('profile', compact('posts', 'user', 'trophies', 'vote'));
     }
 
+    public function galleryPostImage(Request $request, $id)
+    {
+
+        $posts = GalleryImage::with('postImage.user', 'postImage.StarCard.StarCardFilter', 'postImage.ObjectType', 'postImage.Bortle', 'postImage.ObserverLocation', 'postImage.ApproxLunarPhase', 'postImage.Telescope', 'postImage.giveStar', 'postImage.totalStar', 'postImage.Follow', 'postImage.votedTrophy');
+
+        $posts = $posts->whereHas('postImage', function ($q) {
+            $q->whereNull('deleted_at');
+        })->where('user_id', base64_decode($id))->latest()->get();
+        $user = User::with('userprofile')->withCount('TotalStar')->where('id', base64_decode($id, true))->first();
+        $trophies = Trophy::select('id', 'name', 'icon')->get();
+        $vote = [];
+        foreach ($trophies as $trophy) {
+            $vote[$trophy->id] = VoteImage::where('trophy_id', $trophy->id)
+                ->where('post_user_id', $user->id)
+                ->count();
+        }
+        $posts->transform(function ($post) use ($trophies) {
+
+            return [
+                'id'                 => $post->postImage->id,
+                'user_id'            => $post->postImage->user_id,
+                'post_image_title'   => $post->postImage->post_image_title,
+                'image'              => $post->postImage->image,
+                'original_image'     => $post->postImage->original_image,
+                'description'        => $post->postImage->description,
+                'video_length'       => $post->postImage->video_length,
+                'number_of_frame'    => $post->postImage->number_of_frame,
+                'number_of_video'    => $post->postImage->number_of_video,
+                'exposure_time'      => $post->postImage->exposure_time,
+                'total_hours'        => $post->postImage->total_hours,
+                'additional_minutes' => $post->postImage->additional_minutes,
+                'catalogue_number'   => $post->postImage->catalogue_number,
+                'object_name'        => $post->postImage->object_name,
+                'ir_pass'            => $post->postImage->ir_pass,
+                'planet_name'        => $post->postImage->planet_name,
+                'ObjectType'         => $post->postImage->ObjectType,
+                'Bortle'             => $post->postImage->Bortle,
+                'ObserverLocation'   => $post->postImage->ObserverLocation,
+                'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
+                'location'           => $post->postImage->location,
+                'Telescope'          => $post->postImage->Telescope,
+                'only_image_and_description' => $post->postImage->only_image_and_description,
+                'star_card'          => $post->postImage->StarCard,
+                'user'               => [
+                    'id'             => $post->postImage->user->id,
+                    'first_name'     => $post->postImage->user->first_name,
+                    'last_name'      => $post->postImage->user->last_name,
+                    'username'       => $post->postImage->user->username,
+                    'profile_image'  => $post->postImage->user->userprofile->profile_image,
+                    'fcm_token'      => $post->postImage->user->fcm_token,
+                ]
+            ];
+        });
+        return view('gallery_image', compact('posts', 'user', 'trophies', 'vote'));
+    }
     public function userPostImage(Request $request)
     {
         $rules = [
@@ -654,7 +703,7 @@ class PostImageController extends Controller
                 }
             }
 
-            dispatch(new SendNotificationJob($this->notificationService, auth()->id(), $postImage))->delay(now()->addSeconds(5));
+            dispatch(new SendPostNotificationJob($this->notificationService, auth()->id(), $postImage))->delay(now()->addSeconds(3));
             return $this->success(['Post uploaded successfully!'], []);
         } catch (ValidationException $e) {
             return $this->error($e->errors());
@@ -987,6 +1036,10 @@ class PostImageController extends Controller
             $PostImage =  PostImage::find($id);
             if ($PostImage) {
                 $PostImage->delete();
+                $gallery_image = GalleryImage::where('user_id', auth()->id())->where('post_image_id', $id)->first();
+                if ($gallery_image) {
+                    $gallery_image->delete();
+                }
                 return $this->success(['Post deleted successfully!'], []);
             } else {
                 return $this->error(['Please enter valid post id']);

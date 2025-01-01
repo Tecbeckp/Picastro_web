@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\EmailHelper;
 use App\Http\Controllers\Controller;
 use App\Mail\ContactUsMail;
 use App\Models\Coupons;
@@ -44,10 +45,13 @@ use App\Models\NotificationSetting;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use App\Models\ChatImage;
+use App\Models\GalleryImage;
 use App\Models\GiftSubscription;
 use App\Models\SubscriptionPlan;
+use App\Models\UserProfile;
 use App\Models\WeekOfTheImage;
 use DateTime;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ApiGeneralController extends Controller
 {
@@ -185,27 +189,31 @@ class ApiGeneralController extends Controller
                 'postImage.Telescope',
                 'postImage.giveStar',
                 'postImage.Follow',
+                'postImage.blockToUser',
+                'postImage.UserToBlock',
             ])
                 ->where('user_id', auth()->id())
                 ->where('object_type_id', $obj->id)
                 ->where('archived', $archived)
-                ->whereHas('postImage', function ($query) use ($searchTerm) {
-                    if ($searchTerm) {
-                        $query->where(function ($subQuery) use ($searchTerm) {
-                            $subQuery->where('post_image_title', 'like', "%{$searchTerm}%")
+                ->whereHas('postImage', function ($query) {
+                    $query->doesntHave('blockToUser')
+                        ->doesntHave('UserToBlock');
+                })
+                ->when($searchTerm, function ($query) use ($searchTerm) {
+                    $query->whereHas('postImage', function ($subQuery) use ($searchTerm) {
+                        $subQuery->where(function ($nestedQuery) use ($searchTerm) {
+                            $nestedQuery->where('post_image_title', 'like', "%{$searchTerm}%")
                                 ->orWhere('description', 'like', "%{$searchTerm}%")
                                 ->orWhere('catalogue_number', 'like', "%{$searchTerm}%")
                                 ->orWhere('object_name', 'like', "%{$searchTerm}%");
                         })
-                            ->orWhereHas('ObjectType', function ($r) use ($searchTerm) {
-                                $r->where('name', 'like', "%{$searchTerm}%");
+                            ->orWhereHas('ObjectType', function ($typeQuery) use ($searchTerm) {
+                                $typeQuery->where('name', 'like', "%{$searchTerm}%");
                             });
-                    }
+                    });
                 })
-                ->whereHas('postImage', function ($q) {
-                    $q->whereNull('deleted_at');
-                })->whereDoesntHave('postImage', function ($query) {
-                    $query->whereHas('blockToUser')->orWhereHas('UserToBlock');
+                ->whereHas('postImage', function ($query) {
+                    $query->whereNull('deleted_at');
                 })
                 ->get();
             // ->paginate($perPage);
@@ -630,17 +638,14 @@ class ApiGeneralController extends Controller
         $contact->message  = $request->message;
         $contact->save();
 
-        // $details = [
-        //     'name'     => $request->name,
-        //     'email'    => $request->email,
-        //     'message'  => $request->message
-        // ];
+        $details = [
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'message'  => $request->message
+        ];
+        $html = view('emails.contact-us', compact('details'))->render();
+        EmailHelper::sendMail($request->email, 'New Contact Us Message', $html, null);
 
-        Http::post('https://picastro.co.uk/contact-us-mail', [
-            'name' => $request->username,
-            'email' => $request->email,
-            'message' => $request->message
-        ]);
         return $this->success(['Sent successfully!'], []);
     }
 
@@ -766,7 +771,6 @@ class ApiGeneralController extends Controller
 
     public function getNotification()
     {
-
         $notifications = Notification::where('user_id', auth()->id())
             ->where('is_read', '0')->latest()->get();
 
@@ -815,7 +819,7 @@ class ApiGeneralController extends Controller
             Notification::where('user_id', auth()->id())->where('id', $request->notification_id)->update([
                 'is_read' => '1'
             ]);
-        }elseif(isset($request->type)){
+        } elseif (isset($request->type)) {
             Notification::where('user_id', auth()->id())->where('type', $request->type)->update([
                 'is_read' => '1'
             ]);
@@ -829,9 +833,9 @@ class ApiGeneralController extends Controller
 
     public function readAllNotification(Request $request)
     {
-            Notification::where('user_id', auth()->id())->update([
-                'is_open' => '1'
-            ]);
+        Notification::where('user_id', auth()->id())->update([
+            'is_open' => '1'
+        ]);
 
         return $this->success(['Notification read Successfully'], []);
     }
@@ -896,8 +900,12 @@ class ApiGeneralController extends Controller
             $user_id = $request->user_id;
             if ($post_id) {
                 $share_post_link = route('post', base64_encode($post_id));
-            } else {
+            } elseif ($user_id) {
                 $share_post_link = route('profile', base64_encode($user_id));
+            } else {
+                $pass = $request->gallery_password;
+                UserProfile::where('user_id', auth()->id())->update(['gallery_password' => $pass]);
+                $share_post_link = route('gallery', base64_encode(auth()->id()));
             }
             return $this->success(['Request Proccessed Successfully'], $share_post_link);
         } catch (\Throwable $th) {
@@ -1574,6 +1582,8 @@ class ApiGeneralController extends Controller
                 'email' => $request->my_email,
                 'gifted_email' => $request->email
             ]);
+            $html = view('emails.gift_mail')->render();
+            EmailHelper::sendMail($request->email, "Surprise! You've Been Gifted a Subscription!", $html, null);
 
             return $this->success(['successfully.'], $data);
         }
@@ -1746,5 +1756,101 @@ class ApiGeneralController extends Controller
         $image = str_replace($baseUrl, '', $request->image);
         $data = ChatImage::where('thumbnail', $image)->first();
         return $this->success(['Get chat image successfully!'], $data);
+    }
+
+    public function saveGalleryImage(Request $request)
+    {
+
+        $rules = [
+            'id' => 'required|numeric|exists:post_images,id'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+        if (isset($request->add) && $request->add == true) {
+            $total =  GalleryImage::where('user_id', auth()->id())->count();
+            if ($total < 15) {
+                GalleryImage::updateOrCreate(
+                    [
+                        'user_id' => auth()->id(),
+                        'post_image_id' => $request->id
+                    ],
+                    [
+                        'user_id' => auth()->id(),
+                        'post_image_id' => $request->id
+                    ]
+                );
+                return $this->success(['Saved successfully!'], null);
+            } else {
+                return $this->error(['You can only save up to 15 images.']);
+            }
+        } elseif (isset($request->remove) && $request->remove == true) {
+            $data =  GalleryImage::where('user_id', auth()->id())->where('post_image_id', $request->id)->first();
+            if ($data) {
+                $data->delete();
+                return $this->success(['Removed successfully!'], null);
+            } else {
+                return $this->error(['Something went wrong.']);
+            }
+        } else {
+            return $this->error(['Something went wrong.']);
+        }
+    }
+
+    public function getGalleryImage()
+    {
+        $posts = GalleryImage::with('postImage')
+        ->whereHas('postImage', function($q){
+            $q->whereNull('deleted_at');
+        })->where('user_id', auth()->id())->latest()->get();
+        $perPage = 15;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $paginatedPosts = new LengthAwarePaginator(
+            $posts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
+            $posts->count(),
+            $perPage,
+            $currentPage,
+            ['path' => LengthAwarePaginator::resolveCurrentPath()]
+        );
+        $paginatedPosts->transform(function ($post) {
+            return [
+                'id'                 => $post->postImage->id,
+                'user_id'            => $post->postImage->user_id,
+                'post_image_title'   => $post->postImage->post_image_title,
+                'image'              => $post->postImage->image,
+                'original_image'     => $post->postImage->original_image,
+                'description'        => $post->postImage->description,
+                'video_length'       => $post->postImage->video_length,
+                'number_of_frame'    => $post->postImage->number_of_frame,
+                'number_of_video'    => $post->postImage->number_of_video,
+                'exposure_time'      => $post->postImage->exposure_time,
+                'total_hours'        => $post->postImage->total_hours,
+                'additional_minutes' => $post->postImage->additional_minutes,
+                'catalogue_number'   => $post->postImage->catalogue_number,
+                'object_name'        => $post->postImage->object_name,
+                'ir_pass'            => $post->postImage->ir_pass,
+                'planet_name'        => $post->postImage->planet_name,
+                'ObjectType'         => $post->postImage->ObjectType,
+                'Bortle'             => $post->postImage->Bortle,
+                'ObserverLocation'   => $post->postImage->ObserverLocation,
+                'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
+                'location'           => $post->postImage->location,
+                'Telescope'          => $post->postImage->Telescope,
+                'only_image_and_description' => $post->postImage->only_image_and_description,
+                'star_card'          => $post->postImage->StarCard,
+                'user'               => [
+                    'id'             => $post->postImage->user ? $post->postImage->user->id : null,
+                    'first_name'     => $post->postImage->user ? $post->postImage->user->first_name : null,
+                    'last_name'      => $post->postImage->user ? $post->postImage->user->last_name : null,
+                    'username'       => $post->postImage->user ? $post->postImage->user->username : null,
+                    'profile_image'  => $post->postImage->user && $post->postImage->user->userprofile ? $post->postImage->user->userprofile->profile_image : null,
+                    'fcm_token'      => $post->postImage->user ? $post->postImage->user->fcm_token : null,
+                ]
+            ];
+        });
+
+        return $this->success(['Get successfully.'], $paginatedPosts);
     }
 }

@@ -111,6 +111,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('update-notification-setting', [ApiGeneralController::class, 'UpdateNotificationSetting']);
     Route::post('upload-chat-image', [ApiGeneralController::class, 'UploadChatImage']);
     Route::get('get-chat-image', [ApiGeneralController::class, 'getChatImage']);
+    Route::get('save-into-gallery-images', [ApiGeneralController::class, 'saveGalleryImage']);
+    Route::get('get-gallery-images', [ApiGeneralController::class, 'getGalleryImage']);
 
 
     Route::post('add-post-comment', [PostCommentController::class, 'postComment']);

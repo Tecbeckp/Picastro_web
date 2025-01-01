@@ -121,34 +121,6 @@
 </head>
 
 <body>
-    {{-- <div class="auth-page-wrapper auth-bg-cover py-5 d-flex justify-content-center align-items-center min-vh-100">
-        <div class="bg-overlay"></div>
-        <div class="auth-page-content overflow-hidden pt-lg-5">
-            <div class="container-fluid">
-                <div class="row justify-content-center">
-                    <div class="col-xl-4">
-                        <div class="card overflow-hidden card-bg-fill galaxy-border-none">
-                            <div class="card-body p-5">
-                                <div class="text-center">
-                                    <img src="{{ asset('assets/images/picastro.png') }}" alt="" style="width: 50%;">
-                                    <h1 class="text-white mb-4 mt-4">Download Picastro App</h1>
-                                    <p class="text-white mb-4">Download the app today using the links below</p>
-                                    <a target="_blank" href="https://apps.apple.com/pk/app/picastro/id6446713728"><img src="{{asset('assets/images/app_store.png')}}" alt="Playstore"  class="w-50"></a>
-                                    <a target="_blank" href="https://play.google.com/store/search?q=picastro&c=apps&hl=en"><img src="{{asset('assets/images/Google-Play-Store-Logo-PNG-Transparent.png')}}" alt="Playstore" style="width: 49% !important;border-radius: 10px"></a>
-                                    
-                                </div>
-                            </div>
-                        </div>
-                        <!-- end card -->
-                    </div>
-                    <!-- end col -->
-
-                </div>
-                <!-- end row -->
-            </div>
-            <!-- container-fluid -->
-        </div>
-    </div> --}}
 
     <div class="main-content-app overflow-hidden">
 
@@ -216,19 +188,20 @@
                         <div class="col-6 col-sm-4" style="padding-bottom: 7px !important;">
                             <div class="card small-card mb-0">
                                 <div class="card-body p-0">
-                                    <img src="{{ $item['image'] }}" alt="Space Image" class="spaceImg"
-                                        style="height: 170px !important;">
+                                    <img src="{{ $item['image'] }}" alt="Space Image" class="spaceImg">
                                     <div class="card-footer">
                                         @if ($item['post_image_title'])
                                             <p class="mb-0">{{ $item['post_image_title'] }}
                                             </p>
-                                        @else
+                                        @elseif($item['catalogue_number'])
                                             <p class="mb-0">{{ $item['catalogue_number'] }}
                                                 <br><span class="fs-12">{{ $item['object_name'] }}</span>
                                             </p>
+                                        @elseif(isset($item['ObjectType']))
+                                            <p class="mb-0">{{ $item['ObjectType']->name }}
+                                                <br><span class="fs-12">{{ $item['object_name'] }}</span>
+                                            </p>
                                         @endif
-
-                                        {{-- <i class="bx bx-star"></i> --}}
                                     </div>
                                 </div>
                             </div>
@@ -276,43 +249,29 @@
     </div>
 
     @include('includes.script')
-
     <script>
-        // Disable right-click on the entire document
-        document.addEventListener('contextmenu', (event) => {
-            event.preventDefault(); // Prevent the default context menu
-            console.log('Right-click is disabled.');
+        // Disable right-click context menu for the entire page
+        document.addEventListener('contextmenu', (event) => event.preventDefault());
+    
+        // Disable dragging on all images
+        document.addEventListener('dragstart', (event) => {
+            if (event.target.tagName.toLowerCase() === 'img') {
+                event.preventDefault();
+            }
         });
-
-        // Variables for long-press detection
-        let longPressTimer;
-
-        // Function to start long-press detection
-        const startLongPress = (event) => {
-            longPressTimer = setTimeout(() => {
-                event.preventDefault(); // Prevent long-press default behavior
-                console.log('Long press is disabled.');
-            }, 500); // Adjust duration as needed (500ms for long press)
-        };
-
-        // Function to cancel long-press detection
-        const cancelLongPress = () => {
-            clearTimeout(longPressTimer); // Clear the timer
-        };
-
-        // Attach touch events to the entire document
-        document.addEventListener('touchstart', startLongPress);
-        document.addEventListener('touchend', cancelLongPress);
-        document.addEventListener('touchmove', cancelLongPress);
-        document.addEventListener('touchcancel', cancelLongPress);
-
-        // Optional: Add click logging to see activity
-        document.addEventListener('click', () => {
-            console.log('Element clicked!');
+    
+        // Optional: Disable specific keyboard shortcuts for inspecting
+        document.addEventListener('keydown', (event) => {
+            // Prevent Ctrl+Shift+I (DevTools in most browsers)
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'I') {
+                event.preventDefault();
+            }
+            // Prevent F12 key
+            if (event.key === 'F12') {
+                event.preventDefault();
+            }
         });
-    </script>
-
-
+    </script>    
 </body>
 
 </html>
