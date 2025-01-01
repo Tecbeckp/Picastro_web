@@ -199,41 +199,52 @@ class PostImageController extends Controller
             // Fetch posts related to the user
             $relatedPosts = (clone $postsQuery)
                 ->whereIn('user_id', $relatedUserIds)
-                ->whereNot('user_id', $authUserId)
-                ->latest()->get();
-
+                ->where('user_id', '!=', $authUserId) // Exclude authenticated user's posts
+                ->latest()
+                ->get();
 
             // Fetch other posts
             $otherPosts = (clone $postsQuery)
                 ->whereNotIn('user_id', $relatedUserIds)
-                ->latest()->get();
+                ->latest()
+                ->get();
+
             // Interleave posts
             $mergedPosts = collect();
+            $seenPostIds = []; // Track unique post IDs
 
             $relatedIterator = $relatedPosts->values()->getIterator();
             $otherIterator = $otherPosts->values()->getIterator();
 
             while ($relatedIterator->valid() || $otherIterator->valid()) {
                 if ($relatedIterator->valid()) {
-                    $mergedPosts->push($relatedIterator->current());
+                    $post = $relatedIterator->current();
+                    if (!in_array($post->id, $seenPostIds)) { // Avoid duplicates
+                        $mergedPosts->push($post);
+                        $seenPostIds[] = $post->id;
+                    }
                     $relatedIterator->next();
                 }
                 if ($otherIterator->valid()) {
-                    $mergedPosts->push($otherIterator->current());
+                    $post = $otherIterator->current();
+                    if (!in_array($post->id, $seenPostIds)) { // Avoid duplicates
+                        $mergedPosts->push($post);
+                        $seenPostIds[] = $post->id;
+                    }
                     $otherIterator->next();
                 }
             }
 
-            // Remove duplicates based on post IDs
-            $mergedPosts = $mergedPosts->unique('id');
             // Shuffle the result if needed
-            $mergedPosts = $mergedPosts->inRandomOrder();
+            $mergedPosts = $mergedPosts->shuffle(); // Shuffle ensures randomness without altering uniqueness
+
             // Paginate the result
             $currentPage = request()->get('page', 1); // Get current page or default to 1
             $perPage = 10;
-            // $currentPage = LengthAwarePaginator::resolveCurrentPage();
+
+            // Slice and paginate
             $paginatedPosts = new LengthAwarePaginator(
-                $mergedPosts->slice(($currentPage) * $perPage, $perPage)->values(),
+                $mergedPosts->forPage($currentPage, $perPage)->values(),
                 $mergedPosts->count(),
                 $perPage,
                 $currentPage,
