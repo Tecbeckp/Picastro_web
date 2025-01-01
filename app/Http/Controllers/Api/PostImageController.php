@@ -200,23 +200,19 @@ class PostImageController extends Controller
             $relatedPosts = (clone $postsQuery)
                 ->whereIn('user_id', $relatedUserIds)
                 ->whereNot('user_id', $authUserId)
-                ->latest()
-                ->get()
-                ->unique('id');
-                
+                ->latest()->get();
+
 
             // Fetch other posts
             $otherPosts = (clone $postsQuery)
                 ->whereNotIn('user_id', $relatedUserIds)
-                ->latest()
-                ->get()
-                ->unique('id');
+                ->latest()->get();
             // Interleave posts
             $mergedPosts = collect();
 
             $relatedIterator = $relatedPosts->values()->getIterator();
             $otherIterator = $otherPosts->values()->getIterator();
-           
+
             while ($relatedIterator->valid() || $otherIterator->valid()) {
                 if ($relatedIterator->valid()) {
                     $mergedPosts->push($relatedIterator->current());
@@ -228,12 +224,13 @@ class PostImageController extends Controller
                 }
             }
 
-            $mergedPosts = $mergedPosts->shuffle();;
+            $mergedPosts = $mergedPosts->shuffle();
             // Paginate the result
+            $currentPage = request()->get('page', 1); // Get current page or default to 1
             $perPage = 10;
-            $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            // $currentPage = LengthAwarePaginator::resolveCurrentPage();
             $paginatedPosts = new LengthAwarePaginator(
-                $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
+                $mergedPosts->slice(($currentPage) * $perPage, $perPage)->values(),
                 $mergedPosts->count(),
                 $perPage,
                 $currentPage,
