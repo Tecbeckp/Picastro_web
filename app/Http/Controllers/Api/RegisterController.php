@@ -74,7 +74,6 @@ class RegisterController extends Controller
             } else {
                 $user_account_id = null;
             }
-            Log::info($useraccount);
             $user = User::create([
                 'first_name'      => $request->first_name,
                 'last_name'       => $request->last_name,
