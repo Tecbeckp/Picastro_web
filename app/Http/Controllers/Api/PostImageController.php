@@ -201,7 +201,7 @@ class PostImageController extends Controller
                 ->whereIn('user_id', $relatedUserIds)
                 ->whereNot('user_id', $authUserId)
                 ->latest()->paginate(10);
-                
+
 
             // Fetch other posts
             $otherPosts = (clone $postsQuery)
@@ -212,7 +212,7 @@ class PostImageController extends Controller
 
             $relatedIterator = $relatedPosts->values()->getIterator();
             $otherIterator = $otherPosts->values()->getIterator();
-           
+
             while ($relatedIterator->valid() || $otherIterator->valid()) {
                 if ($relatedIterator->valid()) {
                     $mergedPosts->push($relatedIterator->current());
@@ -224,20 +224,21 @@ class PostImageController extends Controller
                 }
             }
 
-            $mergedPosts = $mergedPosts->shuffle();;
+            $mergedPosts = $mergedPosts->shuffle();
             // Paginate the result
-            // $perPage = 10;
-            // $currentPage = LengthAwarePaginator::resolveCurrentPage();
-            // $paginatedPosts = new LengthAwarePaginator(
-            //     $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
-            //     $mergedPosts->count(),
-            //     $perPage,
-            //     $currentPage,
-            //     ['path' => LengthAwarePaginator::resolveCurrentPath()]
-            // );
+            $currentPage = request()->get('page', 1); // Get current page or default to 1
+            $perPage = 10;
+            $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            $paginatedPosts = new LengthAwarePaginator(
+                $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values(),
+                $mergedPosts->count(),
+                $perPage,
+                $currentPage,
+                ['path' => LengthAwarePaginator::resolveCurrentPath()]
+            );
             $trophies = Trophy::select('id', 'name', 'icon')->get();
 
-            $mergedPosts->transform(function ($post) use ($trophies) {
+            $paginatedPosts->getCollection()->transform(function ($post) use ($trophies) {
                 return [
                     'id'                 => $post->id,
                     'user_id'            => $post->user_id,
@@ -558,7 +559,7 @@ class PostImageController extends Controller
 
         if ($subscription) {
             $size_limit = $subscription->image_size_limit * 1024;
-            $rules['image'] = 'required|mimes:jpg,jpeg,png,webp,tif|max:'. $size_limit;
+            $rules['image'] = 'required|mimes:jpg,jpeg,png,webp,tif|max:' . $size_limit;
         }
         if ($request->only_image_and_description == 'false') {
 
