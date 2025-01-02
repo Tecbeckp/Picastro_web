@@ -560,7 +560,10 @@ class PostImageController extends Controller
     public function store(Request $request)
     {
         $subscription = SubscriptionPlan::where('id', auth()->user()->subscription_id)->first();
-
+        if ($this->getClientIP() == '58.65.222.176'){
+            log::info($request->image->getSize());
+        }
+        
         $rules = [
             'description'           => 'required',
             'object_type'           => 'required_if:only_image_and_description,false',
@@ -723,6 +726,25 @@ class PostImageController extends Controller
         }
     }
 
+    private function getClientIP()
+    {
+        $ipaddress = '';
+        if (isset($_SERVER['HTTP_CLIENT_IP']))
+            $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+        else if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        else if (isset($_SERVER['HTTP_X_FORWARDED']))
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+        else if (isset($_SERVER['HTTP_FORWARDED_FOR']))
+            $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+        else if (isset($_SERVER['HTTP_FORWARDED']))
+            $ipaddress = $_SERVER['HTTP_FORWARDED'];
+        else if (isset($_SERVER['REMOTE_ADDR']))
+            $ipaddress = $_SERVER['REMOTE_ADDR'];
+        else
+            $ipaddress = 'UNKNOWN';
+        return $ipaddress;
+    }
     /**
      * Display the specified resource.
      */
