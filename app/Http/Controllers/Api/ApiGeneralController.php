@@ -670,7 +670,7 @@ class ApiGeneralController extends Controller
         $data['subscription_plan'] = $subscription_plan->map(function ($plan) use ($used_trial, $used_subscription) {
             if ($used_trial && $plan->id == 1) {
                 $already_taken = true;
-            } elseif ($used_subscription && $plan->id == 4) {
+            }elseif($used_subscription && $plan->id == $used_subscription->subscription_id){
                 $already_taken = true;
             } else {
                 $already_taken = false;
