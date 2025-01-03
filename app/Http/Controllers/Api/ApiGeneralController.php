@@ -1154,7 +1154,7 @@ class ApiGeneralController extends Controller
         $data = TrialPeriod::first();
         if ($data) {
             $user = User::where('id', auth()->id())->first();
-            if ($user->trial_period_status == '1') {
+            if ($user->trial_period_status == '1' && !isset($request->plan_id)) {
                 $timeNow = Carbon::now();
                 if ($data->time_period == 'minute') {
                     $time = $timeNow->addMinutes($data->number);
@@ -1169,18 +1169,6 @@ class ApiGeneralController extends Controller
                 } elseif ($data->time_period == 'year') {
                     $time = $timeNow->addYears($data->number);
                 }
-                // $targetDateTime  = new DateTime($time->format('Y-m-d H:i:s'));
-                // $reminder_time = $targetDateTime->sub(new DateInterval('PT15M')); 
-                // $currentDateTime = new DateTime();
-                // $interval        = $currentDateTime->diff($targetDateTime);
-                // $remainingMinutes = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
-                //  $data->reminder_time == $remainingMinutes;
-                //  dd($remainingMinutes- $data->reminder_time,$targetDateTime,$reminder_time);
-                //  $dateTime = Carbon::parse('2024-11-01 15:00:00');
-                // $time_rem = $data->reminder_time;
-
-                // $min_time = Carbon::createFromFormat('Y-m-d H:i:s', $time->format('Y-m-d H:i:s'));
-                // $dateTime = $min_time->subMinutes($data->reminder_time);
 
                 User::where('id', auth()->id())->update([
                     'trial_start_at' => date('Y-m-d H:i:s'),
@@ -1189,10 +1177,13 @@ class ApiGeneralController extends Controller
                     'subscription_id'   => '1'
                 ]);
 
-
-                // dispatch(new TrialPeriodEndReminderJob($this->notificationService, auth()->id(), $time_rem))->delay($dateTime);
-
                 return $this->success(['Trial period active successfully.'], []);
+            }elseif(isset($request->plan_id) && $request->plan_id > 0){
+                User::where('id', auth()->id())->update([
+                    'subscription_id'   => "$request->plan_id",
+                    'subscription'      => '1'
+                ]);
+                return $this->success(['Subscription active successfully.'], []);
             } else {
                 return $this->error(['Your trial period has ended.']);
             }
