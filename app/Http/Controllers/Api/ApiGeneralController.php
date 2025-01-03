@@ -47,6 +47,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\ChatImage;
 use App\Models\GalleryImage;
 use App\Models\GiftSubscription;
+use App\Models\SubscriptionHistory;
 use App\Models\SubscriptionPlan;
 use App\Models\UserProfile;
 use App\Models\WeekOfTheImage;
@@ -1198,14 +1199,25 @@ class ApiGeneralController extends Controller
                     'trial_start_at' => date('Y-m-d H:i:s'),
                     'trial_ends_at'  => $time->format('Y-m-d H:i:s'),
                     'trial_period_status'  => '2',
+                    'subscription'      => '0',
                     'subscription_id'   => '1'
                 ]);
 
                 return $this->success(['Trial period active successfully.'], []);
-            }elseif(isset($request->plan_id) && $request->plan_id > 0){
-                User::where('id', auth()->id())->update([
+            } elseif (isset($request->plan_id) && $request->plan_id > 0) {
+                $user = User::where('id', auth()->id())->first();
+                if ($user && $user->trial_period_status == '2') {
+                    $user->update([
+                        'trial_period_status' => '0'
+                    ]);
+                }
+                $user->update([
                     'subscription_id'   => "$request->plan_id",
                     'subscription'      => '1'
+                ]);
+                SubscriptionHistory::create([
+                    'user_id' => auth()->id(),
+                    'subscription_id' => $request->plan_id
                 ]);
                 return $this->success(['Subscription active successfully.'], []);
             } else {
@@ -1797,9 +1809,9 @@ class ApiGeneralController extends Controller
     public function getGalleryImage()
     {
         $posts = GalleryImage::with('postImage')
-        ->whereHas('postImage', function($q){
-            $q->whereNull('deleted_at');
-        })->where('user_id', auth()->id())->latest()->get();
+            ->whereHas('postImage', function ($q) {
+                $q->whereNull('deleted_at');
+            })->where('user_id', auth()->id())->latest()->get();
         $perPage = 15;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $paginatedPosts = new LengthAwarePaginator(
