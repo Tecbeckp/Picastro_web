@@ -173,7 +173,7 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <input type="hidden" value="{{ $user->userprofile->gallery_password }}"
-                            id="current_password" />
+                                id="current_password" />
                             <label class="form-label" for="password">Password</label>
                             <div class="position-relative auth-pass-inputgroup mb-3">
                                 <input type="password"
@@ -202,18 +202,21 @@
     </div>
     @include('includes.script')
     <script>
-        $('#togglePassword').click(function () {
-                    var passwordField = $('#password');
-                    var icon = $(this).find('i');
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            var passwordField = document.getElementById('password');
+            var icon = this.querySelector('i');
 
-                    if (passwordField.attr('type') === 'password') {
-                        passwordField.attr('type', 'text');
-                        icon.removeClass('bi-eye-fill').addClass('bi-eye-slash-fill'); // Change icon to 'eye-slash'
-                    } else {
-                        passwordField.attr('type', 'password');
-                        icon.removeClass('bi-eye-slash-fill').addClass('bi-eye-fill'); // Change icon to 'eye'
-                    }
-                });
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.classList.remove('bi-eye-fill');
+                icon.classList.add('bi-eye-slash-fill'); // Change icon to 'eye-slash'
+            } else {
+                passwordField.type = 'password';
+                icon.classList.remove('bi-eye-slash-fill');
+                icon.classList.add('bi-eye-fill'); // Change icon to 'eye'
+            }
+        });
+
         document.addEventListener("DOMContentLoaded", function() {
             var autoLoadModal = new bootstrap.Modal(document.getElementById('autoLoadModal'), {
                 backdrop: 'static', // Prevent clicking outside the modal to close it
