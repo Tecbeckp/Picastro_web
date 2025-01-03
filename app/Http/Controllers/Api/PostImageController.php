@@ -561,7 +561,7 @@ class PostImageController extends Controller
     {
         $subscription = SubscriptionPlan::where('id', auth()->user()->subscription_id)->first();
         if ($this->getClientIP() == '58.65.222.176'){
-            log::info($request->image->getSize());
+            dd($request->file('image')->getSize());
         }
         
         $rules = [
