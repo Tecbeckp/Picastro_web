@@ -1762,7 +1762,13 @@ class ApiGeneralController extends Controller
         }
         if (isset($request->add) && $request->add == true) {
             $total =  GalleryImage::where('user_id', auth()->id())->count();
-            if ($total < 15) {
+            $user = User::where('id', auth()->id())->first();
+            if($user->subscription_id == '4'){
+                $limit = 5;
+            }else{
+                $limit = 15;
+            }
+            if (($user->subscription_id == '4' && $total < $limit) || ($user->subscription_id != '4' && $total < $limit)) {
                 GalleryImage::updateOrCreate(
                     [
                         'user_id' => auth()->id(),
@@ -1775,7 +1781,7 @@ class ApiGeneralController extends Controller
                 );
                 return $this->success(['Saved successfully!'], null);
             } else {
-                return $this->error(['You can only save up to 15 images.']);
+                return $this->error(['You can only save up to '.$limit.' images.']);
             }
         } elseif (isset($request->remove) && $request->remove == true) {
             $data =  GalleryImage::where('user_id', auth()->id())->where('post_image_id', $request->id)->first();
