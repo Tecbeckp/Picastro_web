@@ -665,8 +665,16 @@ class ApiGeneralController extends Controller
         $data['comment_character_length'] = 400;
         $data['rating_info_string'] = "Enter before the end of November and leave a review a random user will have the chance of winning a prize. To be decided but up to the value of £150.";
         $used_trial = User::where('id', $request->user_id)->whereIn('trial_period_status', ['0', '2'])->first();
+        $used_subscription = User::where('id', $request->user_id)->where('subscription_id', '4')->first();
         $subscription_plan = SubscriptionPlan::all();
-        $data['subscription_plan'] = $subscription_plan->map(function ($plan) use ($used_trial) {
+        $data['subscription_plan'] = $subscription_plan->map(function ($plan) use ($used_trial, $used_subscription) {
+            if ($used_trial && $plan->id == 1) {
+                $already_taken = true;
+            } elseif ($used_subscription && $plan->id == 4) {
+                $already_taken = true;
+            } else {
+                $already_taken = false;
+            }
             return [
                 'id' => $plan->id,
                 'plan_name' => $plan->plan_name,
@@ -679,7 +687,7 @@ class ApiGeneralController extends Controller
                 'post_limit' => $plan->post_limit,
                 'image_size_limit' => $plan->image_size_limit,
                 'created_at' => $plan->created_at,
-                'already_taken' => $used_trial && $plan->id == 1 ? true : false
+                'already_taken' =>  $already_taken
             ];
         });
 
