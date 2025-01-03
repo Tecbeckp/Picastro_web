@@ -61,18 +61,18 @@
                                                 <a href="{{ route('password.request') }}" class="text-muted">Forgot password?</a>
                                             @endif
                                             </div>
-                                            <label class="form-label" for="password-input">Password</label>
+                                            <label class="form-label" for="password">Password</label>
                                             <div class="position-relative auth-pass-inputgroup mb-3">
-                                                <input type="password" class="form-control pe-5 password-input @error('password') is-invalid @enderror" name="password" required autocomplete="current-password" placeholder="Enter password" id="password-input">
-                                                <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon material-shadow-none" type="button" id="password-addon"><i class="ri-eye-fill align-middle"></i></button>
+                                                <input type="password" class="form-control pe-5 password-input @error('password') is-invalid @enderror" name="password" required autocomplete="current-password" placeholder="Enter password" id="password">
+                                                <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon material-shadow-none" type="button" id="togglePassword"><i class="ri-eye-fill align-middle"></i></button>
                                                
                                             </div>
                                         </div>
 
-                                        <div class="form-check">
+                                        {{-- <div class="form-check">
                                             <input class="form-check-input" type="checkbox" value="" id="auth-remember-check" {{ old('remember') ? 'checked' : '' }}>
                                             <label class="form-check-label" for="auth-remember-check">Remember me</label>
-                                        </div>
+                                        </div> --}}
 
                                         <div class="mt-4">
                                             <button class="btn btn-danger w-100" type="submit">Sign In</button>
@@ -114,6 +114,20 @@
     <script src="assets/js/pages/particles.app.js"></script>
     <!-- password-addon init -->
     <script src="assets/js/pages/password-addon.init.js"></script>
+    <script>
+        $('#togglePassword').click(function () {
+                    var passwordField = $('#password');
+                    var icon = $(this).find('i');
+
+                    if (passwordField.attr('type') === 'password') {
+                        passwordField.attr('type', 'text');
+                        icon.removeClass('bi-eye-fill').addClass('bi-eye-slash-fill'); // Change icon to 'eye-slash'
+                    } else {
+                        passwordField.attr('type', 'password');
+                        icon.removeClass('bi-eye-slash-fill').addClass('bi-eye-fill'); // Change icon to 'eye'
+                    }
+                });
+    </script>
 </body>
 
 </html>
