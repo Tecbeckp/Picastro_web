@@ -73,7 +73,7 @@ class AuthController extends Controller
             } else {
                 $user_account_id = null;
             }
-            if($request->current_user_id){
+            if(isset($request->current_user_id)){
                 User::where('id', $request->current_user_id)->update([
                     'fcm_token' => null
                 ]);
