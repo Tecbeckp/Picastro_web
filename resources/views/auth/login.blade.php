@@ -1,13 +1,14 @@
 <!doctype html>
 
-<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable" data-theme="default" data-bs-theme="dark" data-theme-colors="default" >
+<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
+    data-sidebar-image="none" data-preloader="disable" data-theme="default" data-bs-theme="dark" data-theme-colors="default">
 
 <head>
 
     <meta charset="utf-8" />
     <title>Sign In | Picastro</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   
+
     @include('includes.style')
 
 </head>
@@ -23,11 +24,11 @@
                     <div class="col-lg-12">
                         <div class="text-center mt-sm-5 mb-4 text-white-50">
                             <div>
-                                <a href="{{url('/')}}" class="d-inline-block auth-logo">
-                                    <img src="{{asset('assets/images/picastro.png')}}" alt="" height="44">
+                                <a href="{{ url('/') }}" class="d-inline-block auth-logo">
+                                    <img src="{{ asset('assets/images/picastro.png') }}" alt="" height="44">
                                 </a>
                             </div>
-                            
+
                         </div>
                     </div>
                 </div>
@@ -47,25 +48,34 @@
                                         @csrf
                                         <div class="mb-3">
                                             <label for="email" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="email" placeholder="Enter your Email" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+                                            <input type="email" class="form-control" id="email"
+                                                placeholder="Enter your Email" name="email"
+                                                value="{{ old('email') }}" required autocomplete="email" autofocus>
                                             @error('email')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                        @enderror
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
                                         </div>
 
                                         <div class="mb-3">
                                             <div class="float-end">
-                                                @if (Route::has('password.request'))    
-                                                <a href="{{ route('password.request') }}" class="text-muted">Forgot password?</a>
-                                            @endif
+                                                @if (Route::has('password.request'))
+                                                    <a href="{{ route('password.request') }}" class="text-muted">Forgot
+                                                        password?</a>
+                                                @endif
                                             </div>
                                             <label class="form-label" for="password">Password</label>
                                             <div class="position-relative auth-pass-inputgroup mb-3">
-                                                <input type="password" class="form-control pe-5 password-input @error('password') is-invalid @enderror" name="password" required autocomplete="current-password" placeholder="Enter password" id="password">
-                                                <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon material-shadow-none" type="button" id="togglePassword"><i class="ri-eye-fill align-middle"></i></button>
-                                               
+                                                <input type="password"
+                                                    class="form-control pe-5 password-input @error('password') is-invalid @enderror"
+                                                    name="password" required autocomplete="current-password"
+                                                    placeholder="Enter password" id="password">
+                                                <button
+                                                    class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon material-shadow-none"
+                                                    type="button" id="togglePassword"><i
+                                                        class="ri-eye-fill align-middle"></i></button>
+
                                             </div>
                                         </div>
 
@@ -78,7 +88,7 @@
                                             <button class="btn btn-danger w-100" type="submit">Sign In</button>
                                         </div>
 
-                                        
+
                                     </form>
                                 </div>
                             </div>
@@ -86,7 +96,7 @@
                         </div>
                         <!-- end card -->
 
-                        
+
 
                     </div>
                 </div>
@@ -96,7 +106,7 @@
         </div>
         <!-- end auth page content -->
 
-        
+
     </div>
     <!-- end auth-page-wrapper -->
 
@@ -115,18 +125,20 @@
     <!-- password-addon init -->
     <script src="assets/js/pages/password-addon.init.js"></script>
     <script>
-        $('#togglePassword').click(function () {
-                    var passwordField = $('#password');
-                    var icon = $(this).find('i');
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            var passwordField = document.getElementById('password');
+            var icon = this.querySelector('i');
 
-                    if (passwordField.attr('type') === 'password') {
-                        passwordField.attr('type', 'text');
-                        icon.removeClass('bi-eye-fill').addClass('bi-eye-slash-fill'); // Change icon to 'eye-slash'
-                    } else {
-                        passwordField.attr('type', 'password');
-                        icon.removeClass('bi-eye-slash-fill').addClass('bi-eye-fill'); // Change icon to 'eye'
-                    }
-                });
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.classList.remove('bi-eye-fill');
+                icon.classList.add('bi-eye-slash-fill'); // Change icon to 'eye-slash'
+            } else {
+                passwordField.type = 'password';
+                icon.classList.remove('bi-eye-slash-fill');
+                icon.classList.add('bi-eye-fill'); // Change icon to 'eye'
+            }
+        });
     </script>
 </body>
 
