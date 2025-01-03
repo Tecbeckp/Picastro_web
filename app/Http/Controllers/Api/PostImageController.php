@@ -560,11 +560,7 @@ class PostImageController extends Controller
     public function store(Request $request)
     {
         $subscription = SubscriptionPlan::where('id', auth()->user()->subscription_id)->first();
-        if ($this->getClientIP() == '58.65.222.176'){
-            log::info($request->file('image')->getSize());
-            dd($request->file('image')->getSize());
-        }
-        
+
         $rules = [
             'description'           => 'required',
             'object_type'           => 'required_if:only_image_and_description,false',
