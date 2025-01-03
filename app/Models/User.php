@@ -30,7 +30,8 @@ class User extends Authenticatable
         'is_registration',
         'gift_subscription',
         'subscription_id',
-        'user_account_id'
+        'user_account_id',
+        'subscription'
     ];
 
     /**
