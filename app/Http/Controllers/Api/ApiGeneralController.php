@@ -683,6 +683,8 @@ class ApiGeneralController extends Controller
         $data['app_under_maintenance'] = Setting::where('id', '1')->first()->maintenance;
         if($request->platform_type == 'ios'){
             $data['enable_plan'] = true;
+        }elseif($request->platform_type == 'android'){
+            $data['enable_plan'] = true;
         }else{
             $data['enable_plan'] = true;
         }
