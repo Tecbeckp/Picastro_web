@@ -614,7 +614,7 @@ class PostImageController extends Controller
         if ($subscription && $subscription->post_limit != 0 && $postlimit >= $subscription->post_limit) {
             return $this->error(["You can't upload post images as your " . $subscription->plan_name . " subscription limit of " . $subscription->post_limit . " images has been exceeded."]);
         }
-        if ($request->add_startcard == true && $subscription && $subscription->id == 4 && $starCardLimit >= 5) {
+        if ($request->add_startcard == 'true' && $subscription && $subscription->id == 4 && $starCardLimit >= 5) {
             return $this->error(["You can't add starCard as your " . $subscription->plan_name . " subscription limit of 5 starCard has been exceeded."]);
         }
         try {
