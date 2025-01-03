@@ -100,8 +100,8 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        
-        .main-content-app{
+
+        .main-content-app {
             max-width: 100%;
         }
     </style>
@@ -131,7 +131,8 @@
                         <div class="col-6 col-sm-6" style="padding-bottom: 7px !important;">
                             <div class="card small-card mb-0">
                                 <div class="card-body p-0">
-                                    <img src="{{ $item['original_image'] }}" alt="Space Image" class="spaceImg" style="height: auto !important;">
+                                    <img src="{{ $item['original_image'] }}" alt="Space Image" class="spaceImg"
+                                        style="height: auto !important;">
                                     <div class="card-footer">
                                         @if ($item['post_image_title'])
                                             <p class="mb-0">{{ $item['post_image_title'] }}
@@ -161,60 +162,81 @@
 
 
     </div>
-<div class="modal fade" id="autoLoadModal" tabindex="-1" aria-labelledby="autoLoadModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form id="autoLoadForm" method="POST" action="">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title" id="autoLoadModalLabel">Enter Password</h5>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="hidden" value="{{$user->userprofile->gallery_password}}" id="current_password" />
-                        <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required>
-                        @error('password')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
+    <div class="modal fade" id="autoLoadModal" tabindex="-1" aria-labelledby="autoLoadModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="autoLoadForm" method="POST" action="">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="autoLoadModalLabel">Enter Password</h5>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </div>
-            </form>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <input type="hidden" value="{{ $user->userprofile->gallery_password }}"
+                            id="current_password" />
+                            <label class="form-label" for="password">Password</label>
+                            <div class="position-relative auth-pass-inputgroup mb-3">
+                                <input type="password"
+                                    class="form-control pe-5 password-input @error('password') is-invalid @enderror"
+                                    name="password" required placeholder="Enter password" id="password">
+                                <button
+                                    class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon material-shadow-none"
+                                    type="button" id="togglePassword"><i class="ri-eye-fill align-middle"></i></button>
+
+                            </div>
+                            {{-- <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                id="password" name="password" required> --}}
+                            @error('password')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
     @include('includes.script')
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var autoLoadModal = new bootstrap.Modal(document.getElementById('autoLoadModal'), {
-            backdrop: 'static', // Prevent clicking outside the modal to close it
-            keyboard: false     // Disable closing with the Esc key
-        });
-        autoLoadModal.show();
-        document.getElementById('autoLoadForm').addEventListener('submit', function (event) {
-            event.preventDefault(); // Prevent default form submission
+    <script>
+        $('#togglePassword').click(function () {
+                    var passwordField = $('#password');
+                    var icon = $(this).find('i');
 
-            const passwordInput = document.getElementById('password').value;
-            const currentPassword = document.getElementById('current_password').value;
-            
-            // Replace this with actual password validation logic
-            if (passwordInput == currentPassword) {
-                autoLoadModal.hide(); // Close the modal
-                document.body.classList.remove('modal-open'); // Removes blur
-                document.querySelector('.main-content-app').style.filter = 'none';
-            } else {
-                alert("Invalid password. Please try again.");
-            }
+                    if (passwordField.attr('type') === 'password') {
+                        passwordField.attr('type', 'text');
+                        icon.removeClass('bi-eye-fill').addClass('bi-eye-slash-fill'); // Change icon to 'eye-slash'
+                    } else {
+                        passwordField.attr('type', 'password');
+                        icon.removeClass('bi-eye-slash-fill').addClass('bi-eye-fill'); // Change icon to 'eye'
+                    }
+                });
+        document.addEventListener("DOMContentLoaded", function() {
+            var autoLoadModal = new bootstrap.Modal(document.getElementById('autoLoadModal'), {
+                backdrop: 'static', // Prevent clicking outside the modal to close it
+                keyboard: false // Disable closing with the Esc key
+            });
+            autoLoadModal.show();
+            document.getElementById('autoLoadForm').addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                const passwordInput = document.getElementById('password').value;
+                const currentPassword = document.getElementById('current_password').value;
+
+                // Replace this with actual password validation logic
+                if (passwordInput == currentPassword) {
+                    autoLoadModal.hide(); // Close the modal
+                    document.body.classList.remove('modal-open'); // Removes blur
+                    document.querySelector('.main-content-app').style.filter = 'none';
+                } else {
+                    alert("Invalid password. Please try again.");
+                }
+            });
         });
-    });
-    
-    
-</script>
+    </script>
 
 
 </body>
