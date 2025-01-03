@@ -1212,9 +1212,10 @@ class ApiGeneralController extends Controller
                     ]);
                 }
                 $user->update([
-                    'subscription_id'   => "$request->plan_id",
-                    'subscription'      => '1'
+                    'subscription' => '1',
+                    'subscription_id' => "$request->plan_id"
                 ]);
+                
                 SubscriptionHistory::create([
                     'user_id' => auth()->id(),
                     'subscription_id' => $request->plan_id
@@ -1778,6 +1779,7 @@ class ApiGeneralController extends Controller
         }
         if (isset($request->add) && $request->add == true) {
             $total =  GalleryImage::where('user_id', auth()->id())->count();
+            // $subscription =User::where('id', auth()->id())->first();
             if ($total < 15) {
                 GalleryImage::updateOrCreate(
                     [
