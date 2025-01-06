@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\GiveStar;
+use App\Models\Notification;
+use App\Models\NotificationSetting;
 use App\Models\PostComment;
 use App\Models\PostImage;
 use App\Models\VoteImage;
@@ -137,6 +139,34 @@ class ImageOfTheWeek extends Command
                 'total'   =>  $rankedPost['total'],
                 'place'   =>  $rankedPost['rank']
             ]);
+
+            if($rankedPost['rank'] == 1){
+                $place = 'first';
+            }elseif($rankedPost['rank'] == 2){
+                $place = 'second';
+            }else{
+                $place = 'third';
+            }
+            $post = PostImage::with('user')->where('id', $rankedPost['post_image_id'])->first();
+            if ($post) {
+                $user_notification_setting = NotificationSetting::where('user_id', $post->user_id)->first();
+                $notification = new Notification();
+                $notification->user_id = $post->user_id;
+                $notification->type    = 'Posts';
+                $notification->post_image_id    = $rankedPost['post_image_id'];
+                $notification->notification = 'Your incredible post has secured '.$place.' Place in the Image of the Week';
+                $notification->save();
+    
+                $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
+                if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->post == true)) {
+                    $this->notificationService->sendNotification(
+                        'Posts',
+                        'Your incredible post has secured '.$place.' Place in the Image of the Week',
+                        $post->user->fcm_token,
+                        json_encode($getnotification)
+                    );
+                }
+            }
         }
     }
 }
