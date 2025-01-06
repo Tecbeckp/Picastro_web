@@ -99,26 +99,26 @@ class PostImage extends Model
     }
 
 
-    // public function getImageAttribute($image){
-    //     if ($image) {
-    //         $img = [];
-    //         foreach (json_decode($image) as $key => $value) {
-    //            $img[] = asset($value);
-    //         }
-    //         return $img;
-    //     }else{
-    //         return '';
-    //     }
-    // }
-    public function getImageAttribute($image)
-    {
+    public function getImageAttribute($image){
         if ($image) {
-            $img = asset($image);
+            $img = [];
+            foreach (json_decode($image) as $key => $value) {
+               $img[] = asset($value);
+            }
             return $img;
-        } else {
+        }else{
             return '';
         }
     }
+    // public function getImageAttribute($image)
+    // {
+    //     if ($image) {
+    //         $img = asset($image);
+    //         return $img;
+    //     } else {
+    //         return '';
+    //     }
+    // }
     public function getOnlyImageAndDescriptionAttribute($only_image_and_description)
     {
         if ($only_image_and_description == '0') {
