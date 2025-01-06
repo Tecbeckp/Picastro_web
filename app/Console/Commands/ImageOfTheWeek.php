@@ -9,6 +9,7 @@ use App\Models\PostComment;
 use App\Models\PostImage;
 use App\Models\VoteImage;
 use App\Models\WeekOfTheImage;
+use App\Services\NotificationService;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +30,12 @@ class ImageOfTheWeek extends Command
      */
     protected $description = 'Command description';
 
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * Execute the console command.
      */
