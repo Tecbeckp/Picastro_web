@@ -250,7 +250,7 @@ class PostImageController extends Controller
                 $currentPage,
                 ['path' => LengthAwarePaginator::resolveCurrentPath()]
             );
-            
+
             $trophies = Trophy::select('id', 'name', 'icon')->get();
 
             $paginatedPosts->getCollection()->transform(function ($post) use ($trophies) {
@@ -560,7 +560,7 @@ class PostImageController extends Controller
     public function store(Request $request)
     {
         $subscription = SubscriptionPlan::where('id', auth()->user()->subscription_id)->first();
-        
+
         $rules = [
             'description'           => 'required',
             'object_type'           => 'required_if:only_image_and_description,false',
@@ -605,12 +605,13 @@ class PostImageController extends Controller
             return $this->error($validator->errors()->all());
         }
         $postlimit = PostImage::where('user_id', auth()->id())->count();
-        $starCardLimit = StarCard::where('user_id', auth()->id())->count();
+        $starCardLimit = StarCard::whereHas('post', function ($q) {
+            $q->whereNull('deleted_at');
+        })->where('user_id', auth()->id())->count();
 
         if ($subscription && $subscription->post_limit != 0 && $postlimit >= $subscription->post_limit) {
             return $this->error(["You can't upload post images as your " . $subscription->plan_name . " subscription limit of " . $subscription->post_limit . " images has been exceeded."]);
         }
-        log::info($request->add_startcard);
         if ($request->add_startcard == 'true' && $subscription && $subscription->id == 4 && $starCardLimit >= 5) {
             return $this->error(["You can't add starCard as your " . $subscription->plan_name . " subscription limit of 5 starCard has been exceeded."]);
         }

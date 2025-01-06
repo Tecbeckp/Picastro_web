@@ -21,4 +21,8 @@ class StarCard extends Model
     {
         return $this->belongsTo(MainSetup::class, 'setup', 'id');
     }
+    public function post()
+    {
+        return $this->belongsTo(PostImage::class, 'post_image_id', 'id');
+    }
 }
