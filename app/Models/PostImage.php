@@ -99,17 +99,24 @@ class PostImage extends Model
     }
 
 
-    public function getImageAttribute($image){
+    public function getImageAttribute($image)
+    {
         if ($image) {
-            $img = [];
-            foreach (json_decode($image) as $key => $value) {
-               $img[] = asset($value);
+            $decodedImage = json_decode($image, true); // Decode as an array
+            if (is_array($decodedImage)) {
+                $img = [];
+                foreach ($decodedImage as $value) {
+                    $img[] = asset($value);
+                }
+                return $img;
+            } else {
+                $img = asset($image);
+                return $img;
             }
-            return $img;
-        }else{
-            return '';
         }
+        return '';
     }
+
     // public function getImageAttribute($image)
     // {
     //     if ($image) {
