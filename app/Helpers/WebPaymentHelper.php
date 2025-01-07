@@ -202,7 +202,7 @@ class WebPaymentHelper
             ->post($this->url . '/v1/billing/plans', [
                 'product_id' => $productId,
                 'name' => $name . ' Subscription Plan',
-                'description' => 'Video Streaming Service basic plan',
+                'description' => 'Picastro Subscription plan',
                 'status' => 'ACTIVE',
                 'billing_cycles' => [
                     [
