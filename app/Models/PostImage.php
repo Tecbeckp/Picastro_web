@@ -103,14 +103,14 @@ class PostImage extends Model
     {
         if ($image) {
             $decodedImage = json_decode($image, true); // Decode as an array
+            $img = [];
             if (is_array($decodedImage)) {
-                $img = [];
                 foreach ($decodedImage as $value) {
                     $img[] = asset($value);
                 }
                 return $img;
             } else {
-                $img = asset($image);
+                $img[] = asset($image);
                 return $img;
             }
         }
