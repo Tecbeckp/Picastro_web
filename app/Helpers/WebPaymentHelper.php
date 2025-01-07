@@ -38,8 +38,8 @@ class WebPaymentHelper
     public function __construct()
     {
         $mode = config('paypal.mode');
-        $this->clientId = config('paypal.'.$mode.'.client_id');
-        $this->clientSecret = config('paypal.'.$mode.'.client_secret');
+        $this->clientId = config('paypal.' . $mode . '.client_id');
+        $this->clientSecret = config('paypal.' . $mode . '.client_secret');
         // $this->clientId ='Aa-RpUcXng02PEDCCRTTGjhQa0vOwlFzR0FRa1XaHPphJIenNM8Ev3G-TyoEvOc-Mh4xaMNrdJ52-yR-';
         // $this->clientSecret ='EO0kul6ha8gTby8AAAb6lSq5ajIPrAdMgR9xI7ZV3i1I9NfYFvMy8s-lrvBnFTQqZhkzrpsZbiNKZv3d';
 
@@ -48,8 +48,6 @@ class WebPaymentHelper
         if (config('paypal.mode') == "live") {
             $this->url = "https://api-m.paypal.com";
         }
-
-
     }
 
     /**
@@ -65,7 +63,6 @@ class WebPaymentHelper
         $due_payment = DuePayments::query()->where('payment_id', $due_payment_id)->first();
         if (empty($due_payment)) {
             throw new \Exception("Due Payment doesn't exists");
-
         }
         $token = $this->paypalToken();
 
@@ -104,7 +101,7 @@ class WebPaymentHelper
                 ],
             ]);
 
-// Handle the response
+        // Handle the response
         $resdata = ($response->json());
         Log::debug("{{{}{{}{}{}{}Paypal Start{}{}{}{}{}}}");
         Log::debug(json_encode($resdata));
@@ -143,7 +140,6 @@ class WebPaymentHelper
             return $responseData['access_token'];
         }
         throw new \Exception($response->body());
-
     }
 
     public function executePayment($token)
@@ -167,7 +163,6 @@ class WebPaymentHelper
 
         curl_close($ch);
         return json_decode($response);
-
     }
 
     /**
@@ -195,7 +190,7 @@ class WebPaymentHelper
         return $response->json()['id'];
     }
 
-    public function createPlan($productId, $name, $subscriptionPrice,$planCycle= "YEAR")
+    public function createPlan($productId, $name, $subscriptionPrice, $planCycle = "YEAR")
     {
         $access_token = $this->paypalToken();
         $response = Http::withToken($access_token)
@@ -212,8 +207,8 @@ class WebPaymentHelper
                 'billing_cycles' => [
                     [
                         'frequency' => [
-                            'interval_unit' => $planCycle,
-                            'interval_count' => 1,
+                            "interval_unit" => "MONTH",
+                            "interval_count" => 6
                         ],
                         'tenure_type' => 'REGULAR',
                         'sequence' => 1,
@@ -232,7 +227,7 @@ class WebPaymentHelper
                 ],
             ]);
 
-// To view the response
+        // To view the response
         return $response->json()['id'];
     }
 
@@ -261,7 +256,7 @@ class WebPaymentHelper
             ]);
 
 
-// To view the response
+        // To view the response
         return $response->json();
     }
 
@@ -269,53 +264,53 @@ class WebPaymentHelper
      * @return WebPaymentHelper $this
      * @throws \Exception
      */
-        public function subscribeToPlan($planId,$id,$plan_id)
-        {
-            if (empty($planId)) {
-                throw  new \Exception("Plan Is required");
-            }
-            $subscriber = User::where('id',$id)->first();
-            $token = $this->paypalToken();
-            $response = Http::withToken($token)->withHeaders([
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-                'Prefer' => 'return=representation',
-            ])->post($this->url . '/v1/billing/subscriptions', [
-                "plan_id" => $planId,
-                "quantity" => "1",
-                // "shipping_amount" => [
-                // "currency_code" => "GBP",
-                // "value" => $setupfee
-                // ],
-                "subscriber" => [
-                    "name" => [
-                        "given_name" => $subscriber->first_name,
-                        "surname" => $subscriber->last_name
-                    ],
-                    "email_address" => $subscriber->email,
-                ],
-                "application_context" => [
-                    "brand_name" => "Picastro",
-                    "locale" => "en-US",
-                    "user_action" => "SUBSCRIBE_NOW",
-                    "payment_method" => [
-                        "payer_selected" => "PAYPAL",
-                        "payee_preferred" => "IMMEDIATE_PAYMENT_REQUIRED"
-                    ],
-                    "return_url" => url('paypal-subscribed/'.$id.'/'.$plan_id),
-                    "cancel_url" => url('paypal-subscription-cancel/'.$id)
-                ]
-            ]);
-
-            if ($response->successful()) {
-                // Handle successful response
-                $this->subscription_response = $response->json();
-            } else {
-                // Handle failed request
-                $this->subscription_response = $response->json();
-            }
-            return $this;
+    public function subscribeToPlan($planId, $id, $plan_id)
+    {
+        if (empty($planId)) {
+            throw  new \Exception("Plan Is required");
         }
+        $subscriber = User::where('id', $id)->first();
+        $token = $this->paypalToken();
+        $response = Http::withToken($token)->withHeaders([
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+            'Prefer' => 'return=representation',
+        ])->post($this->url . '/v1/billing/subscriptions', [
+            "plan_id" => $planId,
+            "quantity" => "1",
+            // "shipping_amount" => [
+            // "currency_code" => "GBP",
+            // "value" => $setupfee
+            // ],
+            "subscriber" => [
+                "name" => [
+                    "given_name" => $subscriber->first_name,
+                    "surname" => $subscriber->last_name
+                ],
+                "email_address" => $subscriber->email,
+            ],
+            "application_context" => [
+                "brand_name" => "Picastro",
+                "locale" => "en-US",
+                "user_action" => "SUBSCRIBE_NOW",
+                "payment_method" => [
+                    "payer_selected" => "PAYPAL",
+                    "payee_preferred" => "IMMEDIATE_PAYMENT_REQUIRED"
+                ],
+                "return_url" => url('paypal-subscribed/' . $id . '/' . $plan_id),
+                "cancel_url" => url('paypal-subscription-cancel/' . $id)
+            ]
+        ]);
+
+        if ($response->successful()) {
+            // Handle successful response
+            $this->subscription_response = $response->json();
+        } else {
+            // Handle failed request
+            $this->subscription_response = $response->json();
+        }
+        return $this;
+    }
 
     public function getSubscriptionResponse()
     {
