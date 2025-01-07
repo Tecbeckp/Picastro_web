@@ -580,8 +580,8 @@ class PostImageController extends Controller
         $subscription = SubscriptionPlan::where('id', auth()->user()->subscription_id)->first();
         if ($subscription) {
             $size_limit = $subscription->image_size_limit * 1024;
-            $rules['image'] = 'array|max:3';
-            $rules['image.*'] = 'required|mimes:webp,tif,jpg,jpeg,png|max:' . $size_limit;
+            // $rules['image'] = 'array|max:3';
+            $rules['image'] = 'required|mimes:webp,tif,jpg,jpeg,png|max:' . $size_limit;
         }
         if ($request->only_image_and_description == 'false') {
 
@@ -622,15 +622,15 @@ class PostImageController extends Controller
             return $this->error(["You can't add starCard as your " . $subscription->plan_name . " subscription limit of 5 starCard has been exceeded."]);
         }
         try {
-            $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', true);
-            $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/', false, true);
+            $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', false);
+            $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/', false, false);
 
             $postImage                        = new PostImage();
             $postImage->user_id               = auth()->id();
-            // $postImage->original_image        = $originalImageName;
-            $postImage->original_image        = json_encode($originalImageName);
-            // $postImage->image                 = $imageName;
-            $postImage->image                 = json_encode($imageName);
+            $postImage->original_image        = $originalImageName;
+            // $postImage->original_image        = json_encode($originalImageName);
+            $postImage->image                 = $imageName;
+            // $postImage->image                 = json_encode($imageName);
             $postImage->description           = $request->description;
             if ($request->only_image_and_description == 'false') {
 
