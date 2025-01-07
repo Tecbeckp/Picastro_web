@@ -387,7 +387,7 @@ class ApiGeneralController extends Controller
                 $notification->post_image_id    = $res['post_image_id'];
                 $notification->notification = 'Your stunning post has been crowned Image of the Month';
                 $notification->save();
-    
+
                 $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
                 if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->post == true)) {
                     $this->notificationService->sendNotification(
@@ -681,11 +681,11 @@ class ApiGeneralController extends Controller
         $data['android_screenshot'] = IsRegistration::first()->android_screenshot;
         $data['trial_period'] = TrialPeriod::first();
         $data['app_under_maintenance'] = Setting::where('id', '1')->first()->maintenance;
-        if($request->platform_type == 'ios'){
+        if ($request->platform_type == 'ios') {
             $data['enable_plan'] = true;
-        }elseif($request->platform_type == 'android'){
+        } elseif ($request->platform_type == 'android') {
             $data['enable_plan'] = true;
-        }else{
+        } else {
             $data['enable_plan'] = true;
         }
         $data['comment_character_length'] = 400;
@@ -696,7 +696,7 @@ class ApiGeneralController extends Controller
         $data['subscription_plan'] = $subscription_plan->map(function ($plan) use ($used_trial, $used_subscription) {
             if ($used_trial && $plan->id == 1) {
                 $already_taken = true;
-            }elseif($used_subscription && $plan->id == $used_subscription->subscription_id){
+            } elseif ($used_subscription && $plan->id == $used_subscription->subscription_id) {
                 $already_taken = true;
             } else {
                 $already_taken = false;
@@ -1790,9 +1790,9 @@ class ApiGeneralController extends Controller
         if (isset($request->add) && $request->add == true) {
             $total =  GalleryImage::where('user_id', auth()->id())->count();
             $user = User::where('id', auth()->id())->first();
-            if($user->subscription_id == '4'){
+            if ($user->subscription_id == '4') {
                 $limit = 5;
-            }else{
+            } else {
                 $limit = 15;
             }
             if (($user->subscription_id == '4' && $total < $limit) || ($user->subscription_id != '4' && $total < $limit)) {
@@ -1808,7 +1808,7 @@ class ApiGeneralController extends Controller
                 );
                 return $this->success(['Saved successfully!'], null);
             } else {
-                return $this->error(['You can only save up to '.$limit.' images.']);
+                return $this->error(['You can only save up to ' . $limit . ' images.']);
             }
         } elseif (isset($request->remove) && $request->remove == true) {
             $data =  GalleryImage::where('user_id', auth()->id())->where('post_image_id', $request->id)->first();

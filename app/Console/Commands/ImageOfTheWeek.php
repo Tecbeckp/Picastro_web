@@ -30,6 +30,12 @@ class ImageOfTheWeek extends Command
      */
     protected $description = 'Command description';
 
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * Execute the console command.
      */
@@ -148,11 +154,11 @@ class ImageOfTheWeek extends Command
                 'place'   =>  $rankedPost['rank']
             ]);
 
-            if ($rankedPost['rank'] == 1) {
+            if($rankedPost['rank'] == 1){
                 $place = 'first';
-            } elseif ($rankedPost['rank'] == 2) {
+            }elseif($rankedPost['rank'] == 2){
                 $place = 'second';
-            } else {
+            }else{
                 $place = 'third';
             }
             $post = PostImage::with('user')->where('id', $rankedPost['post_image_id'])->first();
@@ -162,14 +168,14 @@ class ImageOfTheWeek extends Command
                 $notification->user_id = $post->user_id;
                 $notification->type    = 'Posts';
                 $notification->post_image_id    = $rankedPost['post_image_id'];
-                $notification->notification = 'Your incredible post has secured ' . $place . ' Place in the Image of the Week';
+                $notification->notification = 'Your incredible post has secured '.$place.' Place in the Image of the Week';
                 $notification->save();
-
+    
                 $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
                 if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->post == true)) {
                     $this->notificationService->sendNotification(
                         'Posts',
-                        'Your incredible post has secured ' . $place . ' Place in the Image of the Week',
+                        'Your incredible post has secured '.$place.' Place in the Image of the Week',
                         $post->user->fcm_token,
                         json_encode($getnotification)
                     );
