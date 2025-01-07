@@ -110,6 +110,7 @@ class PostImageController extends Controller
                     'username'       => $post->user->username,
                     'profile_image'  => $post->user->userprofile->profile_image,
                     'fcm_token'      => $post->user->fcm_token,
+                    'subscription_id' => $post->user->subscription_id
                 ]
             ];
         });
@@ -294,6 +295,7 @@ class PostImageController extends Controller
                         'username'       => $post->user ? $post->user->username : null,
                         'profile_image'  => $post->user && $post->user->userprofile ? $post->user->userprofile->profile_image : null,
                         'fcm_token'      => $post->user ? $post->user->fcm_token : null,
+                        'subscription_id' => $post->user ? $post->user->subscription_id : null
                     ]
                 ];
             });
@@ -397,6 +399,7 @@ class PostImageController extends Controller
                     'username'       => $post->user->username,
                     'profile_image'  => $post->user->userprofile->profile_image,
                     'fcm_token'      => $post->user->fcm_token,
+                    'subscription_id' => $post->user->subscription_id
                 ]
             ];
         });
@@ -453,6 +456,7 @@ class PostImageController extends Controller
                     'username'       => $post->postImage->user->username,
                     'profile_image'  => $post->postImage->user->userprofile->profile_image,
                     'fcm_token'      => $post->postImage->user->fcm_token,
+                    'subscription_id' => $post->postImage->user->subscription_id
                 ]
             ];
         });
@@ -540,6 +544,7 @@ class PostImageController extends Controller
                         'username'       => $post->user->username,
                         'profile_image'  => $post->user->userprofile->profile_image,
                         'fcm_token'      => $post->user->fcm_token,
+                        'subscription_id' => $post->user->subscription_id
                     ]
                 ];
             })
