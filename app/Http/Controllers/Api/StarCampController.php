@@ -43,14 +43,16 @@ class StarCampController extends Controller
                 'last_name'     => $member->follower->last_name,
                 'username'      => $member->follower->username,
                 'profile_image' => $member->follower->userprofile->profile_image,
-                'fcm_token'     => $member->follower->fcm_token
+                'fcm_token'     => $member->follower->fcm_token,
+                'subscription_id' => $member->follower->subscription_id
             ] : [
                 'id'            => $member->following->id,
                 'first_name'    => $member->following->first_name,
                 'last_name'     => $member->following->last_name,
                 'username'      => $member->following->username,
                 'profile_image' => $member->following->userprofile->profile_image,
-                'fcm_token'     => $member->following->fcm_token
+                'fcm_token'     => $member->following->fcm_token,
+                'subscription_id' => $member->following->subscription_id
             ];
         })->unique()->values()->toArray();
 
@@ -87,14 +89,16 @@ class StarCampController extends Controller
                     'last_name'     => $member->follower ? $member->follower->last_name : null,
                     'username'      => $member->follower ? $member->follower->username : null,
                     'profile_image' => $member->follower ? $member->follower->userprofile->profile_image : null,
-                    'fcm_token'     => $member->follower ? $member->follower->fcm_token : null
+                    'fcm_token'     => $member->follower ? $member->follower->fcm_token : null,
+                    'subscription_id' => $member->follower ? $member->follower->subscription_id : null
                 ] : [
                     'id'            => $member->following ? $member->following->id  : null,
                     'first_name'    => $member->following ? $member->following->first_name  : null,
                     'last_name'     => $member->following ? $member->following->last_name  : null,
                     'username'      => $member->following ? $member->following->username  : null,
                     'profile_image' => $member->following ? $member->following->userprofile->profile_image  : null,
-                    'fcm_token'     => $member->following ? $member->following->fcm_token : null
+                    'fcm_token'     => $member->following ? $member->following->fcm_token : null,
+                    'subscription_id' => $member->following ? $member->following->subscription_id : null
                 ];
             })->unique()->values()->toArray();
         
