@@ -942,9 +942,11 @@ class PostImageController extends Controller
         foreach ($newImages as $newImage) {
             // Try to replace deleted image at the index where it was null
             if (($key = array_search(null, $filesArray)) !== false) {
-                $filesArray[$key] = str_replace($baseUrl, '', $newImage); // Add new image at deleted index
+                // Add new image at deleted index without the base URL
+                $filesArray[$key] = str_replace($baseUrl, '', $newImage);
             } else {
-                $filesArray[] = str_replace($baseUrl, '', $newImage); // Add new image if no slots are free
+                // Add new image if no slots are free
+                $filesArray[] = str_replace($baseUrl, '', $newImage); // Remove base URL
             }
         }
 
@@ -959,23 +961,13 @@ class PostImageController extends Controller
         foreach ($newOriginalImages as $newOriginalImage) {
             // Try to replace deleted original image at the index where it was null
             if (($key = array_search(null, $filesOriginalArray)) !== false) {
-                $filesOriginalArray[$key] = $newOriginalImage; // Add new original image at deleted index
+                // Add new original image at deleted index without the base URL
+                $filesOriginalArray[$key] = str_replace($baseUrl, '', $newOriginalImage);
             } else {
-                $filesOriginalArray[] = $newOriginalImage; // Add new original image if no slots are free
+                // Add new original image if no slots are free
+                $filesOriginalArray[] = str_replace($baseUrl, '', $newOriginalImage); // Remove base URL
             }
         }
-
-        // Prepare final data to save
-        $data = [
-            'object_type_id'        => $request->object_type,
-            'bortle_id'             => $request->bortle_number,
-            'observer_location_id'  => $request->observer_location,
-            'approx_lunar_phase_id' => $request->approx_lunar_phase,
-            'telescope_id'          => $request->telescope,
-            'description'           => $request->description,
-            'original_image'        => json_encode($filesArray),
-            'image'                 => json_encode($filesOriginalArray),
-        ];
 
 
         $tableName = 'post_images';
@@ -1024,8 +1016,8 @@ class PostImageController extends Controller
                 'approx_lunar_phase_id' => $request->approx_lunar_phase,
                 'telescope_id'          => $request->telescope,
                 'description'           => $request->description,
-                'original_image'        => json_encode($filesArray),
-                'image'                 => json_encode($filesOriginalArray),
+                'original_image'        => json_encode($filesOriginalArray),
+                'image'                 => json_encode($filesArray),
 
             ];
             if ($request->only_image_and_description == 'false') {
