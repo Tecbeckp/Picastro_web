@@ -915,6 +915,7 @@ class PostImageController extends Controller
 
         $deletedImagesPaths = $request->input('delete_image', '');
         $deletedOriginalImagesPaths = $request->input('delete_original_image', '');
+        dd($deletedImagesPaths, $deletedOriginalImagesPaths);
         $deletedImagesArray = explode(',', $deletedImagesPaths);
         $deletedOriginalImagesArray = explode(',', $deletedOriginalImagesPaths);
         log::info($deletedImagesArray, $deletedOriginalImagesArray);
