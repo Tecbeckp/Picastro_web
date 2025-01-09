@@ -915,40 +915,48 @@ class PostImageController extends Controller
 
         $deletedImagesPaths = $request->input('delete_image', '');
         $deletedOriginalImagesPaths = $request->input('delete_original_image', '');
-        
+        $newImages = $request->input('new_images', []); // Array of new images
+        $newOriginalImages = $request->input('new_original_images', []); // Array of new original images
+
         $deletedImagesArray = explode(',', $deletedImagesPaths);
         $deletedOriginalImagesArray = explode(',', $deletedOriginalImagesPaths);
         $filesArray = $post->image;
         $filesOriginalArray = $post->original_image;
         $baseUrl = 'https://picastro.beckapps.co/public/';
-        
-        // Mark deleted images in $filesArray
+
+        // Mark deleted images in $filesArray and prepare for new images
         foreach ($deletedImagesArray as $deletedImagePath) {
-            Log::info('Deleting:', [$deletedImagePath, $filesArray]);
+            Log::info('Deleting Image:', [$deletedImagePath, $filesArray]);
             if (($key = array_search($deletedImagePath, $filesArray)) !== false) {
                 $filesArray[$key] = null; // Mark as deleted
             }
         }
-        
-        // Update the paths to remove the base URL but preserve indices
-        $filesArray = array_map(function ($file) use ($baseUrl) {
-            if ($file !== null) {
-                return str_replace($baseUrl, '', $file);
+
+        // Replace deleted images with new images
+        foreach ($newImages as $index => $newImage) {
+            if (($key = array_search(null, $filesArray)) !== false) {
+                $filesArray[$key] = str_replace($baseUrl, '', $newImage); // Add new image at deleted index
+            } else {
+                $filesArray[] = str_replace($baseUrl, '', $newImage); // Add new image if no slots are free
             }
-            return null; // Preserve the deleted marker
-        }, $filesArray);
-        
-        // Mark deleted original images in $filesOriginalArray
+        }
+
+        // Process deleted original images
         foreach ($deletedOriginalImagesArray as $deletedOriginalImagePath) {
             if (($key = array_search($deletedOriginalImagePath, $filesOriginalArray)) !== false) {
                 $filesOriginalArray[$key] = null; // Mark as deleted
             }
         }
-        
-        // Preserve indices in the original images array
-        $filesOriginalArray = array_map(function ($originalfile) {
-            return $originalfile !== null ? $originalfile : null; // Keep indices consistent
-        }, $filesOriginalArray);
+
+        // Replace deleted original images with new original images
+        foreach ($newOriginalImages as $index => $newOriginalImage) {
+            if (($key = array_search(null, $filesOriginalArray)) !== false) {
+                $filesOriginalArray[$key] = $newOriginalImage; // Add new original image at deleted index
+            } else {
+                $filesOriginalArray[] = $newOriginalImage; // Add new original image if no slots are free
+            }
+        }
+
 
         if ($request->hasFile('image')) {
             $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', true);
