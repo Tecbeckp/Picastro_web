@@ -933,7 +933,7 @@ class PostImageController extends Controller
         $id = $request->id;
         $post = PostImage::where('user_id', auth()->id())->where('id', $id)->first();
 
-       
+
         $tableName = 'post_images';
         $uniqueId = $id; // Replace with the actual unique ID or value
 
@@ -976,26 +976,21 @@ class PostImageController extends Controller
             $images = [];
             $originalImages = [];
 
-            if ($request->hasFile('image')) {
-                $images[] = $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', true);
-                $originalImages[] = $this->originalImageUpload($request->file('image'), 'images/', false, true);
-            }
+            $image = json_decode($post->image, true); // Decode previous image array
+            $originalImage = json_decode($post->original_image, true); // Decode previous original image array
 
-            if ($request->hasFile('image_2')) {
-                $images[] = $this->imageUpload($request->file('image_2'), 'assets/uploads/postimage/', true);
-                $originalImages[] = $this->originalImageUpload($request->file('image_2'), 'images/', false, true);
+            $indices = ['image', 'image_2', 'image_3'];
+            foreach ($indices as $key => $inputName) {
+                if ($request->hasFile($inputName)) {
+                    // Upload the new file and update the arrays
+                    $images[$key] = $this->imageUpload($request->file($inputName), 'assets/uploads/postimage/', false);
+                    $originalImages[$key] = $this->originalImageUpload($request->file($inputName), 'images/', false, false);
+                } else {
+                    // Retain the previous value if no new file is uploaded
+                    $images[$key] = $image[$key] ?? null; // Use previous value from decoded $post->image
+                    $originalImages[$key] = $originalImage[$key] ?? null; // Use previous value from decoded $post->original_image
+                }
             }
-
-            if ($request->hasFile('image_3')) {
-                $images[] = $this->imageUpload($request->file('image_3'), 'assets/uploads/postimage/', true);
-                $originalImages[] = $this->originalImageUpload($request->file('image_3'), 'images/', false, true);
-            }
-
-            if ($request->file('image')) {
-                $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/');
-                $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/');
-            }
-
             $data = [
                 'object_type_id'        => $request->object_type,
                 'bortle_id'             => $request->bortle_number,
@@ -1006,8 +1001,8 @@ class PostImageController extends Controller
 
             ];
             if ($request->file('image')) {
-                $data['original_image']   = $originalImageName;
-                $data['image']            = $imageName;
+                $data['original_image']   = $originalImages;
+                $data['image']            = $images;
             }
             if ($request->only_image_and_description == 'false') {
 
