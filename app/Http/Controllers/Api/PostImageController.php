@@ -564,7 +564,6 @@ class PostImageController extends Controller
      */
     public function store(Request $request)
     {
-        log::info($request->all());
         $subscription = SubscriptionPlan::where('id', auth()->user()->subscription_id)->first();
 
         $rules = [
@@ -824,7 +823,8 @@ class PostImageController extends Controller
     public function update(Request $request)
     {
         $rules = [
-            'image'                 => 'nullable|mimes:jpg,jpeg,png,webp,tiff|max:153600',
+            'delete_image.*'           => 'nullable|mimes:webp,tif,jpg,jpeg,png',
+            'delete_original_image.*'  => 'nullable|mimes:webp,tif,jpg,jpeg,png',
             'description'           => 'required',
             'object_type'           => 'required_if:only_image_and_description,false',
             'bortle_number'         => 'required_if:only_image_and_description,false',
@@ -834,7 +834,12 @@ class PostImageController extends Controller
             'post_image_title'      => 'required_if:only_image_and_description,true',
             'add_startcard'         => 'required'
         ];
-
+        $subscription = SubscriptionPlan::where('id', auth()->user()->subscription_id)->first();
+        if ($subscription) {
+            $size_limit = $subscription->image_size_limit * 1024;
+            $rules['image'] = 'array|max:3';
+            $rules['image.*'] = 'required|mimes:webp,tif,jpg,jpeg,png|max:' . $size_limit;
+        }
         if ($request->only_image_and_description == 'false') {
 
             if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10') {
@@ -895,8 +900,61 @@ class PostImageController extends Controller
             return $this->error($validator->errors()->all());
         }
 
+        $postlimit = PostImage::where('user_id', auth()->id())->count();
+        $starCardLimit = StarCard::whereHas('post', function ($q) {
+            $q->whereNull('deleted_at');
+        })->where('user_id', auth()->id())->count();
+
+        if ($subscription && $subscription->post_limit != 0 && $postlimit >= $subscription->post_limit) {
+            return $this->error(["You can't upload post images as your " . $subscription->plan_name . " subscription limit of " . $subscription->post_limit . " images has been exceeded."]);
+        }
+        if ($request->add_startcard == 'true' && $subscription && $subscription->id == 4 && $starCardLimit >= 5) {
+            return $this->error(["You can't add starCard as your " . $subscription->plan_name . " subscription limit of 5 starCard has been exceeded."]);
+        }
+
         $id = $request->id;
         $post = PostImage::where('user_id', auth()->id())->where('id', $id)->first();
+
+        $deletedImagesPaths = $request->input('delete_image', '');
+        $deletedOriginalImagesPaths = $request->input('delete_original_image', '');
+        $deletedImagesArray = explode(',', $deletedImagesPaths);
+        $deletedOriginalImagesArray = explode(',', $deletedOriginalImagesPaths);
+        $filesArray = $post->image;
+        $filesOriginalArray = $post->original_image;
+        $baseUrl = "http://picastro.co.uk/";
+
+        $filesArray = array_map(function ($file) use ($baseUrl) {
+            return str_replace($baseUrl, '', $file);
+        }, $filesArray);
+
+        foreach ($deletedImagesArray as $deletedImagePath) {
+            if (($key = array_search($deletedImagePath, $filesArray)) !== false) {
+                unset($filesArray[$key]);
+            }
+        }
+        $filesArray = array_values($filesArray);
+
+        $filesOriginalArray = array_map(function ($file) {
+            return  $file;
+        }, $filesArray);
+
+        foreach ($deletedOriginalImagesArray as $deletedOriginalImagePath) {
+            if (($key = array_search($deletedOriginalImagePath, $filesOriginalArray)) !== false) {
+                unset($filesOriginalArray[$key]);
+            }
+        }
+        $filesOriginalArray = array_values($filesOriginalArray);
+        
+        if ($request->hasFile('image')) {
+            $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', true);
+            $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/', false, true);
+
+            $updatedFilesArray = array_merge($filesArray, $imageName);
+            $updatedOriginalFilesArray = array_merge($filesOriginalArray, $originalImageName);
+        } else {
+            $updatedFilesArray = $filesArray;
+            $updatedOriginalFilesArray = $filesOriginalArray;
+        }
 
         $tableName = 'post_images';
         $uniqueId = $id; // Replace with the actual unique ID or value
@@ -936,10 +994,6 @@ class PostImageController extends Controller
         DB::table($tableNameStar)->where('post_image_id', $uniqueIdStar)->update($updateDataStar);
 
         if ($post) {
-            if ($request->file('image')) {
-                $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/');
-                $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/');
-            }
 
             $data = [
                 'object_type_id'        => $request->object_type,
@@ -951,8 +1005,8 @@ class PostImageController extends Controller
 
             ];
             if ($request->file('image')) {
-                $data['original_image']   = $originalImageName;
-                $data['image']            = $imageName;
+                $data['original_image']   = json_encode($updatedOriginalFilesArray);
+                $data['image']            = json_encode($updatedFilesArray);
             }
 
             if ($request->only_image_and_description == 'false') {
