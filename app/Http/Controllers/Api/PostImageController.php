@@ -924,18 +924,20 @@ class PostImageController extends Controller
         $filesOriginalArray = $post->original_image;
         $baseUrl = 'https://picastro.beckapps.co/public/';
 
-        // $filesArray = array_map(function ($file) use ($baseUrl) {
-        //     log::info($file);
-        //     return str_replace($baseUrl, '', $file);
-        // }, $filesArray);
-        log::info($filesArray);
-
         foreach ($deletedImagesArray as $deletedImagePath) {
             log::info($deletedImagePath,$filesArray);
             if (($key = array_search($deletedImagePath, $filesArray)) !== false) {
                 unset($filesArray[$key]);
             }
         }
+        
+        $filesArray = array_map(function ($file) use ($baseUrl) {
+            log::info($file);
+            return str_replace($baseUrl, '', $file);
+        }, $filesArray);
+        log::info($filesArray);
+
+        
         $filesArray = array_values($filesArray);
         // log::info($filesArray);
 
