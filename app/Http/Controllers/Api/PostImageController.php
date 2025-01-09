@@ -925,6 +925,7 @@ class PostImageController extends Controller
         $baseUrl = 'https://picastro.beckapps.co/public/';
 
         $filesArray = array_map(function ($file) use ($baseUrl) {
+            log::info($file);
             return str_replace($baseUrl, '', $file);
         }, $filesArray);
         log::info($filesArray);
