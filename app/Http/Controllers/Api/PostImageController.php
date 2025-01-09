@@ -580,8 +580,9 @@ class PostImageController extends Controller
         $subscription = SubscriptionPlan::where('id', auth()->user()->subscription_id)->first();
         if ($subscription) {
             $size_limit = $subscription->image_size_limit * 1024;
-            $rules['image'] = 'array|max:3';
-            $rules['image.*'] = 'required|mimes:webp,tif,jpg,jpeg,png|max:' . $size_limit;
+            $rules['image'] = 'required|mimes:webp,tif,jpg,jpeg,png|max:' . $size_limit;
+            $rules['image_2'] = 'nullable|mimes:webp,tif,jpg,jpeg,png|max:' . $size_limit;
+            $rules['image_3'] = 'nullable|mimes:webp,tif,jpg,jpeg,png|max:' . $size_limit;
         }
         if ($request->only_image_and_description == 'false') {
 
@@ -622,15 +623,31 @@ class PostImageController extends Controller
             return $this->error(["You can't add starCard as your " . $subscription->plan_name . " subscription limit of 5 starCard has been exceeded."]);
         }
         try {
-            $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', true);
-            $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/', false, true);
+            $images = [];
+            $originalImages = [];
+
+            if ($request->hasFile('image')) {
+                $images[] = $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', true);
+                $originalImages[] = $this->originalImageUpload($request->file('image'), 'images/', false, true);
+            }
+
+            if ($request->hasFile('image_2')) {
+                $images[] = $this->imageUpload($request->file('image_2'), 'assets/uploads/postimage/', true);
+                $originalImages[] = $this->originalImageUpload($request->file('image_2'), 'images/', false, true);
+            }
+
+            if ($request->hasFile('image_3')) {
+                $images[] = $this->imageUpload($request->file('image_3'), 'assets/uploads/postimage/', true);
+                $originalImages[] = $this->originalImageUpload($request->file('image_3'), 'images/', false, true);
+            }
+
 
             $postImage                        = new PostImage();
             $postImage->user_id               = auth()->id();
             // $postImage->original_image        = $originalImageName;
-            $postImage->original_image        = json_encode($originalImageName);
+            $postImage->original_image        = json_encode($originalImages);
             // $postImage->image                 = $imageName;
-            $postImage->image                 = json_encode($imageName);
+            $postImage->image                 = json_encode($images);
             $postImage->description           = $request->description;
             if ($request->only_image_and_description == 'false') {
 
