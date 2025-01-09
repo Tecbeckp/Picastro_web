@@ -930,7 +930,7 @@ class PostImageController extends Controller
                 unset($filesArray[$key]);
             }
         }
-        
+
         $filesArray = array_map(function ($file) use ($baseUrl) {
             log::info($file);
             return str_replace($baseUrl, '', $file);
@@ -938,12 +938,10 @@ class PostImageController extends Controller
         log::info($filesArray);
 
         
-        $filesArray = array_values($filesArray);
+        // $filesArray = array_values($filesArray);
         // log::info($filesArray);
 
-        $filesOriginalArray = array_map(function ($originalfile) {
-            return  $originalfile;
-        }, $filesOriginalArray);
+        
         // log::info($filesOriginalArray);
 
         foreach ($deletedOriginalImagesArray as $deletedOriginalImagePath) {
@@ -951,7 +949,10 @@ class PostImageController extends Controller
                 unset($filesOriginalArray[$key]);
             }
         }
-        $filesOriginalArray = array_values($filesOriginalArray);
+        $filesOriginalArray = array_map(function ($originalfile) {
+            return  $originalfile;
+        }, $filesOriginalArray);
+        // $filesOriginalArray = array_values($filesOriginalArray);
         // log::info($filesOriginalArray);
 
         if ($request->hasFile('image')) {
