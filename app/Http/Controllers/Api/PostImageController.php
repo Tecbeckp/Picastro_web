@@ -915,45 +915,40 @@ class PostImageController extends Controller
 
         $deletedImagesPaths = $request->input('delete_image', '');
         $deletedOriginalImagesPaths = $request->input('delete_original_image', '');
-
+        
         $deletedImagesArray = explode(',', $deletedImagesPaths);
         $deletedOriginalImagesArray = explode(',', $deletedOriginalImagesPaths);
-        log::info($deletedImagesArray);
-        log::info($deletedOriginalImagesArray);
-        $filesArray         = $post->image;
+        $filesArray = $post->image;
         $filesOriginalArray = $post->original_image;
         $baseUrl = 'https://picastro.beckapps.co/public/';
-
+        
+        // Mark deleted images in $filesArray
         foreach ($deletedImagesArray as $deletedImagePath) {
-            log::info($deletedImagePath,$filesArray);
+            Log::info('Deleting:', [$deletedImagePath, $filesArray]);
             if (($key = array_search($deletedImagePath, $filesArray)) !== false) {
-                unset($filesArray[$key]);
+                $filesArray[$key] = null; // Mark as deleted
             }
         }
-
+        
+        // Update the paths to remove the base URL but preserve indices
         $filesArray = array_map(function ($file) use ($baseUrl) {
-            log::info($file);
-            return str_replace($baseUrl, '', $file);
+            if ($file !== null) {
+                return str_replace($baseUrl, '', $file);
+            }
+            return null; // Preserve the deleted marker
         }, $filesArray);
-        log::info($filesArray);
-
         
-        // $filesArray = array_values($filesArray);
-        // log::info($filesArray);
-
-        
-        // log::info($filesOriginalArray);
-
+        // Mark deleted original images in $filesOriginalArray
         foreach ($deletedOriginalImagesArray as $deletedOriginalImagePath) {
             if (($key = array_search($deletedOriginalImagePath, $filesOriginalArray)) !== false) {
-                unset($filesOriginalArray[$key]);
+                $filesOriginalArray[$key] = null; // Mark as deleted
             }
         }
+        
+        // Preserve indices in the original images array
         $filesOriginalArray = array_map(function ($originalfile) {
-            return  $originalfile;
+            return $originalfile !== null ? $originalfile : null; // Keep indices consistent
         }, $filesOriginalArray);
-        // $filesOriginalArray = array_values($filesOriginalArray);
-        // log::info($filesOriginalArray);
 
         if ($request->hasFile('image')) {
             $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', true);
