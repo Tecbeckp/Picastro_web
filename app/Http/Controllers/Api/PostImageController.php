@@ -580,8 +580,8 @@ class PostImageController extends Controller
         $subscription = SubscriptionPlan::where('id', auth()->user()->subscription_id)->first();
         if ($subscription) {
             $size_limit = $subscription->image_size_limit * 1024;
-            // $rules['image'] = 'array|max:3';
-            $rules['image'] = 'required|mimes:webp,tif,jpg,jpeg,png|max:' . $size_limit;
+            $rules['image'] = 'array|max:3';
+            $rules['image.8'] = 'required|mimes:webp,tif,jpg,jpeg,png|max:' . $size_limit;
         }
         if ($request->only_image_and_description == 'false') {
 
