@@ -565,7 +565,7 @@ class PostImageController extends Controller
     public function store(Request $request)
     {
         $subscription = SubscriptionPlan::where('id', auth()->user()->subscription_id)->first();
-
+        log::info($request->all());
         $rules = [
             'description'           => 'required',
             'object_type'           => 'required_if:only_image_and_description,false',
@@ -627,20 +627,22 @@ class PostImageController extends Controller
             $originalImages = [];
 
             if ($request->hasFile('image')) {
-                $images[] = $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', true);
-                $originalImages[] = $this->originalImageUpload($request->file('image'), 'images/', false, true);
+                $images[] = $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', false);
+                $originalImages[] = $this->originalImageUpload($request->file('image'), 'images/', false, false);
             }
 
             if ($request->hasFile('image_2')) {
-                $images[] = $this->imageUpload($request->file('image_2'), 'assets/uploads/postimage/', true);
-                $originalImages[] = $this->originalImageUpload($request->file('image_2'), 'images/', false, true);
+                $images[] = $this->imageUpload($request->file('image_2'), 'assets/uploads/postimage/', false);
+                $originalImages[] = $this->originalImageUpload($request->file('image_2'), 'images/', false, false);
             }
 
             if ($request->hasFile('image_3')) {
-                $images[] = $this->imageUpload($request->file('image_3'), 'assets/uploads/postimage/', true);
-                $originalImages[] = $this->originalImageUpload($request->file('image_3'), 'images/', false, true);
+                $images[] = $this->imageUpload($request->file('image_3'), 'assets/uploads/postimage/', false);
+                $originalImages[] = $this->originalImageUpload($request->file('image_3'), 'images/', false, false);
             }
 
+            log::info($images);
+            log::info($originalImages);
 
             $postImage                        = new PostImage();
             $postImage->user_id               = auth()->id();
@@ -989,6 +991,11 @@ class PostImageController extends Controller
                 $originalImages[] = $this->originalImageUpload($request->file('image_3'), 'images/', false, true);
             }
 
+            if ($request->file('image')) {
+                $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/');
+                $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/');
+            }
+
             $data = [
                 'object_type_id'        => $request->object_type,
                 'bortle_id'             => $request->bortle_number,
@@ -996,10 +1003,12 @@ class PostImageController extends Controller
                 'approx_lunar_phase_id' => $request->approx_lunar_phase,
                 'telescope_id'          => $request->telescope,
                 'description'           => $request->description,
-                'original_image'        => json_encode($originalImages),
-                'image'                 => json_encode($images),
 
             ];
+            if ($request->file('image')) {
+                $data['original_image']   = $originalImageName;
+                $data['image']            = $imageName;
+            }
             if ($request->only_image_and_description == 'false') {
 
                 if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10') {
