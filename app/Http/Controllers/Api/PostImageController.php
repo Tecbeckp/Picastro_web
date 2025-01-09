@@ -931,17 +931,18 @@ class PostImageController extends Controller
         log::info($filesArray);
 
         foreach ($deletedImagesArray as $deletedImagePath) {
+            log::info($deletedImagePath,$filesArray);
             if (($key = array_search($deletedImagePath, $filesArray)) !== false) {
                 unset($filesArray[$key]);
             }
         }
         $filesArray = array_values($filesArray);
-        log::info($filesArray);
+        // log::info($filesArray);
 
         $filesOriginalArray = array_map(function ($originalfile) {
             return  $originalfile;
         }, $filesOriginalArray);
-        log::info($filesOriginalArray);
+        // log::info($filesOriginalArray);
 
         foreach ($deletedOriginalImagesArray as $deletedOriginalImagePath) {
             if (($key = array_search($deletedOriginalImagePath, $filesOriginalArray)) !== false) {
@@ -949,7 +950,7 @@ class PostImageController extends Controller
             }
         }
         $filesOriginalArray = array_values($filesOriginalArray);
-        log::info($filesOriginalArray);
+        // log::info($filesOriginalArray);
 
         if ($request->hasFile('image')) {
             $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', true);
