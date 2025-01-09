@@ -930,6 +930,15 @@ class PostImageController extends Controller
         $filesOriginalArray = $post->original_image;
         $baseUrl = 'https://picastro.beckapps.co/public/';
 
+        // Remove the base URL from the existing images in the $filesArray and $filesOriginalArray
+        $filesArray = array_map(function ($imagePath) use ($baseUrl) {
+            return str_replace($baseUrl, '', $imagePath); // Remove base URL from existing images
+        }, $filesArray);
+
+        $filesOriginalArray = array_map(function ($imagePath) use ($baseUrl) {
+            return str_replace($baseUrl, '', $imagePath); // Remove base URL from existing original images
+        }, $filesOriginalArray);
+
         // Mark deleted images in $filesArray and prepare for new images
         foreach ($deletedImagesArray as $deletedImagePath) {
             Log::info('Deleting Image:', [$deletedImagePath, $filesArray]);
