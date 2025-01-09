@@ -623,8 +623,8 @@ class PostImageController extends Controller
             return $this->error(["You can't add starCard as your " . $subscription->plan_name . " subscription limit of 5 starCard has been exceeded."]);
         }
         try {
-            $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', false);
-            $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/', false, false);
+            $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', true);
+            $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/', false, true);
 
             $postImage                        = new PostImage();
             $postImage->user_id               = auth()->id();
