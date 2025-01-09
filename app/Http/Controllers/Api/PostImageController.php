@@ -564,6 +564,7 @@ class PostImageController extends Controller
      */
     public function store(Request $request)
     {
+        log::info($request->image);
         $subscription = SubscriptionPlan::where('id', auth()->user()->subscription_id)->first();
 
         $rules = [
