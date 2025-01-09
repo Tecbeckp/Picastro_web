@@ -1016,8 +1016,8 @@ class PostImageController extends Controller
                 'approx_lunar_phase_id' => $request->approx_lunar_phase,
                 'telescope_id'          => $request->telescope,
                 'description'           => $request->description,
-                'original_image'        => json_encode($filesArray),
-                'image'                 => json_encode($filesOriginalArray),
+                'original_image'        => json_encode($filesOriginalArray),
+                'image'                 => json_encode($filesArray),
 
             ];
             if ($request->only_image_and_description == 'false') {
