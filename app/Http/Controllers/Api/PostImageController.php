@@ -976,21 +976,26 @@ class PostImageController extends Controller
             $images = [];
             $originalImages = [];
 
-            $image = json_decode($post->image, true); // Decode previous image array
-            $originalImage = json_decode($post->original_image, true); // Decode previous original image array
+            $image = $post->image; // Decode previous image array
+            $originalImage = $post->original_image; // Decode previous original image array
 
             $indices = ['image', 'image_2', 'image_3'];
             foreach ($indices as $key => $inputName) {
-                if ($request->hasFile($inputName)) {
+                if ($request->input("delete_{$inputName}") == true) {
+                    // Unset the image if marked for deletion
+                    unset($image[$key]);
+                    unset($originalImage[$key]);
+                } elseif ($request->hasFile($inputName)) {
                     // Upload the new file and update the arrays
                     $images[$key] = $this->imageUpload($request->file($inputName), 'assets/uploads/postimage/', false);
                     $originalImages[$key] = $this->originalImageUpload($request->file($inputName), 'images/', false, false);
                 } else {
                     // Retain the previous value if no new file is uploaded
-                    $images[$key] = $image[$key] ?? null; // Use previous value from decoded $post->image
+                    $images[$key] = $this->removeBaseUrl($image[$key]) ?? null; // Use previous value from decoded $post->image
                     $originalImages[$key] = $originalImage[$key] ?? null; // Use previous value from decoded $post->original_image
                 }
             }
+
             $data = [
                 'object_type_id'        => $request->object_type,
                 'bortle_id'             => $request->bortle_number,
@@ -998,12 +1003,9 @@ class PostImageController extends Controller
                 'approx_lunar_phase_id' => $request->approx_lunar_phase,
                 'telescope_id'          => $request->telescope,
                 'description'           => $request->description,
-
+                'original_image'        => $originalImages,
+                'image'                 => $images,
             ];
-            if ($request->file('image')) {
-                $data['original_image']   = $originalImages;
-                $data['image']            = $images;
-            }
             if ($request->only_image_and_description == 'false') {
 
                 if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10') {

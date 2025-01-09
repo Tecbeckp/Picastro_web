@@ -115,4 +115,9 @@ trait  UploadImageTrait
 
         return null;
     }
+    private function removeBaseUrl(?string $path): ?string
+    {
+        $baseUrl = url('/public'); // Your base URL
+        return $path ? str_replace($baseUrl . '/', '', $path) : null;
+    }
 }
