@@ -852,8 +852,9 @@ class PostImageController extends Controller
         $subscription = SubscriptionPlan::where('id', auth()->user()->subscription_id)->first();
         if ($subscription) {
             $size_limit = $subscription->image_size_limit * 1024;
-            $rules['image'] = 'array|max:3';
-            $rules['image.*'] = 'required|mimes:webp,tif,jpg,jpeg,png|max:' . $size_limit;
+            $rules['image']   = 'required|mimes:webp,tif,jpg,jpeg,png|max:' . $size_limit;
+            $rules['image_2'] = 'nullable|mimes:webp,tif,jpg,jpeg,png|max:' . $size_limit;
+            $rules['image_3'] = 'nullable|mimes:webp,tif,jpg,jpeg,png|max:' . $size_limit;
         }
         if ($request->only_image_and_description == 'false') {
 
@@ -930,89 +931,7 @@ class PostImageController extends Controller
         $id = $request->id;
         $post = PostImage::where('user_id', auth()->id())->where('id', $id)->first();
 
-        $deletedImagesPaths = $request->input('delete_image', '');
-        $deletedOriginalImagesPaths = $request->input('delete_original_image', '');
-
-        if ($request->hasFile('image')) {
-            $newImages         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', true);
-            $newOriginalImages =  $this->originalImageUpload($request->file('image'), 'images/', false, true);
-        } else {
-            $newImages = [];
-            $newOriginalImages = [];
-        }
-
-        $deletedImagesArray = explode(',', $deletedImagesPaths);
-        $deletedOriginalImagesArray = explode(',', $deletedOriginalImagesPaths);
-        $filesArray = $post->image;
-        $filesOriginalArray = $post->original_image;
-        $baseUrl = 'https://picastro.beckapps.co/public/';
-
-        // Remove the base URL from the existing images in the $filesArray and $filesOriginalArray
-        $filesArray = array_map(function ($imagePath) use ($baseUrl) {
-            return str_replace($baseUrl, '', $imagePath); // Remove base URL from existing images
-        }, $filesArray);
-
-        $filesOriginalArray = array_map(function ($imagePath) use ($baseUrl) {
-            return str_replace($baseUrl, '', $imagePath); // Remove base URL from existing original images
-        }, $filesOriginalArray);
-
-        // Mark deleted images in $filesArray and prepare for new images
-        foreach ($deletedImagesArray as $deletedImagePath) {
-            Log::info('Deleting Image:', [$deletedImagePath, $filesArray]);
-            if (($key = array_search($deletedImagePath, $filesArray)) !== false) {
-                $filesArray[$key] = null; // Mark as deleted
-            }
-        }
-
-        // Replace deleted images with new images
-        foreach ($newImages as $newImage) {
-            // Try to replace deleted image at the index where it was null
-            if (($key = array_search(null, $filesArray)) !== false) {
-                // Add new image at deleted index without the base URL
-                $filesArray[$key] = str_replace($baseUrl, '', $newImage);
-            } else {
-                // Add new image if no slots are free
-                $filesArray[] = str_replace($baseUrl, '', $newImage); // Remove base URL
-            }
-        }
-
-        // Process deleted original images
-        foreach ($deletedOriginalImagesArray as $deletedOriginalImagePath) {
-            if (($key = array_search($deletedOriginalImagePath, $filesOriginalArray)) !== false) {
-                $filesOriginalArray[$key] = null; // Mark as deleted
-            }
-        }
-
-        // Replace deleted original images with new original images
-        foreach ($newOriginalImages as $newOriginalImage) {
-            // Try to replace deleted original image at the index where it was null
-            if (($key = array_search(null, $filesOriginalArray)) !== false) {
-                // Add new original image at deleted index without the base URL
-                $filesOriginalArray[$key] = str_replace($baseUrl, '', $newOriginalImage);
-            } else {
-                // Add new original image if no slots are free
-                $filesOriginalArray[] = str_replace($baseUrl, '', $newOriginalImage); // Remove base URL
-            }
-        }
-
-        // Remove all null values from the arrays
-        $filesArray = array_filter($filesArray, function ($value) {
-            return $value !== null;
-        });
-        $filesOriginalArray = array_filter($filesOriginalArray, function ($value) {
-            return $value !== null;
-        });
-
-        // Re-index arrays after filtering out null values
-        $filesArray = array_values($filesArray);
-        $filesOriginalArray = array_values($filesOriginalArray);
-
-        // Sort the arrays (optional if you need the images in a specific order)
-        sort($filesArray);
-        sort($filesOriginalArray);
-
-
-
+       
         $tableName = 'post_images';
         $uniqueId = $id; // Replace with the actual unique ID or value
 
@@ -1052,6 +971,24 @@ class PostImageController extends Controller
 
         if ($post) {
 
+            $images = [];
+            $originalImages = [];
+
+            if ($request->hasFile('image')) {
+                $images[] = $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', true);
+                $originalImages[] = $this->originalImageUpload($request->file('image'), 'images/', false, true);
+            }
+
+            if ($request->hasFile('image_2')) {
+                $images[] = $this->imageUpload($request->file('image_2'), 'assets/uploads/postimage/', true);
+                $originalImages[] = $this->originalImageUpload($request->file('image_2'), 'images/', false, true);
+            }
+
+            if ($request->hasFile('image_3')) {
+                $images[] = $this->imageUpload($request->file('image_3'), 'assets/uploads/postimage/', true);
+                $originalImages[] = $this->originalImageUpload($request->file('image_3'), 'images/', false, true);
+            }
+
             $data = [
                 'object_type_id'        => $request->object_type,
                 'bortle_id'             => $request->bortle_number,
@@ -1059,8 +996,8 @@ class PostImageController extends Controller
                 'approx_lunar_phase_id' => $request->approx_lunar_phase,
                 'telescope_id'          => $request->telescope,
                 'description'           => $request->description,
-                'original_image'        => json_encode($filesOriginalArray),
-                'image'                 => json_encode($filesArray),
+                'original_image'        => json_encode($originalImages),
+                'image'                 => json_encode($images),
 
             ];
             if ($request->only_image_and_description == 'false') {
