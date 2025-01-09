@@ -978,6 +978,23 @@ class PostImageController extends Controller
             }
         }
 
+        // Remove all null values from the arrays
+        $filesArray = array_filter($filesArray, function ($value) {
+            return $value !== null;
+        });
+        $filesOriginalArray = array_filter($filesOriginalArray, function ($value) {
+            return $value !== null;
+        });
+
+        // Re-index arrays after filtering out null values
+        $filesArray = array_values($filesArray);
+        $filesOriginalArray = array_values($filesOriginalArray);
+
+        // Sort the arrays (optional if you need the images in a specific order)
+        sort($filesArray);
+        sort($filesOriginalArray);
+
+
 
         $tableName = 'post_images';
         $uniqueId = $id; // Replace with the actual unique ID or value
