@@ -918,7 +918,8 @@ class PostImageController extends Controller
 
         $deletedImagesArray = explode(',', $deletedImagesPaths);
         $deletedOriginalImagesArray = explode(',', $deletedOriginalImagesPaths);
-        log::info($deletedImagesArray, $deletedOriginalImagesArray);
+        log::info($deletedImagesArray);
+        log::info($deletedOriginalImagesArray);
         $filesArray = $post->image;
         $filesOriginalArray = $post->original_image;
         $baseUrl = "https://picastro.beckapps.co/public/";
