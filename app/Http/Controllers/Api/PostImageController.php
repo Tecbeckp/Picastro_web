@@ -915,12 +915,13 @@ class PostImageController extends Controller
 
         $deletedImagesPaths = $request->input('delete_image', '');
         $deletedOriginalImagesPaths = $request->input('delete_original_image', '');
-        $newImages = $request->input('new_images', []); // Array of new images
-        $newOriginalImages = $request->input('new_original_images', []); // Array of new original images
 
         if ($request->hasFile('image')) {
-            $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', true);
-            $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/', false, true);
+            $newImages         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', true);
+            $newOriginalImages =  $this->originalImageUpload($request->file('image'), 'images/', false, true);
+        } else {
+            $newImages = [];
+            $newOriginalImages = [];
         }
 
         $deletedImagesArray = explode(',', $deletedImagesPaths);
@@ -929,46 +930,53 @@ class PostImageController extends Controller
         $filesOriginalArray = $post->original_image;
         $baseUrl = 'https://picastro.beckapps.co/public/';
 
-        $newImagesIndex = 0; // Index to track new images
-
-        // Replace deleted images directly in $filesArray
+        // Mark deleted images in $filesArray and prepare for new images
         foreach ($deletedImagesArray as $deletedImagePath) {
             Log::info('Deleting Image:', [$deletedImagePath, $filesArray]);
             if (($key = array_search($deletedImagePath, $filesArray)) !== false) {
-                // Replace with new image if available, otherwise keep the old image
-                if (isset($newImages[$newImagesIndex])) {
-                    // Replace the deleted image at the same index
-                    $filesArray[$key] = str_replace($baseUrl, '', $newImages[$newImagesIndex]);
-                    $newImagesIndex++;
-                }
+                $filesArray[$key] = null; // Mark as deleted
             }
         }
 
-        // Append any remaining new images to the end of $filesArray
-        while ($newImagesIndex < count($newImages)) {
-            $filesArray[] = str_replace($baseUrl, '', $newImages[$newImagesIndex]);
-            $newImagesIndex++;
+        // Replace deleted images with new images
+        foreach ($newImages as $newImage) {
+            // Try to replace deleted image at the index where it was null
+            if (($key = array_search(null, $filesArray)) !== false) {
+                $filesArray[$key] = str_replace($baseUrl, '', $newImage); // Add new image at deleted index
+            } else {
+                $filesArray[] = str_replace($baseUrl, '', $newImage); // Add new image if no slots are free
+            }
         }
 
-        $newOriginalImagesIndex = 0; // Index to track new original images
-
-        // Replace deleted original images directly in $filesOriginalArray
+        // Process deleted original images
         foreach ($deletedOriginalImagesArray as $deletedOriginalImagePath) {
             if (($key = array_search($deletedOriginalImagePath, $filesOriginalArray)) !== false) {
-                // Replace with new original image if available, otherwise keep the old image
-                if (isset($newOriginalImages[$newOriginalImagesIndex])) {
-                    // Replace the deleted original image at the same index
-                    $filesOriginalArray[$key] = $newOriginalImages[$newOriginalImagesIndex];
-                    $newOriginalImagesIndex++;
-                }
+                $filesOriginalArray[$key] = null; // Mark as deleted
             }
         }
 
-        // Append any remaining new original images to the end of $filesOriginalArray
-        while ($newOriginalImagesIndex < count($newOriginalImages)) {
-            $filesOriginalArray[] = $newOriginalImages[$newOriginalImagesIndex];
-            $newOriginalImagesIndex++;
+        // Replace deleted original images with new original images
+        foreach ($newOriginalImages as $newOriginalImage) {
+            // Try to replace deleted original image at the index where it was null
+            if (($key = array_search(null, $filesOriginalArray)) !== false) {
+                $filesOriginalArray[$key] = $newOriginalImage; // Add new original image at deleted index
+            } else {
+                $filesOriginalArray[] = $newOriginalImage; // Add new original image if no slots are free
+            }
         }
+
+        // Prepare final data to save
+        $data = [
+            'object_type_id'        => $request->object_type,
+            'bortle_id'             => $request->bortle_number,
+            'observer_location_id'  => $request->observer_location,
+            'approx_lunar_phase_id' => $request->approx_lunar_phase,
+            'telescope_id'          => $request->telescope,
+            'description'           => $request->description,
+            'original_image'        => json_encode($filesOriginalArray),
+            'image'                 => json_encode($filesArray),
+        ];
+
 
         $tableName = 'post_images';
         $uniqueId = $id; // Replace with the actual unique ID or value
@@ -1016,8 +1024,9 @@ class PostImageController extends Controller
                 'approx_lunar_phase_id' => $request->approx_lunar_phase,
                 'telescope_id'          => $request->telescope,
                 'description'           => $request->description,
-                'original_image'        => json_encode($filesOriginalArray),
-                'image'                 => json_encode($filesArray),
+                'original_image'        => json_encode($filesArray),
+                'image'                 => json_encode($filesOriginalArray),
+
             ];
             if ($request->only_image_and_description == 'false') {
 
