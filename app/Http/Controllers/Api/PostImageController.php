@@ -823,8 +823,6 @@ class PostImageController extends Controller
     public function update(Request $request)
     {
         $rules = [
-            'delete_image.*'           => 'nullable|mimes:webp,tif,jpg,jpeg,png',
-            'delete_original_image.*'  => 'nullable|mimes:webp,tif,jpg,jpeg,png',
             'description'           => 'required',
             'object_type'           => 'required_if:only_image_and_description,false',
             'bortle_number'         => 'required_if:only_image_and_description,false',
