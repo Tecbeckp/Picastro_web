@@ -920,9 +920,9 @@ class PostImageController extends Controller
         $deletedOriginalImagesArray = explode(',', $deletedOriginalImagesPaths);
         log::info($deletedImagesArray);
         log::info($deletedOriginalImagesArray);
-        $filesArray = $post->image;
+        $filesArray         = $post->image;
         $filesOriginalArray = $post->original_image;
-        $baseUrl = "https://picastro.beckapps.co/public/";
+        $baseUrl = 'https://picastro.beckapps.co/public/';
 
         $filesArray = array_map(function ($file) use ($baseUrl) {
             return str_replace($baseUrl, '', $file);
@@ -937,8 +937,8 @@ class PostImageController extends Controller
         $filesArray = array_values($filesArray);
         log::info($filesArray);
 
-        $filesOriginalArray = array_map(function ($file) {
-            return  $file;
+        $filesOriginalArray = array_map(function ($originalfile) {
+            return  $originalfile;
         }, $filesOriginalArray);
         log::info($filesOriginalArray);
 
