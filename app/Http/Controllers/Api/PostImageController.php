@@ -921,7 +921,7 @@ class PostImageController extends Controller
         $deletedOriginalImagesArray = explode(',', $deletedOriginalImagesPaths);
         $filesArray = $post->image;
         $filesOriginalArray = $post->original_image;
-        $baseUrl = "http://picastro.co.uk/";
+        $baseUrl = "https://picastro.beckapps.co/";
 
         $filesArray = array_map(function ($file) use ($baseUrl) {
             return str_replace($baseUrl, '', $file);
@@ -936,7 +936,7 @@ class PostImageController extends Controller
 
         $filesOriginalArray = array_map(function ($file) {
             return  $file;
-        }, $filesArray);
+        }, $filesOriginalArray);
 
         foreach ($deletedOriginalImagesArray as $deletedOriginalImagePath) {
             if (($key = array_search($deletedOriginalImagePath, $filesOriginalArray)) !== false) {
