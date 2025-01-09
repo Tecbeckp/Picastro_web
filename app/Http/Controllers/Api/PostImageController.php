@@ -919,13 +919,14 @@ class PostImageController extends Controller
         $deletedImagesArray = explode(',', $deletedImagesPaths);
         $deletedOriginalImagesArray = explode(',', $deletedOriginalImagesPaths);
         log::info($deletedImagesArray, $deletedOriginalImagesArray);
-        $filesArray = json_decode($post->image);
-        $filesOriginalArray = json_decode($post->original_image);
+        $filesArray = $post->image;
+        $filesOriginalArray = $post->original_image;
         $baseUrl = "https://picastro.beckapps.co/";
 
         $filesArray = array_map(function ($file) use ($baseUrl) {
             return str_replace($baseUrl, '', $file);
         }, $filesArray);
+        log::info($filesArray);
 
         foreach ($deletedImagesArray as $deletedImagePath) {
             if (($key = array_search($deletedImagePath, $filesArray)) !== false) {
@@ -933,10 +934,12 @@ class PostImageController extends Controller
             }
         }
         $filesArray = array_values($filesArray);
+        log::info($filesArray);
 
         $filesOriginalArray = array_map(function ($file) {
             return  $file;
         }, $filesOriginalArray);
+        log::info($filesOriginalArray);
 
         foreach ($deletedOriginalImagesArray as $deletedOriginalImagePath) {
             if (($key = array_search($deletedOriginalImagePath, $filesOriginalArray)) !== false) {
@@ -944,7 +947,8 @@ class PostImageController extends Controller
             }
         }
         $filesOriginalArray = array_values($filesOriginalArray);
-        
+        log::info($filesOriginalArray);
+
         if ($request->hasFile('image')) {
             $imageName         =  $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', true);
             $originalImageName =  $this->originalImageUpload($request->file('image'), 'images/', false, true);
