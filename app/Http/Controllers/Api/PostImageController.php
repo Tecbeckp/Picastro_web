@@ -628,10 +628,10 @@ class PostImageController extends Controller
 
             $postImage                        = new PostImage();
             $postImage->user_id               = auth()->id();
-            $postImage->original_image        = $originalImageName;
-            // $postImage->original_image        = json_encode($originalImageName);
-            $postImage->image                 = $imageName;
-            // $postImage->image                 = json_encode($imageName);
+            // $postImage->original_image        = $originalImageName;
+            $postImage->original_image        = json_encode($originalImageName);
+            // $postImage->image                 = $imageName;
+            $postImage->image                 = json_encode($imageName);
             $postImage->description           = $request->description;
             if ($request->only_image_and_description == 'false') {
 

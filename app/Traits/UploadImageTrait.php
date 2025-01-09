@@ -49,7 +49,7 @@ trait  UploadImageTrait
             $imgs = [];
             foreach ($file as $img) {
                 $random = rand(1000, 9999);
-                $filename = time() . $random . '.' . auth()->id() . '.webp';
+                $filename = time() . $random . '-' . auth()->id() . '.webp';
 
                 $image = Image::read($img);
 
