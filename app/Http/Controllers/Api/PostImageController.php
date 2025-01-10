@@ -990,7 +990,7 @@ class PostImageController extends Controller
                         log::info($request->input("delete_{$inputName}"));
                         unset($image[$key]);
                         unset($originalImage[$key]);
-                    } else {
+                    } elseif(isset($image[$key])) {
                         // Retain the previous value if no new file is uploaded
                         $images[$key] = $this->removeBaseUrl($image[$key]) ?? null; // Use previous value from decoded $post->image
                         $originalImages[$key] = $originalImage[$key] ?? null; // Use previous value from decoded $post->original_image
