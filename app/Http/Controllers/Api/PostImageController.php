@@ -981,18 +981,20 @@ class PostImageController extends Controller
 
             $indices = ['image', 'image_2', 'image_3'];
             foreach ($indices as $key => $inputName) {
-                if ($request->hasFile($inputName)) {
-                    // Upload the new file and update the arrays
-                    $images[$key] = $this->imageUpload($request->file($inputName), 'assets/uploads/postimage/', false);
-                    $originalImages[$key] = $this->originalImageUpload($request->file($inputName), 'images/', false, false);
-                } elseif ($request->input("delete_{$inputName}") == '1' && !$request->hasFile($inputName)) {
-                    log::info($request->input("delete_{$inputName}"));
-                    unset($image[$key]);
-                    unset($originalImage[$key]);
-                } else {
-                    // Retain the previous value if no new file is uploaded
-                    $images[$key] = $this->removeBaseUrl($image[$key]) ?? null; // Use previous value from decoded $post->image
-                    $originalImages[$key] = $originalImage[$key] ?? null; // Use previous value from decoded $post->original_image
+                if (isset($inputName)) {
+                    if ($request->hasFile($inputName)) {
+                        // Upload the new file and update the arrays
+                        $images[$key] = $this->imageUpload($request->file($inputName), 'assets/uploads/postimage/', false);
+                        $originalImages[$key] = $this->originalImageUpload($request->file($inputName), 'images/', false, false);
+                    } elseif ($request->input("delete_{$inputName}") == '1' && !$request->hasFile($inputName)) {
+                        log::info($request->input("delete_{$inputName}"));
+                        unset($image[$key]);
+                        unset($originalImage[$key]);
+                    } else {
+                        // Retain the previous value if no new file is uploaded
+                        $images[$key] = $this->removeBaseUrl($image[$key]) ?? null; // Use previous value from decoded $post->image
+                        $originalImages[$key] = $originalImage[$key] ?? null; // Use previous value from decoded $post->original_image
+                    }
                 }
             }
 
