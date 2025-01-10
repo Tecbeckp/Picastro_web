@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Console\Commands;
-
+use Illuminate\Console\Command;
 use App\Models\GiveStar;
 use App\Models\Notification;
 use App\Models\NotificationSetting;
@@ -10,7 +10,6 @@ use App\Models\PostImage;
 use App\Models\VoteImage;
 use App\Models\WeekOfTheImage;
 use App\Services\NotificationService;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
