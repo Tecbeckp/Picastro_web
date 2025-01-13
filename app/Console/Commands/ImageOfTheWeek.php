@@ -39,12 +39,6 @@ class ImageOfTheWeek extends Command
     /**
      * Execute the console command.
      */
-    protected $notificationService;
-
-    public function __construct(NotificationService $notificationService)
-    {
-        $this->notificationService = $notificationService;
-    }
 
     public function handle()
     {
