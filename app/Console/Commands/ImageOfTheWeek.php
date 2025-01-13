@@ -47,7 +47,7 @@ class ImageOfTheWeek extends Command
         // Get the post_image_ids for the current week
         $posts_id = PostImage::where('created_at', '>=', $startOfWeek)
             ->where('created_at', '<=', $endOfWeek)
-            ->whereNotIn('user_id', ['41', '43'])
+            ->whereNotIn('user_id', ['41', '43','31'])
             ->pluck('id');
 
         // Get the vote count for each post_image_id
