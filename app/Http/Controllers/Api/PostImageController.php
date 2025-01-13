@@ -121,7 +121,14 @@ class PostImageController extends Controller
     {
         if ($request->user) {
             $followers = FollowerList::where('follower_id', auth()->id())->pluck('user_id')->toArray();
-            $users = User::with('userprofile', 'Follower')->whereNotIn('id', [auth()->id(), 1])->whereNotIn('id', $followers)
+            $users = User::with('userprofile', 'Follower')->whereNotIn('id', [auth()->id(), 1])
+                ->whereNotIn('id', $followers)
+                ->where(function ($query) {
+                    $query->where('first_name', 'not like', '%test%')
+                        ->where('last_name', 'not like', '%test%')
+                        ->where('username', 'not like', '%test%')
+                        ->where('email', 'not like', '%test%');
+                })
                 ->whereHas('userprofile', function ($q) {
                     $q->where('complete_profile', '1');
                 })
@@ -251,7 +258,7 @@ class PostImageController extends Controller
                 $currentPage,
                 ['path' => LengthAwarePaginator::resolveCurrentPath()]
             );
-            
+
             $trophies = Trophy::select('id', 'name', 'icon')->get();
 
             $paginatedPosts->getCollection()->transform(function ($post) use ($trophies) {
