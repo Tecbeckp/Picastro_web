@@ -243,8 +243,10 @@ class PostImageController extends Controller
                 }
             }
 
-            // Shuffle the result if needed
-            $mergedPosts = $mergedPosts->shuffle(); // Shuffle ensures randomness without altering uniqueness
+            if (!$observer_location && !$object_type && !$telescope_type && !$most_recent && !$randomizer) {
+                // Shuffle the result if needed
+                $mergedPosts = $mergedPosts->shuffle(); // Shuffle ensures randomness without altering uniqueness
+            }
 
             // Paginate the result
             $currentPage = request()->get('page', 1); // Get current page or default to 1
