@@ -1227,7 +1227,7 @@ class ApiGeneralController extends Controller
                     'subscription' => '1',
                     'subscription_id' => "$request->plan_id"
                 ]);
-                
+
                 SubscriptionHistory::create([
                     'user_id' => auth()->id(),
                     'subscription_id' => $request->plan_id
@@ -1880,7 +1880,8 @@ class ApiGeneralController extends Controller
         return $this->success(['Get successfully.'], $paginatedPosts);
     }
 
-    public function storeRating(Request $request){
+    public function storeRating(Request $request)
+    {
         $rules = [
             'rating' => 'required|numeric|in:1,2',
         ];
@@ -1888,11 +1889,8 @@ class ApiGeneralController extends Controller
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-        
-        $rating = UserProfile::updateOrCreate(
-            [
-                'user_id' => auth()->id(),
-            ],
+
+        $rating = UserProfile::where('user_id', auth()->id())->update(
             [
                 'rating' => $request->rating
             ]
