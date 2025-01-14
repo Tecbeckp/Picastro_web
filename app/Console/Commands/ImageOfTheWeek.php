@@ -7,6 +7,7 @@ use App\Models\Notification;
 use App\Models\NotificationSetting;
 use App\Models\PostComment;
 use App\Models\PostImage;
+use App\Models\PreviousImageOfWeek;
 use App\Models\VoteImage;
 use App\Models\WeekOfTheImage;
 use App\Services\NotificationService;
@@ -134,7 +135,18 @@ class ImageOfTheWeek extends Command
         }
 
         // Group posts by position (1st, 2nd, 3rd)
-
+        $data = WeekOfTheImage::all();
+        foreach ($data as $d) {
+            PreviousImageOfWeek::create([
+                'post_id' => $d->post_id,
+                'vote'    => $d->vote,
+                'star'    => $d->star,
+                'comment' => $d->comment,
+                'total'   => $d->total,
+                'place'   => $d->place,
+                'week'    => $d->created_at
+            ]);
+        }
         WeekOfTheImage::truncate();
 
         foreach ($rankedPosts as $rankedPost) {
