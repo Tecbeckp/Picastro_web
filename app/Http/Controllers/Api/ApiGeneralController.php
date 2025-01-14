@@ -1879,4 +1879,24 @@ class ApiGeneralController extends Controller
 
         return $this->success(['Get successfully.'], $paginatedPosts);
     }
+
+    public function storeRating(Request $request){
+        $rules = [
+            'rating' => 'required|numeric|in:1,2',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+        
+        $rating = UserProfile::updateOrCreate(
+            [
+                'user_id' => auth()->id(),
+            ],
+            [
+                'rating' => $request->rating
+            ]
+        );
+        return $this->success(['Rating successfully.'], $rating);
+    }
 }

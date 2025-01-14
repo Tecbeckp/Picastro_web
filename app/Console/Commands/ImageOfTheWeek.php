@@ -34,6 +34,7 @@ class ImageOfTheWeek extends Command
 
     public function __construct(NotificationService $notificationService)
     {
+        parent::__construct();
         $this->notificationService = $notificationService;
     }
     /**
