@@ -1,16 +1,16 @@
 <?php
 
 namespace App\Console\Commands;
-
+use Illuminate\Console\Command;
 use App\Models\GiveStar;
 use App\Models\Notification;
 use App\Models\NotificationSetting;
 use App\Models\PostComment;
 use App\Models\PostImage;
+use App\Models\PreviousImageOfWeek;
 use App\Models\VoteImage;
 use App\Models\WeekOfTheImage;
 use App\Services\NotificationService;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -49,7 +49,7 @@ class ImageOfTheWeek extends Command
         // Get the post_image_ids for the current week
         $posts_id = PostImage::where('created_at', '>=', $startOfWeek)
             ->where('created_at', '<=', $endOfWeek)
-            ->whereNotIn('user_id', ['41', '43'])
+            ->whereNotIn('user_id', ['41', '43','31'])
             ->pluck('id');
 
         // Get the vote count for each post_image_id
@@ -136,7 +136,18 @@ class ImageOfTheWeek extends Command
         }
 
         // Group posts by position (1st, 2nd, 3rd)
-
+        $data = WeekOfTheImage::all();
+        foreach ($data as $d) {
+            PreviousImageOfWeek::create([
+                'post_id' => $d->post_id,
+                'vote'    => $d->vote,
+                'star'    => $d->star,
+                'comment' => $d->comment,
+                'total'   => $d->total,
+                'place'   => $d->place,
+                'week'    => $d->created_at
+            ]);
+        }
         WeekOfTheImage::truncate();
 
         foreach ($rankedPosts as $rankedPost) {

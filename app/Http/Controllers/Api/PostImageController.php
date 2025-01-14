@@ -121,7 +121,14 @@ class PostImageController extends Controller
     {
         if ($request->user) {
             $followers = FollowerList::where('follower_id', auth()->id())->pluck('user_id')->toArray();
-            $users = User::with('userprofile', 'Follower')->whereNotIn('id', [auth()->id(), 1])->whereNotIn('id', $followers)
+            $users = User::with('userprofile', 'Follower')->whereNotIn('id', [auth()->id(), 1])
+                ->whereNotIn('id', $followers)
+                ->where(function ($query) {
+                    $query->where('first_name', 'not like', '%test%')
+                        ->where('last_name', 'not like', '%test%')
+                        ->where('username', 'not like', '%test%')
+                        ->where('email', 'not like', '%test%');
+                })
                 ->whereHas('userprofile', function ($q) {
                     $q->where('complete_profile', '1');
                 })
@@ -236,8 +243,10 @@ class PostImageController extends Controller
                 }
             }
 
-            // Shuffle the result if needed
-            $mergedPosts = $mergedPosts->shuffle(); // Shuffle ensures randomness without altering uniqueness
+            if (!$observer_location && !$object_type && !$telescope_type && !$most_recent && !$randomizer) {
+                // Shuffle the result if needed
+                $mergedPosts = $mergedPosts->shuffle(); // Shuffle ensures randomness without altering uniqueness
+            }
 
             // Paginate the result
             $currentPage = request()->get('page', 1); // Get current page or default to 1
