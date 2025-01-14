@@ -19,7 +19,7 @@ return new class extends Migration
             $table->double('star')->nullable();
             $table->double('comment')->nullable();
             $table->double('total')->nullable();
-            $table->timestamp('weeek')->nullable();
+            $table->timestamp('week')->nullable();
             $table->foreign('post_id')->references('id')->on('post_images')->onDelete('cascade');
             $table->timestamps();
         });
