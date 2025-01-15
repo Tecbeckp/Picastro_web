@@ -664,7 +664,7 @@ class PostImageController extends Controller
                 $postImage->approx_lunar_phase_id = $request->approx_lunar_phase;
                 $postImage->telescope_id          = $request->telescope;
 
-                if ($request->object_type == '7' || $request->object_type == '8' || $request->object_type == '10') {
+                if ($request->object_type == '7' || $request->object_type == '8' || $request->object_type == '10' || $request->object_type == '13') {
                     $postImage->video_length    = $request->video_length;
                     $postImage->number_of_frame = $request->number_of_frame;
                     $postImage->number_of_video = $request->number_of_video;
@@ -675,7 +675,7 @@ class PostImageController extends Controller
                     $postImage->planet_name  = $request->planet_name;
                 }
 
-                if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10') {
+                if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10' && $request->object_type != '13') {
                     $postImage->total_hours         = $request->total_hours;
                     $postImage->additional_minutes  = $request->additional_minutes;
                     if ($request->object_type != '4' && $request->object_type != '9') {
@@ -1015,7 +1015,7 @@ class PostImageController extends Controller
             ];
             if ($request->only_image_and_description == 'false') {
 
-                if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10') {
+                if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10' && $request->object_type != '13') {
 
                     $data['total_hours']           = $request->total_hours;
                     $data['additional_minutes']    = $request->additional_minutes;
@@ -1024,7 +1024,7 @@ class PostImageController extends Controller
                         $data['object_name']           = $request->object_common_name;
                     }
                 }
-                if ($request->object_type == '7' || $request->object_type == '8' || $request->object_type == '10') {
+                if ($request->object_type == '7' || $request->object_type == '8' || $request->object_type == '10' || $request->object_type == '13') {
                     $data['video_length']    = $request->video_length;
                     $data['number_of_frame'] = $request->number_of_frame;
                     $data['number_of_video'] = $request->number_of_video;
