@@ -241,8 +241,12 @@ class PaymentController extends Controller
                 $subscription->cancelNow();
             }
         }
-        $time = Carbon::parse($user->created_at)->addYear();
-        dispatch(new CancelAutoRenewSubscriptionJob($id))->delay($time);
+
+        User::where('id', $id)->update([
+            'subscription' => '0'
+        ]);
+        // $time = Carbon::parse($user->created_at)->addYear();
+        // dispatch(new CancelAutoRenewSubscriptionJob($id))->delay($time);
         return $this->success(['successfully cancel'], []);
     }
 
