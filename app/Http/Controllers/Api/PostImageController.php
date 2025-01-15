@@ -1161,7 +1161,7 @@ class PostImageController extends Controller
 
         $data['object_types']        = ObjectType::select('id', 'name', 'icon')->get();
         $data['observer_locations']  = ObserverLocation::select('id', 'name')->get();
-        $data['bortles']             = Bortle::select('id', 'bortle_number as name')->get();
+        $data['bortles']             = Bortle::select('id', 'bortle_number as name')->latest()->get();
         $data['approx_lunar_phases'] = ApproxLunarPhase::select('id', 'number as name')->get();
         $data['telescopes']          = Telescope::select('id', 'name', 'icon')->get();
 
