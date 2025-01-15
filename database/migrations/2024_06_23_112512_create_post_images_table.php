@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('post_images', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->string('image')->nullable();
-            $table->string('original_image')->nullable();
-            $table->text('description')->nullable();
+            $table->longText('image')->nullable();
+            $table->longText('original_image')->nullable();
+            $table->longText('description')->nullable();
             $table->unsignedBigInteger('object_type_id')->nullable();
             $table->unsignedBigInteger('bortle_id')->nullable();
             $table->unsignedBigInteger('observer_location_id')->nullable();
