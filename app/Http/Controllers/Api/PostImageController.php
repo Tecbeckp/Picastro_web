@@ -258,15 +258,20 @@ class PostImageController extends Controller
             $currentPage = request()->get('page', 1); // Get current page or default to 1
             $perPage = 10;
 
-            // Slice and paginate
-            $paginatedPosts = new LengthAwarePaginator(
-                $mergedPosts->forPage($currentPage, $perPage)->values(),
-                $mergedPosts->count(),
-                $perPage,
-                $currentPage,
-                ['path' => LengthAwarePaginator::resolveCurrentPath()]
-            );
+            // Total count of merged posts
+            $totalPosts = $mergedPosts->count();
 
+            // Slice the collection to get items for the current page
+            $slicedPosts = $mergedPosts->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+            // Create the paginator
+            $paginatedPosts = new LengthAwarePaginator(
+                $slicedPosts, // Items for the current page
+                $totalPosts,  // Total count of items
+                $perPage,     // Items per page
+                $currentPage, // Current page
+                ['path' => LengthAwarePaginator::resolveCurrentPath()] // Pagination path
+            );
             $trophies = Trophy::select('id', 'name', 'icon')->get();
 
             $paginatedPosts->getCollection()->transform(function ($post) use ($trophies) {
