@@ -236,15 +236,15 @@ class PostImageController extends Controller
                 ->shuffle();
 
             // Calculate post counts based on percentages
-            // $totalPostsNeeded = 10; // Adjust as per your pagination size
-            // $followerPostCount = ceil($totalPostsNeeded * 0.4);
-            // $previousMonthPostCount = ceil($totalPostsNeeded * 0.3);
-            // $currentMonthPostCount = $totalPostsNeeded - $followerPostCount - $previousMonthPostCount;
+            $totalPostsNeeded = 10; // Adjust as per your pagination size
+            $followerPostCount = ceil($totalPostsNeeded * 0.4);
+            $previousMonthPostCount = ceil($totalPostsNeeded * 0.3);
+            $currentMonthPostCount = $totalPostsNeeded - $followerPostCount - $previousMonthPostCount;
 
             // Limit the posts to required counts
-            // $followerPosts = $followerPosts->take($followerPostCount);
-            // $previousMonthPosts = $previousMonthPosts->take($previousMonthPostCount);
-            // $currentMonthPosts = $currentMonthPosts->take($currentMonthPostCount);
+            $followerPosts = $followerPosts->take($followerPostCount);
+            $previousMonthPosts = $previousMonthPosts->take($previousMonthPostCount);
+            $currentMonthPosts = $currentMonthPosts->take($currentMonthPostCount);
 
             // Merge posts ensuring uniqueness
             $mergedPosts = collect();
