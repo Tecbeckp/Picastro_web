@@ -684,11 +684,11 @@ class ApiGeneralController extends Controller
         $data['app_under_maintenance_for_only_android_version'] = '18';
         $data['app_under_maintenance_for_only_ios_version'] = '1.1.6';
         if ($request->platform_type == 'ios') {
-            $data['enable_plan'] = true;
+            $data['enable_plan'] = false;
         } elseif ($request->platform_type == 'android') {
-            $data['enable_plan'] = true;
+            $data['enable_plan'] = false;
         } else {
-            $data['enable_plan'] = true;
+            $data['enable_plan'] = false;
         }
         $data['comment_character_length'] = 400;
         $data['rating_info_string'] = "Enter before the end of November and leave a review a random user will have the chance of winning a prize. To be decided but up to the value of £150.";
