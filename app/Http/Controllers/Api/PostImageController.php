@@ -215,7 +215,8 @@ class PostImageController extends Controller
                 ->whereIn('user_id', $relatedUserIds)
                 ->where('user_id', '!=', $authUserId) // Exclude authenticated user's posts
                 ->latest()
-                ->get();
+                ->get()
+                ->shuffle();
 
             // Fetch previous month posts
             $previousMonthPosts = (clone $postsQuery)
@@ -223,14 +224,16 @@ class PostImageController extends Controller
                 ->where('created_at', '>=', $previousMonthStart)
                 ->where('created_at', '<=', $previousMonthEnd)
                 ->latest()
-                ->get();
+                ->get()
+                ->shuffle();
 
             // Fetch current month posts
             $currentMonthPosts = (clone $postsQuery)
                 ->where('created_at', '>=', $currentMonthStart)
                 ->where('created_at', '<=', $currentMonthEnd)
                 ->latest()
-                ->get();
+                ->get()
+                ->shuffle();
 
             // Calculate post counts based on percentages
             $totalPostsNeeded = 10; // Adjust as per your pagination size
@@ -261,10 +264,15 @@ class PostImageController extends Controller
             $addPosts($previousMonthPosts);
             $addPosts($currentMonthPosts);
 
+
+            $mergedPosts = $mergedPosts->sortByDesc(function ($post) use ($followerPosts) {
+                return in_array($post->id, $followerPosts->pluck('id')->toArray()) ? $post->created_at->timestamp : 0;
+            })->values();
+            
             // If no specific filters are applied, shuffle the result
-            if (!$observer_location && !$object_type && !$telescope_type && !$most_recent && !$randomizer) {
-                $mergedPosts = $mergedPosts->shuffle();
-            }
+            // if (!$observer_location && !$object_type && !$telescope_type && !$most_recent && !$randomizer) {
+            //     $mergedPosts = $mergedPosts->shuffle();
+            // }
 
             // $relatedIterator = $relatedPosts->values()->getIterator();
             // $otherIterator = $otherPosts->values()->getIterator();
