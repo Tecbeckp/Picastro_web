@@ -594,7 +594,7 @@ class PostImageController extends Controller
         }
         if ($request->only_image_and_description == 'false') {
 
-            if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10') {
+            if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10' && $request->object_type != '13') {
 
                 $rules['total_hours']           = 'required|numeric|min:0';
                 $rules['additional_minutes']    = 'required|numeric|min:0';
@@ -603,7 +603,7 @@ class PostImageController extends Controller
                     $rules['object_common_name']    = 'required';
                 }
             }
-            if ($request->object_type == '7' || $request->object_type == '8' || $request->object_type == '10') {
+            if ($request->object_type == '7' || $request->object_type == '8' || $request->object_type == '10' || $request->object_type == '13') {
 
                 $rules['video_length']     = 'required|numeric|min:0';
                 $rules['number_of_frame']  = 'required|numeric|min:0';
@@ -865,7 +865,7 @@ class PostImageController extends Controller
         }
         if ($request->only_image_and_description == 'false') {
 
-            if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10') {
+            if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10' && $request->object_type != '13') {
 
                 $rules['total_hours']           = 'required|numeric|min:0';
                 $rules['additional_minutes']    = 'required|numeric|min:0';
@@ -874,12 +874,12 @@ class PostImageController extends Controller
                     $rules['object_common_name']    = 'required';
                 }
             }
-            if ($request->object_type == '7' || $request->object_type == '8' || $request->object_type == '10') {
+            if ($request->object_type == '7' || $request->object_type == '8' || $request->object_type == '10' || $request->object_type == '13') {
 
                 $rules['video_length']     = 'required|numeric|min:0';
                 $rules['number_of_frame']  = 'required|numeric|min:0';
                 $rules['number_of_video']  = 'required|numeric|min:0';
-                $rules['total_exposure_time'] = 'required|numeric|min:0';
+                $rules['total_exposure_time']    = 'nullable|numeric|min:0';
                 $rules['ir_pass']          = 'required';
                 $rules['planet_name']      = 'required_if:object_type,10';
             }
