@@ -157,6 +157,12 @@ class PostImageController extends Controller
                 return $this->error($validator->errors()->all());
             }
 
+            // Get current and previous month dates
+            $currentMonthStart = now()->startOfMonth();
+            $currentMonthEnd = now()->endOfMonth();
+            $previousMonthStart = now()->subMonth()->startOfMonth();
+            $previousMonthEnd = now()->subMonth()->endOfMonth();
+
             $location       = $request->location;
             $telescope_type = $request->telescope_type_id;
             $object_type    = $request->object_type_id;
@@ -204,49 +210,49 @@ class PostImageController extends Controller
             $postsQuery->whereHas('user', function ($q) {
                 $q->whereNull('deleted_at');
             });
-            // Fetch posts related to the user
-            $relatedPosts = (clone $postsQuery)
+
+            // Fetch follower posts
+            $followerPosts = (clone $postsQuery)
                 ->whereIn('user_id', $relatedUserIds)
-                ->where('user_id', '!=', $authUserId) // Exclude authenticated user's posts
-                ->latest()
+                ->where('user_id', '!=', $authUserId)
+                ->inRandomOrder() // Randomize on every reload
+                ->take(4)
                 ->get();
 
-            // Fetch other posts
-            $otherPosts = (clone $postsQuery)
-                ->whereNotIn('user_id', $relatedUserIds)
-                ->latest()
+            // Fetch current month posts
+            $currentMonthPosts = (clone $postsQuery)
+                ->where('created_at', '>=', $currentMonthStart)
+                ->where('created_at', '<=', $currentMonthEnd)
+                ->inRandomOrder() // Randomize on every reload
+                ->take(3)
                 ->get();
 
-            // Interleave posts
+            // Fetch previous month posts
+            $previousMonthPosts = (clone $postsQuery)
+                ->where('created_at', '>=', $previousMonthStart)
+                ->where('created_at', '<=', $previousMonthEnd)
+                ->inRandomOrder() // Randomize on every reload
+                ->take(3)
+                ->get();
+
+
+            // Merge posts ensuring the order: randomized follower posts -> randomized current month posts -> randomized previous month posts
             $mergedPosts = collect();
-            $seenPostIds = []; // Track unique post IDs
+            $seenPostIds = [];
 
-            $relatedIterator = $relatedPosts->values()->getIterator();
-            $otherIterator = $otherPosts->values()->getIterator();
-
-            while ($relatedIterator->valid() || $otherIterator->valid()) {
-                if ($relatedIterator->valid()) {
-                    $post = $relatedIterator->current();
-                    if (!in_array($post->id, $seenPostIds)) { // Avoid duplicates
+            // Helper function to add posts while avoiding duplicates
+            $addPosts = function ($posts) use (&$mergedPosts, &$seenPostIds) {
+                foreach ($posts as $post) {
+                    if (!in_array($post->id, $seenPostIds)) {
                         $mergedPosts->push($post);
                         $seenPostIds[] = $post->id;
                     }
-                    $relatedIterator->next();
                 }
-                if ($otherIterator->valid()) {
-                    $post = $otherIterator->current();
-                    if (!in_array($post->id, $seenPostIds)) { // Avoid duplicates
-                        $mergedPosts->push($post);
-                        $seenPostIds[] = $post->id;
-                    }
-                    $otherIterator->next();
-                }
-            }
+            };
 
-            if (!$observer_location && !$object_type && !$telescope_type && !$most_recent && !$randomizer) {
-                // Shuffle the result if needed
-                $mergedPosts = $mergedPosts->shuffle(); // Shuffle ensures randomness without altering uniqueness
-            }
+            $addPosts($followerPosts);
+            $addPosts($currentMonthPosts);
+            $addPosts($previousMonthPosts);
 
             // Paginate the result
             $currentPage = request()->get('page', 1); // Get current page or default to 1
