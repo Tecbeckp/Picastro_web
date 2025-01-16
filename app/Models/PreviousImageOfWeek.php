@@ -10,4 +10,9 @@ class PreviousImageOfWeek extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    public function postImage()
+    {
+      return $this->hasOne(PostImage::class,'id','post_id');
+    }
 }
