@@ -393,109 +393,19 @@ class ApiGeneralController extends Controller
                     $q->whereNull('deleted_at');
                 })->get();
 
-            if ($monthly_image && $image_of_week) {
-                $monthly_image->transform(function ($post) {
-                    return [
-                        'month'              => date('D, d/m/Y', strtotime($post->IOT_date)),
-                        'object_type' => $post->postImage->ObjectType ? $post->postImage->ObjectType->name : 'Other',
-                        'post_image' => [
-                            'id'                 => $post->postImage->id,
-                            'user_id'            => $post->postImage->user_id,
-                            'post_image_title'   => $post->postImage->post_image_title,
-                            'image'              => $post->postImage->image,
-                            'original_image'     => $post->postImage->original_image,
-                            'description'        => $post->postImage->description,
-                            'video_length'       => $post->postImage->video_length,
-                            'number_of_frame'    => $post->postImage->number_of_frame,
-                            'number_of_video'    => $post->postImage->number_of_video,
-                            'exposure_time'      => $post->postImage->exposure_time,
-                            'total_hours'        => $post->postImage->total_hours,
-                            'additional_minutes' => $post->postImage->additional_minutes,
-                            'catalogue_number'   => $post->postImage->catalogue_number,
-                            'object_name'        => $post->postImage->object_name,
-                            'ir_pass'            => $post->postImage->ir_pass,
-                            'planet_name'        => $post->postImage->planet_name,
-                            'ObjectType'         => $post->postImage->ObjectType,
-                            'Bortle'             => $post->postImage->Bortle,
-                            'ObserverLocation'   => $post->postImage->ObserverLocation,
-                            'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
-                            'location'           => $post->postImage->location,
-                            'Telescope'          => $post->postImage->Telescope,
-                            'giveStar'           => $post->postImage->giveStar ? true : false,
-                            'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
-                            'Follow'             => $post->postImage->Follow ? true : false,
-                            'voted_trophy_id'    => $post->postImage->votedTrophy ? $post->postImage->votedTrophy->trophy_id : null,
-                            'gold_trophy'        => $post->postImage->gold_trophy,
-                            'silver_trophy'      => $post->postImage->silver_trophy,
-                            'bronze_trophy'      => $post->postImage->bronze_trophy,
-                            'star_card'          => $post->postImage->StarCard,
-                            'user'               => [
-                                'id'             => $post->postImage->user->id,
-                                'first_name'     => $post->postImage->user->first_name,
-                                'last_name'      => $post->postImage->user->last_name,
-                                'username'       => $post->postImage->user->username,
-                                'profile_image'  => $post->postImage->user->userprofile->profile_image,
-                                'fcm_token'      => $post->postImage->user->fcm_token,
-                            ]
-                        ]
-                    ];
-                });
 
+            // Transform Monthly Images
+            $monthlyImages = $monthly_image->transform(function ($post) {
+                return $this->transformPostData($post, $post->IOT_date);
+            });
 
-
-                $groupedData = $image_of_week->transform(function ($post) {
-                    return [
-                        'month'       => date('D, d/m/Y', strtotime($post->week)),
-                        'object_type' => $post->postImage->ObjectType ? $post->postImage->ObjectType->name : 'Other',
-                        'post_image'  => [
-                            'id'                 => $post->postImage->id,
-                            'user_id'            => $post->postImage->user_id,
-                            'post_image_title'   => $post->postImage->post_image_title,
-                            'image'              => $post->postImage->image,
-                            'original_image'     => $post->postImage->original_image,
-                            'description'        => $post->postImage->description,
-                            'video_length'       => $post->postImage->video_length,
-                            'number_of_frame'    => $post->postImage->number_of_frame,
-                            'number_of_video'    => $post->postImage->number_of_video,
-                            'exposure_time'      => $post->postImage->exposure_time,
-                            'total_hours'        => $post->postImage->total_hours,
-                            'additional_minutes' => $post->postImage->additional_minutes,
-                            'catalogue_number'   => $post->postImage->catalogue_number,
-                            'object_name'        => $post->postImage->object_name,
-                            'ir_pass'            => $post->postImage->ir_pass,
-                            'planet_name'        => $post->postImage->planet_name,
-                            'ObjectType'         => $post->postImage->ObjectType,
-                            'Bortle'             => $post->postImage->Bortle,
-                            'ObserverLocation'   => $post->postImage->ObserverLocation,
-                            'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
-                            'location'           => $post->postImage->location,
-                            'Telescope'          => $post->postImage->Telescope,
-                            'giveStar'           => $post->postImage->giveStar ? true : false,
-                            'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
-                            'Follow'             => $post->postImage->Follow ? true : false,
-                            'voted_trophy_id'    => $post->postImage->votedTrophy ? $post->postImage->votedTrophy->trophy_id : null,
-                            'gold_trophy'        => $post->postImage->gold_trophy,
-                            'silver_trophy'      => $post->postImage->silver_trophy,
-                            'bronze_trophy'      => $post->postImage->bronze_trophy,
-                            'star_card'          => $post->postImage->StarCard,
-                            'user'               => [
-                                'id'             => $post->postImage->user->id,
-                                'first_name'     => $post->postImage->user->first_name,
-                                'last_name'      => $post->postImage->user->last_name,
-                                'username'       => $post->postImage->user->username,
-                                'profile_image'  => $post->postImage->user->userprofile->profile_image,
-                                'fcm_token'      => $post->postImage->user->fcm_token,
-                            ]
-                        ]
-                    ];
-                });
-
-                $mergedRecords = $monthly_image->concat($groupedData);
-                $mergedRecords = $mergedRecords->values();
-                return $this->success(['Get hall of fame successfully!'], $mergedRecords);
-            } else {
-                return $this->error(['No data found!']);
-            }
+            // Transform Weekly Images
+            $weeklyImages = $image_of_week->transform(function ($post) {
+                return $this->transformPostData($post, $post->week);
+            });
+            
+            $mergedRecords = $monthlyImages->concat($weeklyImages)->values();
+            return $this->success(['Get hall of fame successfully!'], $mergedRecords);
         } else {
             $currentMonth = Carbon::now()->format('m-Y');
             $currentDay = Carbon::now()->day;
@@ -620,6 +530,53 @@ class ApiGeneralController extends Controller
         }
     }
 
+    private function transformPostData($post, $dateField)
+    {
+        return [
+            'month'       => date('D, d/m/Y', strtotime($dateField)),
+            'object_type' => $post->postImage->ObjectType->name ?? 'Other',
+            'post_image'  => [
+                'id'                 => $post->postImage->id,
+                'user_id'            => $post->postImage->user_id,
+                'post_image_title'   => $post->postImage->post_image_title,
+                'image'              => $post->postImage->image,
+                'original_image'     => $post->postImage->original_image,
+                'description'        => $post->postImage->description,
+                'video_length'       => $post->postImage->video_length,
+                'number_of_frame'    => $post->postImage->number_of_frame,
+                'number_of_video'    => $post->postImage->number_of_video,
+                'exposure_time'      => $post->postImage->exposure_time,
+                'total_hours'        => $post->postImage->total_hours,
+                'additional_minutes' => $post->postImage->additional_minutes,
+                'catalogue_number'   => $post->postImage->catalogue_number,
+                'object_name'        => $post->postImage->object_name,
+                'ir_pass'            => $post->postImage->ir_pass,
+                'planet_name'        => $post->postImage->planet_name,
+                'ObjectType'         => $post->postImage->ObjectType,
+                'Bortle'             => $post->postImage->Bortle,
+                'ObserverLocation'   => $post->postImage->ObserverLocation,
+                'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
+                'location'           => $post->postImage->location,
+                'Telescope'          => $post->postImage->Telescope,
+                'giveStar'           => $post->postImage->giveStar ? true : false,
+                'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
+                'Follow'             => $post->postImage->Follow ? true : false,
+                'voted_trophy_id'    => $post->postImage->votedTrophy->trophy_id ?? null,
+                'gold_trophy'        => $post->postImage->gold_trophy,
+                'silver_trophy'      => $post->postImage->silver_trophy,
+                'bronze_trophy'      => $post->postImage->bronze_trophy,
+                'star_card'          => $post->postImage->StarCard,
+                'user'               => [
+                    'id'             => $post->postImage->user->id,
+                    'first_name'     => $post->postImage->user->first_name,
+                    'last_name'      => $post->postImage->user->last_name,
+                    'username'       => $post->postImage->user->username,
+                    'profile_image'  => $post->postImage->user->userprofile->profile_image,
+                    'fcm_token'      => $post->postImage->user->fcm_token,
+                ]
+            ]
+        ];
+    }
     public function voteImage(Request $request)
     {
         $rules = [
