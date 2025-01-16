@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->string('month')->nullable();
             $table->integer('IOT')->nullable();
+            $table->timestamp('IOT_date')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('trophy_id')->references('id')->on('trophies')->onDelete('cascade');
             $table->foreign('post_image_id')->references('id')->on('post_images')->onDelete('cascade');
