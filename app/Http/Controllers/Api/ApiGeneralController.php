@@ -1604,8 +1604,8 @@ class ApiGeneralController extends Controller
     public function generalSetting()
     {
         $data = [];
-        $data['is_registration'] = IsRegistration::where('id', '1')->first();
-        $data['app_under_maintenance'] = Setting::where('id', '1')->first();
+        $data['is_registration'] = IsRegistration::latest()->first();
+        $data['app_under_maintenance'] = Setting::latest()->first();
         return view('admin.general_setting', compact('data'));
     }
 
