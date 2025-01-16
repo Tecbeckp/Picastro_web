@@ -47,6 +47,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\ChatImage;
 use App\Models\GalleryImage;
 use App\Models\GiftSubscription;
+use App\Models\PreviousImageOfWeek;
 use App\Models\SubscriptionHistory;
 use App\Models\SubscriptionPlan;
 use App\Models\UserProfile;
@@ -350,124 +351,272 @@ class ApiGeneralController extends Controller
     public function imageOfMonth(Request $request)
     {
 
-        $currentMonth = Carbon::now()->format('m-Y');
-        $currentDay = Carbon::now()->day;
-        if ($currentDay == 28) {
-            $data = VoteImage::select('post_image_id', 'month', DB::raw('count(id) as post_count'))
-                ->whereHas('postImage', function ($q) {
-                    $q->whereNull('deleted_at')->whereNotIn('user_id', ['41', '43']);
+        if ($request->hall_of_fame) {
+            $year = $request->year;
+
+            $monthly_image = VoteImage::with([
+                'postImage.user',
+                'postImage.StarCard.StarCardFilter',
+                'postImage.ObjectType',
+                'postImage.Bortle',
+                'postImage.ObserverLocation',
+                'postImage.ApproxLunarPhase',
+                'postImage.Telescope',
+                'postImage.giveStar',
+                'postImage.totalStar',
+                'postImage.Follow',
+                'postImage.votedTrophy'
+            ])->whereHas('postImage', function ($q) {
+                $q->whereNull('deleted_at');
+            })->where('IOT', '1')
+                ->where('month', 'like', '%' . $year)
+                ->latest()->get();
+
+            $image_of_week = PreviousImageOfWeek::with([
+                'postImage.user',
+                'postImage.StarCard.StarCardFilter',
+                'postImage.ObjectType',
+                'postImage.Bortle',
+                'postImage.ObserverLocation',
+                'postImage.ApproxLunarPhase',
+                'postImage.Telescope',
+                'postImage.giveStar',
+                'postImage.totalStar',
+                'postImage.Follow',
+                'postImage.votedTrophy',
+                'postImage.totalGoldTrophies'
+            ])->where('place', '1')
+                ->whereHas('postImage.user', function ($q) {
+                    $q->where('id', '!=', 43);
                 })
-                ->where('trophy_id', '1')
-                ->whereNotIn('user_id', ['41', '43'])
-                ->where('month', $currentMonth)
-                ->groupBy('month', 'post_image_id')
-                ->orderBy('post_count', 'desc')
-                ->get()
-                ->groupBy('month')
-                ->map(function ($groupedByMonth) {
+                ->whereHas('postImage', function ($q) {
+                    $q->whereNull('deleted_at');
+                })->get();
+
+            if ($monthly_image && $image_of_week) {
+                $monthly_image->transform(function ($post) {
                     return [
-                        'post_image_id' => $groupedByMonth->first()->post_image_id,
-                        'month' => $groupedByMonth->first()->month,
-                        'post_count' => $groupedByMonth->first()->post_count
+                        'month'              => date('D, d/m/Y', strtotime($post->IOT_date)),
+                        'object_type' => $post->postImage->ObjectType ? $post->postImage->ObjectType->name : 'Other',
+                        'post_image' => [
+                            'id'                 => $post->postImage->id,
+                            'user_id'            => $post->postImage->user_id,
+                            'post_image_title'   => $post->postImage->post_image_title,
+                            'image'              => $post->postImage->image,
+                            'original_image'     => $post->postImage->original_image,
+                            'description'        => $post->postImage->description,
+                            'video_length'       => $post->postImage->video_length,
+                            'number_of_frame'    => $post->postImage->number_of_frame,
+                            'number_of_video'    => $post->postImage->number_of_video,
+                            'exposure_time'      => $post->postImage->exposure_time,
+                            'total_hours'        => $post->postImage->total_hours,
+                            'additional_minutes' => $post->postImage->additional_minutes,
+                            'catalogue_number'   => $post->postImage->catalogue_number,
+                            'object_name'        => $post->postImage->object_name,
+                            'ir_pass'            => $post->postImage->ir_pass,
+                            'planet_name'        => $post->postImage->planet_name,
+                            'ObjectType'         => $post->postImage->ObjectType,
+                            'Bortle'             => $post->postImage->Bortle,
+                            'ObserverLocation'   => $post->postImage->ObserverLocation,
+                            'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
+                            'location'           => $post->postImage->location,
+                            'Telescope'          => $post->postImage->Telescope,
+                            'giveStar'           => $post->postImage->giveStar ? true : false,
+                            'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
+                            'Follow'             => $post->postImage->Follow ? true : false,
+                            'voted_trophy_id'    => $post->postImage->votedTrophy ? $post->postImage->votedTrophy->trophy_id : null,
+                            'gold_trophy'        => $post->postImage->gold_trophy,
+                            'silver_trophy'      => $post->postImage->silver_trophy,
+                            'bronze_trophy'      => $post->postImage->bronze_trophy,
+                            'star_card'          => $post->postImage->StarCard,
+                            'user'               => [
+                                'id'             => $post->postImage->user->id,
+                                'first_name'     => $post->postImage->user->first_name,
+                                'last_name'      => $post->postImage->user->last_name,
+                                'username'       => $post->postImage->user->username,
+                                'profile_image'  => $post->postImage->user->userprofile->profile_image,
+                                'fcm_token'      => $post->postImage->user->fcm_token,
+                            ]
+                        ]
                     ];
                 });
 
-            $res  = $data[$currentMonth];
 
-            $update_Res = VoteImage::where('post_image_id', $res['post_image_id'])->where('month', $res['month'])->first();
-            $update_Res->update([
-                'IOT' => '1'
-            ]);
-            $post = PostImage::with('user')->where('id', $res['post_image_id'])->first();
-            if ($post) {
-                $user_notification_setting = NotificationSetting::where('user_id', $post->user_id)->first();
-                $notification = new Notification();
-                $notification->user_id = $post->user_id;
-                $notification->type    = 'Posts';
-                $notification->post_image_id    = $res['post_image_id'];
-                $notification->notification = 'Your stunning post has been crowned Image of the Month';
-                $notification->save();
 
-                $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
-                if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->post == true)) {
-                    $this->notificationService->sendNotification(
-                        'Posts',
-                        'Your stunning post has been crowned Image of the Month',
-                        $post->user->fcm_token,
-                        json_encode($getnotification)
-                    );
+                $groupedData = $image_of_week->transform(function ($post) {
+                    return [
+                        'month'       => date('D, d/m/Y', strtotime($post->week)),
+                        'object_type' => $post->postImage->ObjectType ? $post->postImage->ObjectType->name : 'Other',
+                        'post_image'  => [
+                            'id'                 => $post->postImage->id,
+                            'user_id'            => $post->postImage->user_id,
+                            'post_image_title'   => $post->postImage->post_image_title,
+                            'image'              => $post->postImage->image,
+                            'original_image'     => $post->postImage->original_image,
+                            'description'        => $post->postImage->description,
+                            'video_length'       => $post->postImage->video_length,
+                            'number_of_frame'    => $post->postImage->number_of_frame,
+                            'number_of_video'    => $post->postImage->number_of_video,
+                            'exposure_time'      => $post->postImage->exposure_time,
+                            'total_hours'        => $post->postImage->total_hours,
+                            'additional_minutes' => $post->postImage->additional_minutes,
+                            'catalogue_number'   => $post->postImage->catalogue_number,
+                            'object_name'        => $post->postImage->object_name,
+                            'ir_pass'            => $post->postImage->ir_pass,
+                            'planet_name'        => $post->postImage->planet_name,
+                            'ObjectType'         => $post->postImage->ObjectType,
+                            'Bortle'             => $post->postImage->Bortle,
+                            'ObserverLocation'   => $post->postImage->ObserverLocation,
+                            'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
+                            'location'           => $post->postImage->location,
+                            'Telescope'          => $post->postImage->Telescope,
+                            'giveStar'           => $post->postImage->giveStar ? true : false,
+                            'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
+                            'Follow'             => $post->postImage->Follow ? true : false,
+                            'voted_trophy_id'    => $post->postImage->votedTrophy ? $post->postImage->votedTrophy->trophy_id : null,
+                            'gold_trophy'        => $post->postImage->gold_trophy,
+                            'silver_trophy'      => $post->postImage->silver_trophy,
+                            'bronze_trophy'      => $post->postImage->bronze_trophy,
+                            'star_card'          => $post->postImage->StarCard,
+                            'user'               => [
+                                'id'             => $post->postImage->user->id,
+                                'first_name'     => $post->postImage->user->first_name,
+                                'last_name'      => $post->postImage->user->last_name,
+                                'username'       => $post->postImage->user->username,
+                                'profile_image'  => $post->postImage->user->userprofile->profile_image,
+                                'fcm_token'      => $post->postImage->user->fcm_token,
+                            ]
+                        ]
+                    ];
+                });
+
+                $mergedRecords = $monthly_image->concat($groupedData);
+                $mergedRecords = $mergedRecords->values();
+                return $this->success(['Get hall of fame successfully!'], $mergedRecords);
+            } else {
+                return $this->error(['No data found!']);
+            }
+        } else {
+            $currentMonth = Carbon::now()->format('m-Y');
+            $currentDay = Carbon::now()->day;
+            if ($currentDay == 28) {
+                $data = VoteImage::select('post_image_id', 'month', DB::raw('count(id) as post_count'))
+                    ->whereHas('postImage', function ($q) {
+                        $q->whereNull('deleted_at')->whereNotIn('user_id', ['41', '43']);
+                    })
+                    ->where('trophy_id', '1')
+                    ->whereNotIn('user_id', ['41', '43'])
+                    ->where('month', $currentMonth)
+                    ->groupBy('month', 'post_image_id')
+                    ->orderBy('post_count', 'desc')
+                    ->get()
+                    ->groupBy('month')
+                    ->map(function ($groupedByMonth) {
+                        return [
+                            'post_image_id' => $groupedByMonth->first()->post_image_id,
+                            'month' => $groupedByMonth->first()->month,
+                            'post_count' => $groupedByMonth->first()->post_count
+                        ];
+                    });
+
+                $res  = $data[$currentMonth];
+
+                $update_Res = VoteImage::where('post_image_id', $res['post_image_id'])->where('month', $res['month'])->first();
+                $update_Res->update([
+                    'IOT' => '1',
+                    'IOT_date' => now()
+                ]);
+                $post = PostImage::with('user')->where('id', $res['post_image_id'])->first();
+                if ($post) {
+                    $user_notification_setting = NotificationSetting::where('user_id', $post->user_id)->first();
+                    $notification = new Notification();
+                    $notification->user_id = $post->user_id;
+                    $notification->type    = 'Posts';
+                    $notification->post_image_id    = $res['post_image_id'];
+                    $notification->notification = 'Your stunning post has been crowned Image of the Month';
+                    $notification->save();
+
+                    $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
+                    if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->post == true)) {
+                        $this->notificationService->sendNotification(
+                            'Posts',
+                            'Your stunning post has been crowned Image of the Month',
+                            $post->user->fcm_token,
+                            json_encode($getnotification)
+                        );
+                    }
                 }
             }
-        }
 
 
-        $data = VoteImage::with([
-            'postImage.user',
-            'postImage.StarCard.StarCardFilter',
-            'postImage.ObjectType',
-            'postImage.Bortle',
-            'postImage.ObserverLocation',
-            'postImage.ApproxLunarPhase',
-            'postImage.Telescope',
-            'postImage.giveStar',
-            'postImage.totalStar',
-            'postImage.Follow',
-            'postImage.votedTrophy'
-        ])->whereHas('postImage', function ($q) {
-            $q->whereNull('deleted_at');
-        })->where('IOT', '1')
-            ->latest()->get();
-        if ($data->isNotEmpty()) {
-            $data->transform(function ($post) {
-                return [
-                    'month'              => date('M Y', strtotime('01-' . $post->month)),
-                    'object_type' => $post->postImage->ObjectType ? $post->postImage->ObjectType->name : 'Other',
-                    'post_image' => [
-                        'id'                 => $post->postImage->id,
-                        'user_id'            => $post->postImage->user_id,
-                        'post_image_title'   => $post->postImage->post_image_title,
-                        'image'              => $post->postImage->image,
-                        'original_image'     => $post->postImage->original_image,
-                        'description'        => $post->postImage->description,
-                        'video_length'       => $post->postImage->video_length,
-                        'number_of_frame'    => $post->postImage->number_of_frame,
-                        'number_of_video'    => $post->postImage->number_of_video,
-                        'exposure_time'      => $post->postImage->exposure_time,
-                        'total_hours'        => $post->postImage->total_hours,
-                        'additional_minutes' => $post->postImage->additional_minutes,
-                        'catalogue_number'   => $post->postImage->catalogue_number,
-                        'object_name'        => $post->postImage->object_name,
-                        'ir_pass'            => $post->postImage->ir_pass,
-                        'planet_name'        => $post->postImage->planet_name,
-                        'ObjectType'         => $post->postImage->ObjectType,
-                        'Bortle'             => $post->postImage->Bortle,
-                        'ObserverLocation'   => $post->postImage->ObserverLocation,
-                        'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
-                        'location'           => $post->postImage->location,
-                        'Telescope'          => $post->postImage->Telescope,
-                        'giveStar'           => $post->postImage->giveStar ? true : false,
-                        'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
-                        'Follow'             => $post->postImage->Follow ? true : false,
-                        'voted_trophy_id'    => $post->postImage->votedTrophy ? $post->postImage->votedTrophy->trophy_id : null,
-                        'gold_trophy'        => $post->postImage->gold_trophy,
-                        'silver_trophy'      => $post->postImage->silver_trophy,
-                        'bronze_trophy'      => $post->postImage->bronze_trophy,
-                        'star_card'          => $post->postImage->StarCard,
-                        'user'               => [
-                            'id'             => $post->postImage->user->id,
-                            'first_name'     => $post->postImage->user->first_name,
-                            'last_name'      => $post->postImage->user->last_name,
-                            'username'       => $post->postImage->user->username,
-                            'profile_image'  => $post->postImage->user->userprofile->profile_image,
-                            'fcm_token'      => $post->postImage->user->fcm_token,
+            $data = VoteImage::with([
+                'postImage.user',
+                'postImage.StarCard.StarCardFilter',
+                'postImage.ObjectType',
+                'postImage.Bortle',
+                'postImage.ObserverLocation',
+                'postImage.ApproxLunarPhase',
+                'postImage.Telescope',
+                'postImage.giveStar',
+                'postImage.totalStar',
+                'postImage.Follow',
+                'postImage.votedTrophy'
+            ])->whereHas('postImage', function ($q) {
+                $q->whereNull('deleted_at');
+            })->where('IOT', '1')
+                ->latest()->get();
+            if ($data->isNotEmpty()) {
+                $data->transform(function ($post) {
+                    return [
+                        'month'              => date('M Y', strtotime('01-' . $post->month)),
+                        'object_type' => $post->postImage->ObjectType ? $post->postImage->ObjectType->name : 'Other',
+                        'post_image' => [
+                            'id'                 => $post->postImage->id,
+                            'user_id'            => $post->postImage->user_id,
+                            'post_image_title'   => $post->postImage->post_image_title,
+                            'image'              => $post->postImage->image,
+                            'original_image'     => $post->postImage->original_image,
+                            'description'        => $post->postImage->description,
+                            'video_length'       => $post->postImage->video_length,
+                            'number_of_frame'    => $post->postImage->number_of_frame,
+                            'number_of_video'    => $post->postImage->number_of_video,
+                            'exposure_time'      => $post->postImage->exposure_time,
+                            'total_hours'        => $post->postImage->total_hours,
+                            'additional_minutes' => $post->postImage->additional_minutes,
+                            'catalogue_number'   => $post->postImage->catalogue_number,
+                            'object_name'        => $post->postImage->object_name,
+                            'ir_pass'            => $post->postImage->ir_pass,
+                            'planet_name'        => $post->postImage->planet_name,
+                            'ObjectType'         => $post->postImage->ObjectType,
+                            'Bortle'             => $post->postImage->Bortle,
+                            'ObserverLocation'   => $post->postImage->ObserverLocation,
+                            'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
+                            'location'           => $post->postImage->location,
+                            'Telescope'          => $post->postImage->Telescope,
+                            'giveStar'           => $post->postImage->giveStar ? true : false,
+                            'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
+                            'Follow'             => $post->postImage->Follow ? true : false,
+                            'voted_trophy_id'    => $post->postImage->votedTrophy ? $post->postImage->votedTrophy->trophy_id : null,
+                            'gold_trophy'        => $post->postImage->gold_trophy,
+                            'silver_trophy'      => $post->postImage->silver_trophy,
+                            'bronze_trophy'      => $post->postImage->bronze_trophy,
+                            'star_card'          => $post->postImage->StarCard,
+                            'user'               => [
+                                'id'             => $post->postImage->user->id,
+                                'first_name'     => $post->postImage->user->first_name,
+                                'last_name'      => $post->postImage->user->last_name,
+                                'username'       => $post->postImage->user->username,
+                                'profile_image'  => $post->postImage->user->userprofile->profile_image,
+                                'fcm_token'      => $post->postImage->user->fcm_token,
+                            ]
                         ]
-                    ]
-                ];
-            });
+                    ];
+                });
 
-            return $this->success(['Get Image of month successfully!'], $data);
-        } else {
-            return $this->error(['No data found']);
+                return $this->success(['Get Image of month successfully!'], $data);
+            } else {
+                return $this->error(['No data found']);
+            }
         }
     }
 
@@ -1654,7 +1803,7 @@ class ApiGeneralController extends Controller
         if ($data->isNotEmpty()) {
             $groupedData = $data->transform(function ($post) {
                 return [
-                    'place'                  => 'place_' . $post->place,
+                    'place'              => 'place_' . $post->place,
                     'id'                 => $post->postImage->id,
                     'user_id'            => $post->postImage->user_id,
                     'post_image_title'   => $post->postImage->post_image_title,

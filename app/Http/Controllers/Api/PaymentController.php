@@ -8,10 +8,12 @@ use App\Models\User;
 use App\Traits\ApiResponseTrait;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 use App\Helpers\WebPaymentHelper;
+use App\Jobs\CancelAutoRenewSubscriptionJob;
 use App\Mail\giftMail;
 use App\Models\Coupons;
 use App\Models\PaypalSubscription;
 use App\Models\SubscriptionPlan;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Stripe\Customer;
@@ -221,38 +223,30 @@ class PaymentController extends Controller
 
     public function subscriptionCancel($id)
     {
-        //     $user = User::where('id',$id)->first();
-        //     //  $subscription = $user->subscription('prod_QjWAuSh9HNzXEc');
-        //   $subscription = $user->subscriptions;
-        //     dd($subscription);
+        $user = User::where('id', $id)->first();
 
-        // if ($subscription) {
-        //     $subscription->cancelNow();
-        // }
+        $PaypalSubscription = PaypalSubscription::where('user_id', $id)->where('status', 'Approved')->first();
 
-        $user = PaypalSubscription::where('user_id', $id)->where('status', 'Approved')->first();
-
-        if ($user) {
-            $subscription_id = $user->subscription_id;
+        if ($PaypalSubscription) {
+            $subscription_id = $PaypalSubscription->subscription_id;
             $this->paymentHelper->cancelSubscription($subscription_id);
-            User::where('id', $id)->update([
-                'subscription' => '0'
-            ]);
             PaypalSubscription::where('user_id', $id)->where('subscription_id', $subscription_id)->update([
                 'status' => 'Cancel'
             ]);
         } else {
-            $user = User::where('id', $id)->first();
-
-            $subscription = $user->subscription('prod_QpsdEeUzwiQZeL'); // Use the same name as when creating the subscription
+            $subscription_plan = SubscriptionPlan::where('id', $user->subscription_id)->first();
+            $subscription = $user->subscription($subscription_plan->stripe_plan_id); // Use the same name as when creating the subscription
 
             if ($subscription) {
                 $subscription->cancelNow();
             }
-            User::where('id', $id)->update([
-                'subscription' => '0'
-            ]);
         }
+
+        User::where('id', $id)->update([
+            'subscription' => '0'
+        ]);
+        // $time = Carbon::parse($user->created_at)->addYear();
+        // dispatch(new CancelAutoRenewSubscriptionJob($id))->delay($time);
         return $this->success(['successfully cancel'], []);
     }
 

@@ -135,19 +135,6 @@ class ImageOfTheWeek extends Command
             $position++;
         }
 
-        // Group posts by position (1st, 2nd, 3rd)
-        $data = WeekOfTheImage::all();
-        foreach ($data as $d) {
-            PreviousImageOfWeek::create([
-                'post_id' => $d->post_id,
-                'vote'    => $d->vote,
-                'star'    => $d->star,
-                'comment' => $d->comment,
-                'total'   => $d->total,
-                'place'   => $d->place,
-                'week'    => $d->created_at
-            ]);
-        }
         WeekOfTheImage::truncate();
 
         foreach ($rankedPosts as $rankedPost) {
@@ -158,6 +145,16 @@ class ImageOfTheWeek extends Command
                 'comment' =>  $rankedPost['comments'],
                 'total'   =>  $rankedPost['total'],
                 'place'   =>  $rankedPost['rank']
+            ]);
+
+            PreviousImageOfWeek::create([
+                'post_id' =>  $rankedPost['post_image_id'],
+                'vote'    =>  $rankedPost['votes'],
+                'star'    =>  $rankedPost['stars'],
+                'comment' =>  $rankedPost['comments'],
+                'total'   =>  $rankedPost['total'],
+                'place'   =>  $rankedPost['rank'],
+                'week'    => now()
             ]);
 
             if($rankedPost['rank'] == 1){

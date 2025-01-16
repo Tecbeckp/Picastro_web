@@ -574,7 +574,6 @@ class PostImageController extends Controller
     public function store(Request $request)
     {
         $subscription = SubscriptionPlan::where('id', auth()->user()->subscription_id)->first();
-        log::info($request->all());
         $rules = [
             'description'           => 'required',
             'object_type'           => 'required_if:only_image_and_description,false',
@@ -595,7 +594,7 @@ class PostImageController extends Controller
         }
         if ($request->only_image_and_description == 'false') {
 
-            if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10') {
+            if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10' && $request->object_type != '13') {
 
                 $rules['total_hours']           = 'required|numeric|min:0';
                 $rules['additional_minutes']    = 'required|numeric|min:0';
@@ -604,7 +603,7 @@ class PostImageController extends Controller
                     $rules['object_common_name']    = 'required';
                 }
             }
-            if ($request->object_type == '7' || $request->object_type == '8' || $request->object_type == '10') {
+            if ($request->object_type == '7' || $request->object_type == '8' || $request->object_type == '10' || $request->object_type == '13') {
 
                 $rules['video_length']     = 'required|numeric|min:0';
                 $rules['number_of_frame']  = 'required|numeric|min:0';
@@ -650,9 +649,6 @@ class PostImageController extends Controller
                 $originalImages[] = $this->originalImageUpload($request->file('image_3'), 'images/', false, false);
             }
 
-            log::info($images);
-            log::info($originalImages);
-
             $postImage                        = new PostImage();
             $postImage->user_id               = auth()->id();
             // $postImage->original_image        = $originalImageName;
@@ -668,7 +664,7 @@ class PostImageController extends Controller
                 $postImage->approx_lunar_phase_id = $request->approx_lunar_phase;
                 $postImage->telescope_id          = $request->telescope;
 
-                if ($request->object_type == '7' || $request->object_type == '8' || $request->object_type == '10') {
+                if ($request->object_type == '7' || $request->object_type == '8' || $request->object_type == '10' || $request->object_type == '13') {
                     $postImage->video_length    = $request->video_length;
                     $postImage->number_of_frame = $request->number_of_frame;
                     $postImage->number_of_video = $request->number_of_video;
@@ -679,7 +675,7 @@ class PostImageController extends Controller
                     $postImage->planet_name  = $request->planet_name;
                 }
 
-                if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10') {
+                if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10' && $request->object_type != '13') {
                     $postImage->total_hours         = $request->total_hours;
                     $postImage->additional_minutes  = $request->additional_minutes;
                     if ($request->object_type != '4' && $request->object_type != '9') {
@@ -869,7 +865,7 @@ class PostImageController extends Controller
         }
         if ($request->only_image_and_description == 'false') {
 
-            if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10') {
+            if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10' && $request->object_type != '13') {
 
                 $rules['total_hours']           = 'required|numeric|min:0';
                 $rules['additional_minutes']    = 'required|numeric|min:0';
@@ -878,12 +874,12 @@ class PostImageController extends Controller
                     $rules['object_common_name']    = 'required';
                 }
             }
-            if ($request->object_type == '7' || $request->object_type == '8' || $request->object_type == '10') {
+            if ($request->object_type == '7' || $request->object_type == '8' || $request->object_type == '10' || $request->object_type == '13') {
 
                 $rules['video_length']     = 'required|numeric|min:0';
                 $rules['number_of_frame']  = 'required|numeric|min:0';
                 $rules['number_of_video']  = 'required|numeric|min:0';
-                $rules['total_exposure_time'] = 'required|numeric|min:0';
+                $rules['total_exposure_time']    = 'nullable|numeric|min:0';
                 $rules['ir_pass']          = 'required';
                 $rules['planet_name']      = 'required_if:object_type,10';
             }
@@ -1019,7 +1015,7 @@ class PostImageController extends Controller
             ];
             if ($request->only_image_and_description == 'false') {
 
-                if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10') {
+                if ($request->object_type != '7' && $request->object_type != '8' && $request->object_type != '10' && $request->object_type != '13') {
 
                     $data['total_hours']           = $request->total_hours;
                     $data['additional_minutes']    = $request->additional_minutes;
@@ -1028,7 +1024,7 @@ class PostImageController extends Controller
                         $data['object_name']           = $request->object_common_name;
                     }
                 }
-                if ($request->object_type == '7' || $request->object_type == '8' || $request->object_type == '10') {
+                if ($request->object_type == '7' || $request->object_type == '8' || $request->object_type == '10' || $request->object_type == '13') {
                     $data['video_length']    = $request->video_length;
                     $data['number_of_frame'] = $request->number_of_frame;
                     $data['number_of_video'] = $request->number_of_video;
