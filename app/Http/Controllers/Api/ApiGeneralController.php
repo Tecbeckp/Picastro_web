@@ -69,7 +69,7 @@ class ApiGeneralController extends Controller
     public function testNotification()
     {
         $targetToken = auth()->user()->fcm_token; // Adjust according to your data structure
-
+        $notification = null;
         // Send the notification
         $this->notificationService->sendNotification(
             'TestNotification',
