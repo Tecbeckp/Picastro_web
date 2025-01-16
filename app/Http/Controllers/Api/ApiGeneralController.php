@@ -733,14 +733,15 @@ class ApiGeneralController extends Controller
         $data['ios_screenshot'] = IsRegistration::first()->ios_screenshot;
         $data['android_screenshot'] = IsRegistration::first()->android_screenshot;
         $data['trial_period'] = TrialPeriod::first();
-        $data['app_under_maintenance'] = Setting::where('id', '1')->first()->maintenance;
+        $is_register = IsRegistration::where('id', 1)->first();
+        $data['app_under_maintenance'] = '0';
         $data['app_under_maintenance_for_only_android_version'] = '18';
         $data['app_under_maintenance_for_only_ios_version'] = '1.1.6';
-        if ($request->platform_type == 'ios') {
-            $data['enable_plan'] = true;
-        } elseif ($request->platform_type == 'android') {
-            $data['enable_plan'] = true;
-        } else {
+        if (isset($is_register) && $is_register->android == '0' && $request->platform_type == 'android') {
+            $data['enable_plan'] = false;
+        } elseif (isset($is_register) && $is_register->ios == '0' && $request->platform_type == 'iOS') {
+            $data['enable_plan'] = false;
+        }else{
             $data['enable_plan'] = true;
         }
         $data['comment_character_length'] = 400;
