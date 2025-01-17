@@ -734,16 +734,18 @@ class ApiGeneralController extends Controller
         $data['android_screenshot'] = IsRegistration::first()->android_screenshot;
         $data['trial_period'] = TrialPeriod::first();
         $is_register = IsRegistration::where('id', 1)->first();
-        $data['app_under_maintenance'] = '0';
+        $data['app_under_maintenance'] = false;
         $data['app_under_maintenance_for_only_android_version'] = '18';
         $data['app_under_maintenance_for_only_ios_version'] = '1.1.6';
-        // if (isset($is_register) && $is_register->android == '0' && $request->platform_type == 'android') {
-        //     $data['enable_plan'] = false;
-        // } elseif (isset($is_register) && $is_register->ios == '0' && $request->platform_type == 'iOS') {
-        //     $data['enable_plan'] = false;
-        // }else{
+        
+        if (isset($is_register) && $is_register->android == '0' && $request->platform_type == 'android') {
+            $data['enable_plan'] = false;
+        } elseif (isset($is_register) && $is_register->ios == '0' && $request->platform_type == 'ios') {
+            $data['enable_plan'] = false;
+        }else{
             $data['enable_plan'] = true;
-        // }
+        }
+        
         $data['comment_character_length'] = 400;
         $data['rating_info_string'] = "Enter before the end of November and leave a review a random user will have the chance of winning a prize. To be decided but up to the value of £150.";
         $used_trial = User::where('id', $request->user_id)->whereIn('trial_period_status', ['0', '2'])->first();
@@ -1604,8 +1606,8 @@ class ApiGeneralController extends Controller
     public function generalSetting()
     {
         $data = [];
-        $data['is_registration'] = IsRegistration::latest()->first();
-        $data['app_under_maintenance'] = Setting::latest()->first();
+        $data['is_registration'] = IsRegistration::where('id', '1')->first();
+        $data['app_under_maintenance'] = Setting::where('id', '1')->first();
         return view('admin.general_setting', compact('data'));
     }
 
