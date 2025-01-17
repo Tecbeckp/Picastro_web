@@ -201,9 +201,25 @@ class PostImageController extends Controller
             if ($most_recent) {
                 $postsQuery->where('object_type_id', $most_recent);
             }
-            if($request->only_posts_with_star_cards){
+            if($request->only_posts_with_star_cards === 'true'){
                 $postsQuery->whereHas('StarCard');
             }
+            if($request->posts_from_people_you_follow === 'true'){
+                $authUserId = auth()->id();
+                $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
+                $relatedUserIds = array_unique(array_merge($following, [$authUserId]));
+            }elseif($request->posts_from_people_you_do_not_follow === 'true'){
+                
+                $authUserId = auth()->id();
+                $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
+                $relatedUserIds = array_unique(array_merge($followers, [$authUserId]));
+            }else{
+                $authUserId = auth()->id();
+                $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
+                $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
+                $relatedUserIds = array_unique(array_merge($followers, $following, [$authUserId]));
+            }
+
             $postsQuery->whereHas('user', function ($q) {
                 $q->whereNull('deleted_at');
             });
@@ -213,13 +229,19 @@ class PostImageController extends Controller
                 ->where('user_id', '!=', $authUserId) // Exclude authenticated user's posts
                 ->latest()
                 ->get();
-
             // Fetch other posts
-            $otherPosts = (clone $postsQuery)
+            if($request->posts_from_people_you_follow === 'true'){
+                $otherPosts = (clone $postsQuery)
+                ->whereIn('user_id', $relatedUserIds)
+                ->where('user_id', '!=', $authUserId)
+                ->latest()
+                ->get();
+            }else{
+                $otherPosts = (clone $postsQuery)
                 ->whereNotIn('user_id', $relatedUserIds)
                 ->latest()
                 ->get();
-
+            }
             // Interleave posts
             $mergedPosts = collect();
             $seenPostIds = []; // Track unique post IDs
@@ -253,7 +275,7 @@ class PostImageController extends Controller
 
             // Paginate the result
             $currentPage = request()->get('page', 1); // Get current page or default to 1
-            $perPage = 10;
+            $perPage = 50;
 
             // Slice and paginate
             $paginatedPosts = new LengthAwarePaginator(
