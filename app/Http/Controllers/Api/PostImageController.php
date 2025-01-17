@@ -172,11 +172,6 @@ class PostImageController extends Controller
                 $observer_location = null;
             }
 
-            $authUserId = auth()->id();
-            $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
-            $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
-            $relatedUserIds = array_unique(array_merge($followers, $following, [$authUserId]));
-
             $postsQuery = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
                 ->whereDoesntHave('blockToUser')
                 ->whereDoesntHave('UserToBlock')
@@ -204,6 +199,21 @@ class PostImageController extends Controller
             if($request->only_posts_with_star_cards){
                 $postsQuery->whereHas('StarCard');
             }
+            if($request->posts_from_people_you_follow){
+                $authUserId = auth()->id();
+                $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
+                $relatedUserIds = array_unique(array_merge($followers, [$authUserId]));
+            }elseif($request->posts_from_people_you_do_not_follow){
+                $authUserId = auth()->id();
+                $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
+                $relatedUserIds = array_unique(array_merge($following, [$authUserId]));
+            }else{
+                $authUserId = auth()->id();
+                $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
+                $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
+                $relatedUserIds = array_unique(array_merge($followers, $following, [$authUserId]));
+            }
+
             $postsQuery->whereHas('user', function ($q) {
                 $q->whereNull('deleted_at');
             });
