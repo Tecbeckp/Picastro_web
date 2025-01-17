@@ -741,7 +741,7 @@ class ApiGeneralController extends Controller
         
         if (isset($is_register) && $is_register->android == '0' && $request->platform_type == 'android') {
             $data['enable_plan'] = false;
-        } elseif (isset($is_register) && $is_register->ios == '0' && $request->platform_type == 'ios') {
+        } elseif (isset($is_register) && $is_register->ios == '0' && $request->platform_type == 'iOS') {
             $data['enable_plan'] = false;
         }else{
             $data['enable_plan'] = true;
@@ -749,7 +749,7 @@ class ApiGeneralController extends Controller
         Log::info('Data: ' . $data['enable_plan']);
         Log::info('Data: ' . $is_register->ios);
         Log::info('Data: ' . $request->platform_type);
-        
+
         $data['comment_character_length'] = 400;
         $data['rating_info_string'] = "Enter before the end of November and leave a review a random user will have the chance of winning a prize. To be decided but up to the value of £150.";
         $used_trial = User::where('id', $request->user_id)->whereIn('trial_period_status', ['0', '2'])->first();
