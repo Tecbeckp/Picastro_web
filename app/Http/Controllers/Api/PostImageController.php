@@ -926,7 +926,7 @@ class PostImageController extends Controller
             return $this->error($validator->errors()->all());
         }
 
-        $editablePostlimit = PostImage::where('user_id', auth()->id())->where('editable', 1)->count();
+        $editablePostlimit = PostImage::where('user_id', auth()->id())->where('is_editable', 1)->count();
         $starCardLimit = StarCard::whereHas('post', function ($q) {
             $q->whereNull('deleted_at');
         })->where('user_id', auth()->id())->count();
@@ -1041,7 +1041,7 @@ class PostImageController extends Controller
             } else {
                 $data['post_image_title']  = $request->post_image_title;
             }
-            $data['editable'] = true;
+            $data['is_editable'] = true;
             $data['only_image_and_description'] = $request->only_image_and_description == 'false' ? '0' : '1';
 
             PostImage::where('user_id', auth()->id())->where('id', $id)->update($data);
