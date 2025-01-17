@@ -201,6 +201,9 @@ class PostImageController extends Controller
             if ($most_recent) {
                 $postsQuery->where('object_type_id', $most_recent);
             }
+            if($request->only_posts_with_star_cards){
+                $postsQuery->whereHas('StarCard');
+            }
             $postsQuery->whereHas('user', function ($q) {
                 $q->whereNull('deleted_at');
             });

@@ -728,13 +728,13 @@ class ApiGeneralController extends Controller
 
         $faq = Faq::select('title', 'description')->where('status', 'Enable')->get() ?? null;
         $data['faq'] = $faq->isNotEmpty() ? $faq : null;
-        $data['ios_version'] = AppVersion::where('id', '1')->first()->ios_version;
-        $data['android_version'] = AppVersion::where('id', '1')->first()->android_version;
+        $data['ios_version'] = AppVersion::latest()->first()->ios_version;
+        $data['android_version'] = AppVersion::latest()->first()->android_version;
         $data['payment_methods'] = PaymentMethodStatus::first();
         $data['ios_screenshot'] = IsRegistration::first()->ios_screenshot;
         $data['android_screenshot'] = IsRegistration::first()->android_screenshot;
         $data['trial_period'] = TrialPeriod::first();
-        $is_register = IsRegistration::where('id', 1)->first();
+        $is_register = IsRegistration::latest()->first();
         $data['app_under_maintenance'] = false;
         $data['app_under_maintenance_for_only_android_version'] = '18';
         $data['app_under_maintenance_for_only_ios_version'] = '1.1.6';
