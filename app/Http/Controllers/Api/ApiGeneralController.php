@@ -54,6 +54,7 @@ use App\Models\UserProfile;
 use App\Models\WeekOfTheImage;
 use DateTime;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 class ApiGeneralController extends Controller
 {
@@ -745,6 +746,9 @@ class ApiGeneralController extends Controller
         }else{
             $data['enable_plan'] = true;
         }
+        Log::info('Data: ' . $data['enable_plan']);
+        Log::info('Data: ' . $is_register->ios);
+        Log::info('Data: ' . $request->platform_type);
         
         $data['comment_character_length'] = 400;
         $data['rating_info_string'] = "Enter before the end of November and leave a review a random user will have the chance of winning a prize. To be decided but up to the value of £150.";
