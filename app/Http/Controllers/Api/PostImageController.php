@@ -270,7 +270,7 @@ class PostImageController extends Controller
 
             // Paginate the result
             $currentPage = request()->get('page', 1); // Get current page or default to 1
-            $perPage = 10;
+            $perPage = 50;
 
             // Slice and paginate
             $paginatedPosts = new LengthAwarePaginator(
