@@ -21,6 +21,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('mins:trial-period-update')->everyMinute();
         $schedule->command('week:image-of-the-week')->weeklyOn(0, '5:00');
+        $schedule->command('app:image-of-month')->monthlyOn(28, '00:00');
     }
 
     /**

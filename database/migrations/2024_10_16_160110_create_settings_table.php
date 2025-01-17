@@ -13,7 +13,12 @@ return new class extends Migration
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
-            $table->enum('maintenance', ['0','1'])->default('0');
+            $table->enum('maintenance_ios', ['0','1'])->default('0');
+            $table->enum('maintenance_android', ['0','1'])->default('0');
+            $table->string('maintenance_title')->nullable();
+            $table->text('maintenance_description')->nullable();
+            $table->string('maintenance_ios_version')->nullable();
+            $table->string('maintenance_android_version')->nullable();
             $table->timestamps();
         });
     }

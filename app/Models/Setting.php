@@ -12,7 +12,18 @@ class Setting extends Model
 
     protected $guarded = [];
 
-    public function getMaintenanceAttribute($value){
+    public function getMaintenanceIosAttribute($value){
+        if($value == '1'){
+            $name = true;
+        }elseif($value == '0'){
+            $name = false;
+        }else{
+            $name = false;
+        }
+        return $name;
+    }
+
+    public function getMaintenanceAndroidAttribute($value){
         if($value == '1'){
             $name = true;
         }elseif($value == '0'){

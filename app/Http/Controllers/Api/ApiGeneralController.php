@@ -54,6 +54,7 @@ use App\Models\UserProfile;
 use App\Models\WeekOfTheImage;
 use DateTime;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 class ApiGeneralController extends Controller
 {
@@ -69,7 +70,7 @@ class ApiGeneralController extends Controller
     public function testNotification()
     {
         $targetToken = auth()->user()->fcm_token; // Adjust according to your data structure
-
+        $notification = null;
         // Send the notification
         $this->notificationService->sendNotification(
             'TestNotification',
@@ -353,7 +354,6 @@ class ApiGeneralController extends Controller
 
         if ($request->hall_of_fame) {
             $year = $request->year;
-
             $monthly_image = VoteImage::with([
                 'postImage.user',
                 'postImage.StarCard.StarCardFilter',
@@ -403,62 +403,10 @@ class ApiGeneralController extends Controller
             $weeklyImages = $image_of_week->transform(function ($post) {
                 return $this->transformPostData($post, $post->week);
             });
-            
+
             $mergedRecords = $monthlyImages->concat($weeklyImages)->values();
             return $this->success(['Get hall of fame successfully!'], $mergedRecords);
         } else {
-            $currentMonth = Carbon::now()->format('m-Y');
-            $currentDay = Carbon::now()->day;
-            if ($currentDay == 28) {
-                $data = VoteImage::select('post_image_id', 'month', DB::raw('count(id) as post_count'))
-                    ->whereHas('postImage', function ($q) {
-                        $q->whereNull('deleted_at')->whereNotIn('user_id', ['41', '43']);
-                    })
-                    ->where('trophy_id', '1')
-                    ->whereNotIn('user_id', ['41', '43'])
-                    ->where('month', $currentMonth)
-                    ->groupBy('month', 'post_image_id')
-                    ->orderBy('post_count', 'desc')
-                    ->get()
-                    ->groupBy('month')
-                    ->map(function ($groupedByMonth) {
-                        return [
-                            'post_image_id' => $groupedByMonth->first()->post_image_id,
-                            'month' => $groupedByMonth->first()->month,
-                            'post_count' => $groupedByMonth->first()->post_count
-                        ];
-                    });
-
-                $res  = $data[$currentMonth];
-
-                $update_Res = VoteImage::where('post_image_id', $res['post_image_id'])->where('month', $res['month'])->first();
-                $update_Res->update([
-                    'IOT' => '1',
-                    'IOT_date' => now()
-                ]);
-                $post = PostImage::with('user')->where('id', $res['post_image_id'])->first();
-                if ($post) {
-                    $user_notification_setting = NotificationSetting::where('user_id', $post->user_id)->first();
-                    $notification = new Notification();
-                    $notification->user_id = $post->user_id;
-                    $notification->type    = 'Posts';
-                    $notification->post_image_id    = $res['post_image_id'];
-                    $notification->notification = 'Your stunning post has been crowned Image of the Month';
-                    $notification->save();
-
-                    $getnotification = Notification::select('id', 'user_id', 'type as title', 'notification as description', 'follower_id', 'post_image_id', 'trophy_id', 'is_read')->where('id', $notification->id)->first();
-                    if (!$user_notification_setting || ($user_notification_setting && $user_notification_setting->post == true)) {
-                        $this->notificationService->sendNotification(
-                            'Posts',
-                            'Your stunning post has been crowned Image of the Month',
-                            $post->user->fcm_token,
-                            json_encode($getnotification)
-                        );
-                    }
-                }
-            }
-
-
             $data = VoteImage::with([
                 'postImage.user',
                 'postImage.StarCard.StarCardFilter',
@@ -780,22 +728,25 @@ class ApiGeneralController extends Controller
 
         $faq = Faq::select('title', 'description')->where('status', 'Enable')->get() ?? null;
         $data['faq'] = $faq->isNotEmpty() ? $faq : null;
-        $data['ios_version'] = AppVersion::where('id', '1')->first()->ios_version;
-        $data['android_version'] = AppVersion::where('id', '1')->first()->android_version;
+        $data['ios_version'] = AppVersion::latest()->first()->ios_version;
+        $data['android_version'] = AppVersion::latest()->first()->android_version;
         $data['payment_methods'] = PaymentMethodStatus::first();
         $data['ios_screenshot'] = IsRegistration::first()->ios_screenshot;
         $data['android_screenshot'] = IsRegistration::first()->android_screenshot;
         $data['trial_period'] = TrialPeriod::first();
-        $data['app_under_maintenance'] = Setting::where('id', '1')->first()->maintenance;
+        $is_register = IsRegistration::latest()->first();
+        $data['app_under_maintenance'] = false;
         $data['app_under_maintenance_for_only_android_version'] = '18';
         $data['app_under_maintenance_for_only_ios_version'] = '1.1.6';
-        if ($request->platform_type == 'ios') {
-            $data['enable_plan'] = true;
-        } elseif ($request->platform_type == 'android') {
-            $data['enable_plan'] = true;
-        } else {
+        
+        if (isset($is_register) && $is_register->android == '0' && $request->platform_type == 'android') {
+            $data['enable_plan'] = false;
+        } elseif (isset($is_register) && $is_register->ios == '0' && $request->platform_type == 'iOS') {
+            $data['enable_plan'] = false;
+        }else{
             $data['enable_plan'] = true;
         }
+
         $data['comment_character_length'] = 400;
         $data['rating_info_string'] = "Enter before the end of November and leave a review a random user will have the chance of winning a prize. To be decided but up to the value of £150.";
         $used_trial = User::where('id', $request->user_id)->whereIn('trial_period_status', ['0', '2'])->first();
