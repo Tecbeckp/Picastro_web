@@ -156,7 +156,7 @@ class PostImageController extends Controller
             if ($validator->fails()) {
                 return $this->error($validator->errors()->all());
             }
-
+            log::info($request->only_posts_with_star_cards);
             $location       = $request->location;
             $telescope_type = $request->telescope_type_id;
             $object_type    = $request->object_type_id;
