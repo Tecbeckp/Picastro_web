@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('post_images', function (Blueprint $table) {
-            $table->boolean('is_editable')->default(false);
+            $table->boolean('is_editable')->default(false)->nullable();
         });
     }
 
