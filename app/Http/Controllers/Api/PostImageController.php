@@ -1032,6 +1032,7 @@ class PostImageController extends Controller
                 'description'           => $request->description,
                 'original_image'        => $originalImages,
                 'image'                 => $images,
+                'is_editable'           => true
             ];
             if ($request->only_image_and_description == 'false') {
 
@@ -1058,7 +1059,6 @@ class PostImageController extends Controller
             } else {
                 $data['post_image_title']  = $request->post_image_title;
             }
-            $data['is_editable'] = 1;
             $data['only_image_and_description'] = $request->only_image_and_description == 'false' ? '0' : '1';
 
             PostImage::where('user_id', auth()->id())->where('id', $id)->update($data);
