@@ -219,26 +219,33 @@ class PostImageController extends Controller
                 $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
                 $relatedUserIds = array_unique(array_merge($followers, $following, [$authUserId]));
             }
-            log::info($relatedUserIds);
-            log::info($request->posts_from_people_you_do_not_follow);
-            log::info($request->posts_from_people_you_follow);
+            
             $postsQuery->whereHas('user', function ($q) {
                 $q->whereNull('deleted_at');
             });
             // Fetch posts related to the user
-            $relatedPosts = (clone $postsQuery)
+            if($request->posts_from_people_you_follow === 'true' && $request->posts_from_people_you_do_not_follow === 'false'){
+                $relatedPosts = (clone $postsQuery)
                 ->whereIn('user_id', $relatedUserIds)
                 ->where('user_id', '!=', $authUserId) // Exclude authenticated user's posts
                 ->latest()
                 ->get();
-            // Fetch other posts
-            if($request->posts_from_people_you_follow === 'true'){
+
+                $otherPosts = [];
+            }elseif($request->posts_from_people_you_follow === 'false' && $request->posts_from_people_you_do_not_follow === 'true'){
+                $relatedPosts = [];
+
                 $otherPosts = (clone $postsQuery)
-                ->whereIn('user_id', $relatedUserIds)
-                ->where('user_id', '!=', $authUserId)
+                ->whereNotIn('user_id', $relatedUserIds)
                 ->latest()
                 ->get();
             }else{
+                $relatedPosts = (clone $postsQuery)
+                ->whereIn('user_id', $relatedUserIds)
+                ->where('user_id', '!=', $authUserId) // Exclude authenticated user's posts
+                ->latest()
+                ->get();
+
                 $otherPosts = (clone $postsQuery)
                 ->whereNotIn('user_id', $relatedUserIds)
                 ->latest()
