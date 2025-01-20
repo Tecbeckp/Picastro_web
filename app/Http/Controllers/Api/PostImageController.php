@@ -219,7 +219,7 @@ class PostImageController extends Controller
                 $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
                 $relatedUserIds = array_unique(array_merge($followers, $following, [$authUserId]));
             }
-            
+
             $postsQuery->whereHas('user', function ($q) {
                 $q->whereNull('deleted_at');
             });
@@ -251,7 +251,6 @@ class PostImageController extends Controller
                 ->latest()
                 ->get();
             }
-
             // Interleave posts
             $mergedPosts = collect();
             $seenPostIds = []; // Track unique post IDs
