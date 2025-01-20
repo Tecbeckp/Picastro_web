@@ -255,8 +255,8 @@ class PostImageController extends Controller
             $mergedPosts = collect();
             $seenPostIds = []; // Track unique post IDs
 
-            $relatedIterator = $relatedPosts->values()->getIterator();
-            $otherIterator = $otherPosts->values()->getIterator();
+            $relatedIterator = $relatedPosts ? $relatedPosts->values()->getIterator() : [];
+            $otherIterator = $otherPosts ? $otherPosts->values()->getIterator() : [];
 
             while ($relatedIterator->valid() || $otherIterator->valid()) {
                 if ($relatedIterator->valid()) {
