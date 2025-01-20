@@ -1895,7 +1895,7 @@ class ApiGeneralController extends Controller
     private function transformPostData($post)
     {
         if (empty($post)) {
-            return [];
+            return null;
         }
         return [
             'id'                 => $post->postImage->id,
