@@ -242,6 +242,7 @@ class PostImageController extends Controller
                 ->latest()
                 ->get();
             }
+
             // Interleave posts
             $mergedPosts = collect();
             $seenPostIds = []; // Track unique post IDs
