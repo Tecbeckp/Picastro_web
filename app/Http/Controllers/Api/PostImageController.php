@@ -219,7 +219,9 @@ class PostImageController extends Controller
                 $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
                 $relatedUserIds = array_unique(array_merge($followers, $following, [$authUserId]));
             }
-
+            log::info($relatedUserIds);
+            log::info($request->posts_from_people_you_do_not_follow);
+            log::info($request->posts_from_people_you_follow);
             $postsQuery->whereHas('user', function ($q) {
                 $q->whereNull('deleted_at');
             });
