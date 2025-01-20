@@ -231,9 +231,9 @@ class PostImageController extends Controller
                 ->latest()
                 ->get();
 
-                $otherPosts = [];
+                $otherPosts = null;
             }elseif($request->posts_from_people_you_follow === 'false' && $request->posts_from_people_you_do_not_follow === 'true'){
-                $relatedPosts = [];
+                $relatedPosts = null;
 
                 $otherPosts = (clone $postsQuery)
                 ->whereNotIn('user_id', $relatedUserIds)
@@ -255,11 +255,30 @@ class PostImageController extends Controller
             $mergedPosts = collect();
             $seenPostIds = []; // Track unique post IDs
 
-            $relatedIterator = $relatedPosts ? $relatedPosts->values()->getIterator() : [];
-            $otherIterator = $otherPosts ? $otherPosts->values()->getIterator() : [];
+            $relatedIterator = $relatedPosts ? $relatedPosts->values()->getIterator() : null;
+            $otherIterator = $otherPosts ? $otherPosts->values()->getIterator() : null;
 
-            while ($relatedIterator->valid() || $otherIterator->valid()) {
-                if ($relatedIterator->valid()) {
+            if($relatedIterator && $otherIterator){
+                while ($relatedIterator->valid() || $otherIterator->valid()) {
+                    if ($relatedIterator->valid()) {
+                        $post = $relatedIterator->current();
+                        if (!in_array($post->id, $seenPostIds)) { // Avoid duplicates
+                            $mergedPosts->push($post);
+                            $seenPostIds[] = $post->id;
+                        }
+                        $relatedIterator->next();
+                    }
+                    if ($otherIterator->valid()) {
+                        $post = $otherIterator->current();
+                        if (!in_array($post->id, $seenPostIds)) { // Avoid duplicates
+                            $mergedPosts->push($post);
+                            $seenPostIds[] = $post->id;
+                        }
+                        $otherIterator->next();
+                    }
+                }
+            }elseif($relatedIterator){
+                while ($relatedIterator->valid()) {
                     $post = $relatedIterator->current();
                     if (!in_array($post->id, $seenPostIds)) { // Avoid duplicates
                         $mergedPosts->push($post);
@@ -267,7 +286,8 @@ class PostImageController extends Controller
                     }
                     $relatedIterator->next();
                 }
-                if ($otherIterator->valid()) {
+            }elseif($otherIterator){
+                while ($otherIterator->valid()) {
                     $post = $otherIterator->current();
                     if (!in_array($post->id, $seenPostIds)) { // Avoid duplicates
                         $mergedPosts->push($post);
@@ -275,7 +295,8 @@ class PostImageController extends Controller
                     }
                     $otherIterator->next();
                 }
-            }
+            } 
+           
 
             if (!$observer_location && !$object_type && !$telescope_type && !$most_recent && !$randomizer) {
                 // Shuffle the result if needed
