@@ -1884,9 +1884,6 @@ class ApiGeneralController extends Controller
         $weeklyImages = $image_of_week->transform(function ($post) {
             return $this->transformPostData($post, $post->week);
         });
-$data = [
-    'month' =>
-]
         $mergedRecords = $monthlyImages->concat($weeklyImages)->values();
         return $this->success(['Get hall of fame successfully!'], $mergedRecords);
     }
