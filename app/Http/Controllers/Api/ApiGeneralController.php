@@ -1251,7 +1251,7 @@ class ApiGeneralController extends Controller
     public function ratingPopup(Request $request)
     {
         if($request->ajax()){
-            $users = User::latest()->get();
+            $users = User::with('userprofile')->whereHas('userprofile')->where('rating', '1')->latest()->get();
             return DataTables::of($users)->addIndexColumn()
             ->addColumn('ID', function ($row) {
                 static $rowid = null;
