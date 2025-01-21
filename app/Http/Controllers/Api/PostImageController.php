@@ -317,14 +317,17 @@ class PostImageController extends Controller
                 // Shuffle the result if needed
                 $mergedPosts = $mergedPosts->shuffle(); // Shuffle ensures randomness without altering uniqueness
             }
-            
-$finalMergedPosts = $todaysPosts->merge($mergedPosts)
-    ->unique('id')
-    ->values(); 
-            // Paginate the result
+
+            if ($todaysPosts) {
+                $finalMergedPosts = $todaysPosts->merge($mergedPosts)
+                    ->unique('id')
+                    ->values();
+            } else {
+                $finalMergedPosts = $mergedPosts;
+            }
             $currentPage = request()->get('page', 1); // Get current page or default to 1
             $perPage = 50;
-            
+
             $paginatedPosts = new LengthAwarePaginator(
                 $finalMergedPosts->forPage($currentPage, $perPage)->values(),
                 $finalMergedPosts->count(),
@@ -1067,7 +1070,7 @@ $finalMergedPosts = $todaysPosts->merge($mergedPosts)
                         log::info($request->input("delete_{$inputName}"));
                         unset($image[$key]);
                         unset($originalImage[$key]);
-                    } elseif(isset($image[$key])) {
+                    } elseif (isset($image[$key])) {
                         // Retain the previous value if no new file is uploaded
                         $images[$key] = $this->removeBaseUrl($image[$key]) ?? null; // Use previous value from decoded $post->image
                         $originalImages[$key] = $originalImage[$key] ?? null; // Use previous value from decoded $post->original_image
