@@ -218,34 +218,61 @@ class PostImageController extends Controller
                 $q->whereNull('deleted_at');
             });
             // Fetch posts related to the user
-            $relatedPosts = (clone $postsQuery)
+            if($request->posts_from_people_you_follow === 'true' && $request->posts_from_people_you_do_not_follow === 'false'){
+                $relatedPosts = (clone $postsQuery)
                 ->whereIn('user_id', $relatedUserIds)
                 ->where('user_id', '!=', $authUserId) // Exclude authenticated user's posts
                 ->latest()
                 ->get();
-            // Fetch other posts
-            if($request->posts_from_people_you_follow === 'true'){
+
+                $otherPosts = null;
+            }elseif($request->posts_from_people_you_follow === 'false' && $request->posts_from_people_you_do_not_follow === 'true'){
+                $relatedPosts = null;
+
                 $otherPosts = (clone $postsQuery)
-                ->whereIn('user_id', $relatedUserIds)
-                ->where('user_id', '!=', $authUserId)
+                ->whereNotIn('user_id', $relatedUserIds)
                 ->latest()
                 ->get();
             }else{
+                $relatedPosts = (clone $postsQuery)
+                ->whereIn('user_id', $relatedUserIds)
+                ->where('user_id', '!=', $authUserId) // Exclude authenticated user's posts
+                ->latest()
+                ->get();
+
                 $otherPosts = (clone $postsQuery)
                 ->whereNotIn('user_id', $relatedUserIds)
                 ->latest()
                 ->get();
             }
-
             // Interleave posts
             $mergedPosts = collect();
             $seenPostIds = []; // Track unique post IDs
 
-            $relatedIterator = $relatedPosts->values()->getIterator();
-            $otherIterator = $otherPosts->values()->getIterator();
+            $relatedIterator = $relatedPosts ? $relatedPosts->values()->getIterator() : null;
+            $otherIterator = $otherPosts ? $otherPosts->values()->getIterator() : null;
 
-            while ($relatedIterator->valid() || $otherIterator->valid()) {
-                if ($relatedIterator->valid()) {
+            if($relatedIterator && $otherIterator){
+                while ($relatedIterator->valid() || $otherIterator->valid()) {
+                    if ($relatedIterator->valid()) {
+                        $post = $relatedIterator->current();
+                        if (!in_array($post->id, $seenPostIds)) { // Avoid duplicates
+                            $mergedPosts->push($post);
+                            $seenPostIds[] = $post->id;
+                        }
+                        $relatedIterator->next();
+                    }
+                    if ($otherIterator->valid()) {
+                        $post = $otherIterator->current();
+                        if (!in_array($post->id, $seenPostIds)) { // Avoid duplicates
+                            $mergedPosts->push($post);
+                            $seenPostIds[] = $post->id;
+                        }
+                        $otherIterator->next();
+                    }
+                }
+            }elseif($relatedIterator){
+                while ($relatedIterator->valid()) {
                     $post = $relatedIterator->current();
                     if (!in_array($post->id, $seenPostIds)) { // Avoid duplicates
                         $mergedPosts->push($post);
@@ -253,7 +280,8 @@ class PostImageController extends Controller
                     }
                     $relatedIterator->next();
                 }
-                if ($otherIterator->valid()) {
+            }elseif($otherIterator){
+                while ($otherIterator->valid()) {
                     $post = $otherIterator->current();
                     if (!in_array($post->id, $seenPostIds)) { // Avoid duplicates
                         $mergedPosts->push($post);
@@ -261,7 +289,8 @@ class PostImageController extends Controller
                     }
                     $otherIterator->next();
                 }
-            }
+            } 
+           
 
             if (!$observer_location && !$object_type && !$telescope_type && !$most_recent && !$randomizer) {
                 // Shuffle the result if needed

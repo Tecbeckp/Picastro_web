@@ -351,179 +351,74 @@ class ApiGeneralController extends Controller
 
     public function imageOfMonth(Request $request)
     {
-
-        if ($request->hall_of_fame) {
-            $year = $request->year;
-            $monthly_image = VoteImage::with([
-                'postImage.user',
-                'postImage.StarCard.StarCardFilter',
-                'postImage.ObjectType',
-                'postImage.Bortle',
-                'postImage.ObserverLocation',
-                'postImage.ApproxLunarPhase',
-                'postImage.Telescope',
-                'postImage.giveStar',
-                'postImage.totalStar',
-                'postImage.Follow',
-                'postImage.votedTrophy'
-            ])->whereHas('postImage', function ($q) {
-                $q->whereNull('deleted_at');
-            })->where('IOT', '1')
-                ->where('month', 'like', '%' . $year)
-                ->latest()->get();
-
-            $image_of_week = PreviousImageOfWeek::with([
-                'postImage.user',
-                'postImage.StarCard.StarCardFilter',
-                'postImage.ObjectType',
-                'postImage.Bortle',
-                'postImage.ObserverLocation',
-                'postImage.ApproxLunarPhase',
-                'postImage.Telescope',
-                'postImage.giveStar',
-                'postImage.totalStar',
-                'postImage.Follow',
-                'postImage.votedTrophy',
-                'postImage.totalGoldTrophies'
-            ])->where('place', '1')
-                ->whereHas('postImage.user', function ($q) {
-                    $q->where('id', '!=', 43);
-                })
-                ->whereHas('postImage', function ($q) {
-                    $q->whereNull('deleted_at');
-                })->get();
-
-
-            // Transform Monthly Images
-            $monthlyImages = $monthly_image->transform(function ($post) {
-                return $this->transformPostData($post, $post->IOT_date);
-            });
-
-            // Transform Weekly Images
-            $weeklyImages = $image_of_week->transform(function ($post) {
-                return $this->transformPostData($post, $post->week);
-            });
-
-            $mergedRecords = $monthlyImages->concat($weeklyImages)->values();
-            return $this->success(['Get hall of fame successfully!'], $mergedRecords);
-        } else {
-            $data = VoteImage::with([
-                'postImage.user',
-                'postImage.StarCard.StarCardFilter',
-                'postImage.ObjectType',
-                'postImage.Bortle',
-                'postImage.ObserverLocation',
-                'postImage.ApproxLunarPhase',
-                'postImage.Telescope',
-                'postImage.giveStar',
-                'postImage.totalStar',
-                'postImage.Follow',
-                'postImage.votedTrophy'
-            ])->whereHas('postImage', function ($q) {
-                $q->whereNull('deleted_at');
-            })->where('IOT', '1')
-                ->latest()->get();
-            if ($data->isNotEmpty()) {
-                $data->transform(function ($post) {
-                    return [
-                        'month'              => date('M Y', strtotime('01-' . $post->month)),
-                        'object_type' => $post->postImage->ObjectType ? $post->postImage->ObjectType->name : 'Other',
-                        'post_image' => [
-                            'id'                 => $post->postImage->id,
-                            'user_id'            => $post->postImage->user_id,
-                            'post_image_title'   => $post->postImage->post_image_title,
-                            'image'              => $post->postImage->image,
-                            'original_image'     => $post->postImage->original_image,
-                            'description'        => $post->postImage->description,
-                            'video_length'       => $post->postImage->video_length,
-                            'number_of_frame'    => $post->postImage->number_of_frame,
-                            'number_of_video'    => $post->postImage->number_of_video,
-                            'exposure_time'      => $post->postImage->exposure_time,
-                            'total_hours'        => $post->postImage->total_hours,
-                            'additional_minutes' => $post->postImage->additional_minutes,
-                            'catalogue_number'   => $post->postImage->catalogue_number,
-                            'object_name'        => $post->postImage->object_name,
-                            'ir_pass'            => $post->postImage->ir_pass,
-                            'planet_name'        => $post->postImage->planet_name,
-                            'ObjectType'         => $post->postImage->ObjectType,
-                            'Bortle'             => $post->postImage->Bortle,
-                            'ObserverLocation'   => $post->postImage->ObserverLocation,
-                            'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
-                            'location'           => $post->postImage->location,
-                            'Telescope'          => $post->postImage->Telescope,
-                            'giveStar'           => $post->postImage->giveStar ? true : false,
-                            'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
-                            'Follow'             => $post->postImage->Follow ? true : false,
-                            'voted_trophy_id'    => $post->postImage->votedTrophy ? $post->postImage->votedTrophy->trophy_id : null,
-                            'gold_trophy'        => $post->postImage->gold_trophy,
-                            'silver_trophy'      => $post->postImage->silver_trophy,
-                            'bronze_trophy'      => $post->postImage->bronze_trophy,
-                            'star_card'          => $post->postImage->StarCard,
-                            'user'               => [
-                                'id'             => $post->postImage->user->id,
-                                'first_name'     => $post->postImage->user->first_name,
-                                'last_name'      => $post->postImage->user->last_name,
-                                'username'       => $post->postImage->user->username,
-                                'profile_image'  => $post->postImage->user->userprofile->profile_image,
-                                'fcm_token'      => $post->postImage->user->fcm_token,
-                            ]
+        $data = VoteImage::with([
+            'postImage.user',
+            'postImage.StarCard.StarCardFilter',
+            'postImage.ObjectType',
+            'postImage.Bortle',
+            'postImage.ObserverLocation',
+            'postImage.ApproxLunarPhase',
+            'postImage.Telescope',
+            'postImage.giveStar',
+            'postImage.totalStar',
+            'postImage.Follow',
+            'postImage.votedTrophy'
+        ])->whereHas('postImage', function ($q) {
+            $q->whereNull('deleted_at');
+        })->where('IOT', '1')
+            ->latest()->get();
+        if ($data->isNotEmpty()) {
+            $data->transform(function ($post) {
+                return [
+                    'month'              => date('M Y', strtotime('01-' . $post->month)),
+                    'object_type' => $post->postImage->ObjectType ? $post->postImage->ObjectType->name : 'Other',
+                    'post_image' => [
+                        'id'                 => $post->postImage->id,
+                        'user_id'            => $post->postImage->user_id,
+                        'post_image_title'   => $post->postImage->post_image_title,
+                        'image'              => $post->postImage->image,
+                        'original_image'     => $post->postImage->original_image,
+                        'description'        => $post->postImage->description,
+                        'video_length'       => $post->postImage->video_length,
+                        'number_of_frame'    => $post->postImage->number_of_frame,
+                        'number_of_video'    => $post->postImage->number_of_video,
+                        'exposure_time'      => $post->postImage->exposure_time,
+                        'total_hours'        => $post->postImage->total_hours,
+                        'additional_minutes' => $post->postImage->additional_minutes,
+                        'catalogue_number'   => $post->postImage->catalogue_number,
+                        'object_name'        => $post->postImage->object_name,
+                        'ir_pass'            => $post->postImage->ir_pass,
+                        'planet_name'        => $post->postImage->planet_name,
+                        'ObjectType'         => $post->postImage->ObjectType,
+                        'Bortle'             => $post->postImage->Bortle,
+                        'ObserverLocation'   => $post->postImage->ObserverLocation,
+                        'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
+                        'location'           => $post->postImage->location,
+                        'Telescope'          => $post->postImage->Telescope,
+                        'giveStar'           => $post->postImage->giveStar ? true : false,
+                        'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
+                        'Follow'             => $post->postImage->Follow ? true : false,
+                        'voted_trophy_id'    => $post->postImage->votedTrophy ? $post->postImage->votedTrophy->trophy_id : null,
+                        'gold_trophy'        => $post->postImage->gold_trophy,
+                        'silver_trophy'      => $post->postImage->silver_trophy,
+                        'bronze_trophy'      => $post->postImage->bronze_trophy,
+                        'star_card'          => $post->postImage->StarCard,
+                        'user'               => [
+                            'id'             => $post->postImage->user->id,
+                            'first_name'     => $post->postImage->user->first_name,
+                            'last_name'      => $post->postImage->user->last_name,
+                            'username'       => $post->postImage->user->username,
+                            'profile_image'  => $post->postImage->user->userprofile->profile_image,
+                            'fcm_token'      => $post->postImage->user->fcm_token,
                         ]
-                    ];
-                });
+                    ]
+                ];
+            });
 
-                return $this->success(['Get Image of month successfully!'], $data);
-            } else {
-                return $this->error(['No data found']);
-            }
+            return $this->success(['Get Image of month successfully!'], $data);
+        } else {
+            return $this->error(['No data found']);
         }
-    }
-
-    private function transformPostData($post, $dateField)
-    {
-        return [
-            'month'       => date('D, d/m/Y', strtotime($dateField)),
-            'object_type' => $post->postImage->ObjectType->name ?? 'Other',
-            'post_image'  => [
-                'id'                 => $post->postImage->id,
-                'user_id'            => $post->postImage->user_id,
-                'post_image_title'   => $post->postImage->post_image_title,
-                'image'              => $post->postImage->image,
-                'original_image'     => $post->postImage->original_image,
-                'description'        => $post->postImage->description,
-                'video_length'       => $post->postImage->video_length,
-                'number_of_frame'    => $post->postImage->number_of_frame,
-                'number_of_video'    => $post->postImage->number_of_video,
-                'exposure_time'      => $post->postImage->exposure_time,
-                'total_hours'        => $post->postImage->total_hours,
-                'additional_minutes' => $post->postImage->additional_minutes,
-                'catalogue_number'   => $post->postImage->catalogue_number,
-                'object_name'        => $post->postImage->object_name,
-                'ir_pass'            => $post->postImage->ir_pass,
-                'planet_name'        => $post->postImage->planet_name,
-                'ObjectType'         => $post->postImage->ObjectType,
-                'Bortle'             => $post->postImage->Bortle,
-                'ObserverLocation'   => $post->postImage->ObserverLocation,
-                'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
-                'location'           => $post->postImage->location,
-                'Telescope'          => $post->postImage->Telescope,
-                'giveStar'           => $post->postImage->giveStar ? true : false,
-                'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
-                'Follow'             => $post->postImage->Follow ? true : false,
-                'voted_trophy_id'    => $post->postImage->votedTrophy->trophy_id ?? null,
-                'gold_trophy'        => $post->postImage->gold_trophy,
-                'silver_trophy'      => $post->postImage->silver_trophy,
-                'bronze_trophy'      => $post->postImage->bronze_trophy,
-                'star_card'          => $post->postImage->StarCard,
-                'user'               => [
-                    'id'             => $post->postImage->user->id,
-                    'first_name'     => $post->postImage->user->first_name,
-                    'last_name'      => $post->postImage->user->last_name,
-                    'username'       => $post->postImage->user->username,
-                    'profile_image'  => $post->postImage->user->userprofile->profile_image,
-                    'fcm_token'      => $post->postImage->user->fcm_token,
-                ]
-            ]
-        ];
     }
     public function voteImage(Request $request)
     {
@@ -738,12 +633,12 @@ class ApiGeneralController extends Controller
         $data['app_under_maintenance'] = false;
         $data['app_under_maintenance_for_only_android_version'] = '18';
         $data['app_under_maintenance_for_only_ios_version'] = '1.1.6';
-        
+
         if (isset($is_register) && $is_register->android == '0' && $request->platform_type == 'android') {
             $data['enable_plan'] = false;
         } elseif (isset($is_register) && $is_register->ios == '0' && $request->platform_type == 'iOS') {
             $data['enable_plan'] = false;
-        }else{
+        } else {
             $data['enable_plan'] = true;
         }
 
@@ -1953,5 +1848,112 @@ class ApiGeneralController extends Controller
             ]
         );
         return $this->success(['Rating successfully.'], $rating);
+    }
+    public function getHallOfFame(Request $request)
+    {
+        $year = $request->year;
+        $monthly_data = [];
+        for ($month = 1; $month <= 12; $month++) {
+            $formattedMonth = str_pad($month, 2, '0', STR_PAD_LEFT);
+
+            $monthly_images = VoteImage::with([
+                'postImage.user',
+                'postImage.StarCard.StarCardFilter',
+                'postImage.ObjectType',
+                'postImage.Bortle',
+                'postImage.ObserverLocation',
+                'postImage.ApproxLunarPhase',
+                'postImage.Telescope',
+                'postImage.giveStar',
+                'postImage.totalStar',
+                'postImage.Follow',
+                'postImage.votedTrophy'
+            ])
+                ->whereHas('postImage', function ($q) {
+                    $q->whereNull('deleted_at');
+                })
+                ->where('IOT', '1')
+                ->where('month', 'like', '%' . $formattedMonth . '-' . $year)
+                ->latest()
+                ->first();
+
+            $image_of_week = PreviousImageOfWeek::with([
+                'postImage.user',
+                'postImage.StarCard.StarCardFilter',
+                'postImage.ObjectType',
+                'postImage.Bortle',
+                'postImage.ObserverLocation',
+                'postImage.ApproxLunarPhase',
+                'postImage.Telescope',
+                'postImage.giveStar',
+                'postImage.totalStar',
+                'postImage.Follow',
+                'postImage.votedTrophy',
+                'postImage.totalGoldTrophies'
+            ])->where('place', 1)
+                ->whereHas('postImage.user', function ($q) {
+                    $q->where('id', '!=', 43);
+                })
+                ->whereHas('postImage', function ($q) {
+                    $q->whereNull('deleted_at');
+                })->where('week', 'like', '%' . $year . '-' . $formattedMonth . '%')->get();
+
+            if ($monthly_images || $image_of_week->isNotEmpty()) {
+                $monthly_data[] = [
+                    'month' => date('M, Y', strtotime("{$year}-{$formattedMonth}-01")),
+                    'image_of_the_month' => $this->transformPostData($monthly_images),
+                    'image_of_the_week' => $image_of_week->transform(function ($post) {
+                        return $this->transformPostData($post);
+                    }),
+                ];
+            }
+        }
+        return $this->success(['Get hall of fame successfully!'], $monthly_data);
+    }
+    private function transformPostData($post)
+    {
+        if (empty($post)) {
+            return null;
+        }
+        return [
+            'id'                 => $post->postImage->id,
+            'user_id'            => $post->postImage->user_id,
+            'post_image_title'   => $post->postImage->post_image_title,
+            'image'              => $post->postImage->image,
+            'original_image'     => $post->postImage->original_image,
+            'description'        => $post->postImage->description,
+            'video_length'       => $post->postImage->video_length,
+            'number_of_frame'    => $post->postImage->number_of_frame,
+            'number_of_video'    => $post->postImage->number_of_video,
+            'exposure_time'      => $post->postImage->exposure_time,
+            'total_hours'        => $post->postImage->total_hours,
+            'additional_minutes' => $post->postImage->additional_minutes,
+            'catalogue_number'   => $post->postImage->catalogue_number,
+            'object_name'        => $post->postImage->object_name,
+            'ir_pass'            => $post->postImage->ir_pass,
+            'planet_name'        => $post->postImage->planet_name,
+            'ObjectType'         => $post->postImage->ObjectType,
+            'Bortle'             => $post->postImage->Bortle,
+            'ObserverLocation'   => $post->postImage->ObserverLocation,
+            'ApproxLunarPhase'   => $post->postImage->ApproxLunarPhase,
+            'location'           => $post->postImage->location,
+            'Telescope'          => $post->postImage->Telescope,
+            'giveStar'           => $post->postImage->giveStar ? true : false,
+            'totalStar'          => $post->postImage->totalStar ? $post->postImage->totalStar->count() : 0,
+            'Follow'             => $post->postImage->Follow ? true : false,
+            'voted_trophy_id'    => $post->postImage->votedTrophy->trophy_id ?? null,
+            'gold_trophy'        => $post->postImage->gold_trophy,
+            'silver_trophy'      => $post->postImage->silver_trophy,
+            'bronze_trophy'      => $post->postImage->bronze_trophy,
+            'star_card'          => $post->postImage->StarCard,
+            'user'               => [
+                'id'             => $post->postImage->user->id,
+                'first_name'     => $post->postImage->user->first_name,
+                'last_name'      => $post->postImage->user->last_name,
+                'username'       => $post->postImage->user->username,
+                'profile_image'  => $post->postImage->user->userprofile->profile_image,
+                'fcm_token'      => $post->postImage->user->fcm_token,
+            ]
+        ];
     }
 }

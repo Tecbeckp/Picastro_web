@@ -114,6 +114,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('save-into-gallery-images', [ApiGeneralController::class, 'saveGalleryImage']);
     Route::get('get-gallery-images', [ApiGeneralController::class, 'getGalleryImage']);
     Route::post('store-rating', [ApiGeneralController::class, 'storeRating']);
+    Route::get('hall-of-fame', [ApiGeneralController::class, 'getHallOfFame']);
 
 
     Route::post('add-post-comment', [PostCommentController::class, 'postComment']);

@@ -6,7 +6,7 @@
                     <div class="p-0 bg-secondary-subtle rounded-top">
                         <a href="{{ route('posts.show', encrypt($post->id)) }}" class="text-center">
                             <img class="card-img-top img-fluid" style="object-fit: cover; width: 100%; height: 300px;"
-                                src="{{ $post->image }}" alt=""> <!-- Set a fixed height for the image -->
+                                src="{{ $post->image[0] }}" alt="">
                         </a>
                     </div>
                     <div class="p-3">
@@ -52,7 +52,7 @@
                                     <p class="text-muted mb-1">Original Image Size</p>
                                     @php
                                         try {
-                                            $parsedUrl = parse_url($post->original_image);
+                                            $parsedUrl = parse_url($post->original_image[0]);
                                             $s3Key = ltrim($parsedUrl['path'], '/');
                                             $fileSizeBytes = Storage::disk('s3')->size($s3Key);
                                             if ($fileSizeBytes) {
@@ -72,9 +72,8 @@
                             <div class="col-4">
                                 <div>
                                     <p class="text-muted mb-1">Thumbnail Size</p>
-                                    {{-- @dd(explode('/',$post->image)[6]); --}}
                                     @php
-                                        $file = explode('/', $post->image);
+                                        $file = explode('/', $post->image[0]);
                                         $filePath = array_slice($file, 7)[0];
                                         $filePath = public_path('assets/uploads/postimage/' . $filePath);
                                         if (file_exists($filePath)) {
@@ -162,7 +161,4 @@
             @endif
         </ul>
     </div>
-
-
-
 </div>
