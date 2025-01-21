@@ -156,6 +156,7 @@ class PostImageController extends Controller
             if ($validator->fails()) {
                 return $this->error($validator->errors()->all());
             }
+
             $location       = $request->location;
             $telescope_type = $request->telescope_type_id;
             $object_type    = $request->object_type_id;
@@ -170,6 +171,11 @@ class PostImageController extends Controller
             } else {
                 $observer_location = null;
             }
+
+            $authUserId = auth()->id();
+            $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
+            $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
+            $relatedUserIds = array_unique(array_merge($followers, $following, [$authUserId]));
 
             $postsQuery = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
                 ->whereDoesntHave('blockToUser')
@@ -195,19 +201,19 @@ class PostImageController extends Controller
             if ($most_recent) {
                 $postsQuery->where('object_type_id', $most_recent);
             }
-            if($request->only_posts_with_star_cards === 'true'){
+            if ($request->only_posts_with_star_cards === 'true') {
                 $postsQuery->whereHas('StarCard');
             }
-            if($request->posts_from_people_you_follow === 'true'){
+            if ($request->posts_from_people_you_follow === 'true') {
                 $authUserId = auth()->id();
                 $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
                 $relatedUserIds = array_unique(array_merge($following, [$authUserId]));
-            }elseif($request->posts_from_people_you_do_not_follow === 'true'){
-                
+            } elseif ($request->posts_from_people_you_do_not_follow === 'true') {
+
                 $authUserId = auth()->id();
                 $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
                 $relatedUserIds = array_unique(array_merge($followers, [$authUserId]));
-            }else{
+            } else {
                 $authUserId = auth()->id();
                 $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
                 $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
@@ -218,32 +224,46 @@ class PostImageController extends Controller
                 $q->whereNull('deleted_at');
             });
             // Fetch posts related to the user
-            if($request->posts_from_people_you_follow === 'true' && $request->posts_from_people_you_do_not_follow === 'false'){
+            if ($request->posts_from_people_you_follow === 'true' && $request->posts_from_people_you_do_not_follow === 'false') {
                 $relatedPosts = (clone $postsQuery)
-                ->whereIn('user_id', $relatedUserIds)
-                ->where('user_id', '!=', $authUserId) // Exclude authenticated user's posts
-                ->latest()
-                ->get();
+                    ->whereIn('user_id', $relatedUserIds)
+                    ->where('user_id', '!=', $authUserId) // Exclude authenticated user's posts
+                    ->latest()
+                    ->get();
 
                 $otherPosts = null;
-            }elseif($request->posts_from_people_you_follow === 'false' && $request->posts_from_people_you_do_not_follow === 'true'){
+                $todaysPosts = null;
+            } elseif ($request->posts_from_people_you_follow === 'false' && $request->posts_from_people_you_do_not_follow === 'true') {
                 $relatedPosts = null;
-
+                $todaysPosts = null;
                 $otherPosts = (clone $postsQuery)
-                ->whereNotIn('user_id', $relatedUserIds)
-                ->latest()
-                ->get();
-            }else{
+                    ->whereNotIn('user_id', $relatedUserIds)
+                    ->latest()
+                    ->get();
+            } else {
+                // Define the start and end of today
+                $startOfToday = Carbon::today();
+                $endOfToday = Carbon::now();
+
+                // Query for today's posts
+                $todaysPosts = (clone $postsQuery)
+                    ->where('created_at', '>=', $startOfToday)
+                    ->where('created_at', '<=', $endOfToday)
+                    ->whereIn('user_id', $relatedUserIds)
+                    ->where('user_id', '!=', $authUserId)
+                    ->latest()->get();
+
                 $relatedPosts = (clone $postsQuery)
-                ->whereIn('user_id', $relatedUserIds)
-                ->where('user_id', '!=', $authUserId) // Exclude authenticated user's posts
-                ->latest()
-                ->get();
+                    ->whereIn('user_id', $relatedUserIds)
+                    ->where('user_id', '!=', $authUserId)
+                    ->whereNotIn('id', $todaysPosts->pluck('id')->toArray())
+                    ->latest()
+                    ->get();
 
                 $otherPosts = (clone $postsQuery)
-                ->whereNotIn('user_id', $relatedUserIds)
-                ->latest()
-                ->get();
+                    ->whereNotIn('user_id', $relatedUserIds)
+                    ->latest()
+                    ->get();
             }
             // Interleave posts
             $mergedPosts = collect();
@@ -252,7 +272,7 @@ class PostImageController extends Controller
             $relatedIterator = $relatedPosts ? $relatedPosts->values()->getIterator() : null;
             $otherIterator = $otherPosts ? $otherPosts->values()->getIterator() : null;
 
-            if($relatedIterator && $otherIterator){
+            if ($relatedIterator && $otherIterator) {
                 while ($relatedIterator->valid() || $otherIterator->valid()) {
                     if ($relatedIterator->valid()) {
                         $post = $relatedIterator->current();
@@ -271,7 +291,7 @@ class PostImageController extends Controller
                         $otherIterator->next();
                     }
                 }
-            }elseif($relatedIterator){
+            } elseif ($relatedIterator) {
                 while ($relatedIterator->valid()) {
                     $post = $relatedIterator->current();
                     if (!in_array($post->id, $seenPostIds)) { // Avoid duplicates
@@ -280,7 +300,7 @@ class PostImageController extends Controller
                     }
                     $relatedIterator->next();
                 }
-            }elseif($otherIterator){
+            } elseif ($otherIterator) {
                 while ($otherIterator->valid()) {
                     $post = $otherIterator->current();
                     if (!in_array($post->id, $seenPostIds)) { // Avoid duplicates
@@ -289,13 +309,19 @@ class PostImageController extends Controller
                     }
                     $otherIterator->next();
                 }
-            } 
-           
+            }
+
 
             if (!$observer_location && !$object_type && !$telescope_type && !$most_recent && !$randomizer) {
                 // Shuffle the result if needed
                 $mergedPosts = $mergedPosts->shuffle(); // Shuffle ensures randomness without altering uniqueness
             }
+
+            // Combine today's posts with the merged posts
+            $allMergedPosts = array_merge(
+                $todaysPosts ? $todaysPosts : [],
+                $mergedPosts->toArray()
+            );
 
             // Paginate the result
             $currentPage = request()->get('page', 1); // Get current page or default to 1
@@ -303,8 +329,8 @@ class PostImageController extends Controller
 
             // Slice and paginate
             $paginatedPosts = new LengthAwarePaginator(
-                $mergedPosts->forPage($currentPage, $perPage)->values(),
-                $mergedPosts->count(),
+                array_slice($allMergedPosts, ($currentPage - 1) * $perPage, $perPage),
+                count($allMergedPosts),
                 $perPage,
                 $currentPage,
                 ['path' => LengthAwarePaginator::resolveCurrentPath()]
@@ -361,7 +387,6 @@ class PostImageController extends Controller
             return $this->success([], $paginatedPosts);
         }
     }
-
     public function allTestPostImage(Request $request, $id)
     {
         $rules = [
