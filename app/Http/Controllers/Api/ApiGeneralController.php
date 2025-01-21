@@ -640,7 +640,8 @@ class ApiGeneralController extends Controller
         }
         $data['app_under_maintenance_for_only_android_version'] = $maintenance ? $maintenance->maintenance_android_version : '';
         $data['app_under_maintenance_for_only_ios_version']     = $maintenance ? $maintenance->maintenance_ios_version : '';
-
+        $data['maintenance_title'] = $maintenance ? $maintenance->maintenance_title : '';
+        $data['maintenance_description'] = $maintenance ? $maintenance->maintenance_description : '';
         if (isset($is_register) && $is_register->android == '0' && $request->platform_type == 'android') {
             $data['enable_plan'] = false;
         } elseif (isset($is_register) && $is_register->ios == '0' && $request->platform_type == 'iOS') {
