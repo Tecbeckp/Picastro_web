@@ -75,7 +75,7 @@
                                         </ol>
                                     </div>
 
-                                    <div class="col-lg-6 mt-5">
+                                    {{-- <div class="col-lg-6 mt-5">
                                         <h4 class="card-title mb-2">Maintenance</h4>
                                         <ol class="breadcrumb m-0">
                                             <li class="breadcrumb-item">
@@ -89,7 +89,7 @@
                                             </li>
 
                                         </ol>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                         </div><!-- end card-body -->
@@ -143,38 +143,38 @@
             });
         })
 
-        $('#maintenance').change(function() {
+        // $('#maintenance').change(function() {
 
-            if ($(this).is(':checked')) {
-                var status = true;
-            } else {
-                var status = false;
-            }
-            $.ajax({
-                type: "POST",
-                url: "{{ route('maintenance') }}",
-                dataType: 'json',
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    status: status,
-                },
-                beforeSend: function() {},
-                success: function(res) {
-                    if (res.success === true) {
-                        if (res.data == 1) {
-                            var message = 'Enabled Successfuly';
-                        } else {
-                            var message = 'Disabled Successfuly';
-                        }
-                        Toast.fire({
-                            icon: 'success',
-                            title: message,
-                        })
-                    }
-                },
-                error: function(e) {}
-            });
-        })
+        //     if ($(this).is(':checked')) {
+        //         var status = true;
+        //     } else {
+        //         var status = false;
+        //     }
+        //     $.ajax({
+        //         type: "POST",
+        //         url: "{{ route('maintenance') }}",
+        //         dataType: 'json',
+        //         data: {
+        //             _token: "{{ csrf_token() }}",
+        //             status: status,
+        //         },
+        //         beforeSend: function() {},
+        //         success: function(res) {
+        //             if (res.success === true) {
+        //                 if (res.data == 1) {
+        //                     var message = 'Enabled Successfuly';
+        //                 } else {
+        //                     var message = 'Disabled Successfuly';
+        //                 }
+        //                 Toast.fire({
+        //                     icon: 'success',
+        //                     title: message,
+        //                 })
+        //             }
+        //         },
+        //         error: function(e) {}
+        //     });
+        // })
 
         $('#android').change(function() {
 

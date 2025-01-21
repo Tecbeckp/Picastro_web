@@ -101,6 +101,8 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('rating-popup', [ApiGeneralController::class, 'ratingPopup'])->name('rating-popup');
     Route::post('update-rating-popup', [ApiGeneralController::class, 'updateRatingPopup'])->name('updateRatingPopup');
+    Route::get('maintenance', [ApiGeneralController::class, 'maintenance'])->name('maintenance');
+    Route::post('update-maintenance', [ApiGeneralController::class, 'updateMaintenance'])->name('updateMaintenance');
 
     Route::resource('coupon', CouponController::class);
     Route::get('get-coupon/{id}', [CouponController::class, 'getCoupon']);
