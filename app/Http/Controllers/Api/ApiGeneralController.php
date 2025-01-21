@@ -1561,17 +1561,26 @@ class ApiGeneralController extends Controller
         return view('admin.general_setting', compact('data'));
     }
 
-    public function maintenance(Request $request)
+    public function maintenance()
     {
-        if ($request->status == 'true') {
-            $status = '1';
-        } else {
-            $status = '0';
-        }
-        Setting::where('id', '1')->update([
-            'maintenance' => $status
-        ]);
-        return $this->success(['Successfully'], $status);
+        $data = Setting::where('id', '1')->first();
+        return view('admin.maintenance', compact('data'));
+    }
+    public function updateMaintenance(Request $request)
+    {
+        Setting::updateOrCreate(
+            ['id' => $request->id ?? 1],
+            [
+                'maintenance_title' => $request->maintenance_title,
+                'maintenance_description' => $request->maintenance_description,
+                'maintenance_ios_version' => $request->maintenance_ios_version ,
+                'maintenance_android_version' => $request->maintenance_android_version,
+                'maintenance_ios' => $request->maintenance_ios ? '1' : '0',
+                'maintenance_android' => $request->maintenance_android ? '1' : '0',
+
+            ]
+        );
+        return redirect()->back()->with('success', 'Updated successfully.');
     }
 
     public function sendGift(Request $request)
