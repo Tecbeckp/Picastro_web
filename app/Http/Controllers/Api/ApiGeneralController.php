@@ -630,9 +630,16 @@ class ApiGeneralController extends Controller
         $data['android_screenshot'] = IsRegistration::first()->android_screenshot;
         $data['trial_period'] = TrialPeriod::first();
         $is_register = IsRegistration::latest()->first();
-        $data['app_under_maintenance'] = false;
-        $data['app_under_maintenance_for_only_android_version'] = '18';
-        $data['app_under_maintenance_for_only_ios_version'] = '1.1.6';
+        $maintenance = Setting::latest()->first();
+        if ($request->platform_type == 'android') {
+            $data['app_under_maintenance'] = $maintenance ? $maintenance->maintenance_android : false;
+        } elseif ($request->platform_type == 'iOS') {
+            $data['app_under_maintenance'] = $maintenance ? $maintenance->maintenance_ios : false;
+        } else {
+            $data['app_under_maintenance'] = false;
+        }
+        $data['app_under_maintenance_for_only_android_version'] = $maintenance ? $maintenance->maintenance_android_version : '';
+        $data['app_under_maintenance_for_only_ios_version']     = $maintenance ? $maintenance->maintenance_ios_version : '';
 
         if (isset($is_register) && $is_register->android == '0' && $request->platform_type == 'android') {
             $data['enable_plan'] = false;
@@ -1573,7 +1580,7 @@ class ApiGeneralController extends Controller
             [
                 'maintenance_title' => $request->maintenance_title,
                 'maintenance_description' => $request->maintenance_description,
-                'maintenance_ios_version' => $request->maintenance_ios_version ,
+                'maintenance_ios_version' => $request->maintenance_ios_version,
                 'maintenance_android_version' => $request->maintenance_android_version,
                 'maintenance_ios' => $request->maintenance_ios ? '1' : '0',
                 'maintenance_android' => $request->maintenance_android ? '1' : '0',
