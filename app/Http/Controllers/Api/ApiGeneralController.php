@@ -1571,7 +1571,7 @@ class ApiGeneralController extends Controller
 
     public function maintenance()
     {
-        $data = Setting::where('id', '1')->first();
+        $data = Setting::latest()->first();
         return view('admin.maintenance', compact('data'));
     }
     public function updateMaintenance(Request $request)
@@ -1579,12 +1579,12 @@ class ApiGeneralController extends Controller
         Setting::updateOrCreate(
             ['id' => $request->id ?? 1],
             [
-                'maintenance_title' => $request->maintenance_title,
-                'maintenance_description' => $request->maintenance_description,
-                'maintenance_ios_version' => $request->maintenance_ios_version,
-                'maintenance_android_version' => $request->maintenance_android_version,
+                'maintenance_title' => $request->title,
+                'maintenance_description' => $request->description,
+                'maintenance_ios_version' => $request->ios_version,
+                'maintenance_android_version' => $request->android_version,
                 'maintenance_ios' => $request->maintenance_ios ? '1' : '0',
-                'maintenance_android' => $request->maintenance_android ? '1' : '0',
+                'maintenance_android' => $request->maintenance_andriod ? '1' : '0',
 
             ]
         );
