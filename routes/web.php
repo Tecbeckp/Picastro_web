@@ -99,7 +99,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('general-setting', [ApiGeneralController::class, 'generalSetting'])->name('generalSetting');
     Route::post('maintenance', [ApiGeneralController::class, 'maintenance'])->name('maintenance');
 
-    Route::get('rating-popup', [ApiGeneralController::class, 'trialPeriod'])->name('trial-period-popup');
+    Route::get('rating-popup', [ApiGeneralController::class, 'ratingPopup'])->name('rating-popup');
+    Route::post('update-rating-popup', [ApiGeneralController::class, 'updateRatingPopup'])->name('updateRatingPopup');
 
     Route::resource('coupon', CouponController::class);
     Route::get('get-coupon/{id}', [CouponController::class, 'getCoupon']);
