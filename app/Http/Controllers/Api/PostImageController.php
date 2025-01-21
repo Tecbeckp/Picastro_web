@@ -318,10 +318,13 @@ class PostImageController extends Controller
                 $mergedPosts = $mergedPosts->shuffle(); // Shuffle ensures randomness without altering uniqueness
             }
 
-            $finalMergedPosts = $todaysPosts->merge($mergedPosts)
-                ->unique('id')
-                ->values();
-            // Paginate the result
+            if ($todaysPosts) {
+                $finalMergedPosts = $todaysPosts->merge($mergedPosts)
+                    ->unique('id')
+                    ->values();
+            } else {
+                $finalMergedPosts = $mergedPosts;
+            }
             $currentPage = request()->get('page', 1); // Get current page or default to 1
             $perPage = 50;
 
