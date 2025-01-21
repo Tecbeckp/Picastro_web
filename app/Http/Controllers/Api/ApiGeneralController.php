@@ -1250,40 +1250,42 @@ class ApiGeneralController extends Controller
 
     public function ratingPopup(Request $request)
     {
-        if($request->ajax()){
-            $users = User::with('userprofile')->whereHas('userprofile')->where('rating', '1')->latest()->get();
+        if ($request->ajax()) {
+            $users = User::with('userprofile')
+                ->whereHas('userprofile', function ($q) {
+                    $q->where('rating', '1');
+                })->latest()->get();
             return DataTables::of($users)->addIndexColumn()
-            ->addColumn('ID', function ($row) {
-                static $rowid = null;
-                static $start = null;
+                ->addColumn('ID', function ($row) {
+                    static $rowid = null;
+                    static $start = null;
 
-                if ($rowid === null) {
-                    $start = request()->get('start', 0);
-                    $rowid = $start + 1;
-                }
+                    if ($rowid === null) {
+                        $start = request()->get('start', 0);
+                        $rowid = $start + 1;
+                    }
 
-                return $rowid++;
-            })
-            ->addColumn('user', function ($row) {
-                return $row->first_name . ' ' . $row->last_name;
-            })
-            ->addColumn('image', function ($row) {
-                if ($row->userProfile) {
-                    return '<img src="' . $row->userProfile->profile_image . '" alt="" class="avatar-xs rounded-3 me-2 material-shadow" style="border-radius: 50% !important;object-fit: cover;object-position: top;">';
-                } else {
-                    return 'N/A';
-                }
-            })
-            ->addColumn('username', function ($row) {
-                return $row->username ?? 'N/A';
-            })
-            ->rawColumns(['image'])
-            ->make(true);
-        }else{
+                    return $rowid++;
+                })
+                ->addColumn('user', function ($row) {
+                    return $row->first_name . ' ' . $row->last_name;
+                })
+                ->addColumn('image', function ($row) {
+                    if ($row->userProfile) {
+                        return '<img src="' . $row->userProfile->profile_image . '" alt="" class="avatar-xs rounded-3 me-2 material-shadow" style="border-radius: 50% !important;object-fit: cover;object-position: top;">';
+                    } else {
+                        return 'N/A';
+                    }
+                })
+                ->addColumn('username', function ($row) {
+                    return $row->username ?? 'N/A';
+                })
+                ->rawColumns(['image'])
+                ->make(true);
+        } else {
             $data = RatingPopup::latest()->first();
             return view('admin.rating-popup', compact('data'));
         }
-        
     }
 
     public function updateRatingPopup(Request $request)
