@@ -1883,6 +1883,23 @@ class ApiGeneralController extends Controller
         return $this->success(['Get successfully.'], $paginatedPosts);
     }
 
+    public function storeRating(Request $request)
+    {
+        $rules = [
+            'rating' => 'required|numeric|in:1,2',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $this->error($validator->errors()->all());
+        }
+
+        $rating = UserProfile::where('user_id', auth()->id())->update(
+            [
+                'rating' => $request->rating
+            ]
+        );
+        return $this->success(['Rating successfully.'], $rating);
+    }
     public function getHallOfFame(Request $request)
     {
         $year = $request->year;
