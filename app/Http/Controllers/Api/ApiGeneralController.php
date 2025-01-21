@@ -1978,6 +1978,7 @@ class ApiGeneralController extends Controller
                 ];
             }
         }
+        $monthly_data = array_reverse($monthly_data);
         return $this->success(['Get hall of fame successfully!'], $monthly_data);
     }
     private function transformPostData($post)
