@@ -97,10 +97,10 @@ class ApiGeneralController extends Controller
 
                 $following = FollowerList::where('user_id', $follower->id)->where('follower_id', $user->id)->first();
                 if ($following) {
-                    $description = $follower->username . ' just followed you back.';
+                    $description = $follower->username . ' followed you back.';
                     $follower_id = null;
                 } else {
-                    $description = $follower->username . ' just followed you. follow back?';
+                    $description = $follower->username . ' followed you. follow back?';
                     $follower_id = $follower->id;
                 }
                 $notification = new Notification();
@@ -322,7 +322,7 @@ class ApiGeneralController extends Controller
                         $notification->user_id      = $post->user_id;
                         $notification->type         = 'Stars';
                         $notification->post_image_id = $id;
-                        $notification->notification = 'You just received a star from ' . auth()->user()->username . '. Check it out.';
+                        $notification->notification = 'You received a star from ' . auth()->user()->username . '. Check it out.';
                         $notification->save();
 
                         $user_notification_setting = NotificationSetting::where('user_id', $post->user->id)->first();
@@ -331,7 +331,7 @@ class ApiGeneralController extends Controller
                             if ($post->user && $post->user->fcm_token) {
                                 $this->notificationService->sendNotification(
                                     'Stars',
-                                    'You just received a star from ' . auth()->user()->username . '. Check it out.',
+                                    'You received a star from ' . auth()->user()->username . '. Check it out.',
                                     $post->user->fcm_token,
                                     json_encode($getnotification)
                                 );
@@ -459,7 +459,7 @@ class ApiGeneralController extends Controller
                         $notification->type          = 'Trophies';
                         $notification->post_image_id = $post_id;
                         $notification->trophy_id     = $trophy_id;
-                        $notification->notification  = 'Someone just awarded you a trophy on your image. Check it out.';
+                        $notification->notification  = 'Someone awarded you a trophy on your image. Check it out.';
                         $notification->save();
 
                         $user_notification_setting = NotificationSetting::where('user_id', $post->user->id)->first();
@@ -468,7 +468,7 @@ class ApiGeneralController extends Controller
                             if ($post->user && $post->user->fcm_token) {
                                 $this->notificationService->sendNotification(
                                     'Trophies',
-                                    'Someone just awarded you a trophy on your image. Check it out.',
+                                    'Someone awarded you a trophy on your image. Check it out.',
                                     $post->user->fcm_token,
                                     json_encode($getnotification)
                                 );

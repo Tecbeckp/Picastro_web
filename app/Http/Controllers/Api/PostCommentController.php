@@ -119,7 +119,7 @@ class PostCommentController extends Controller
             $notification->post_image_id     = $request->post_image_id;
             $notification->comment_id        = $request->post_comment_id;
             $notification->reply_comment_id  = $comment->id;
-            $notification->notification = auth()->user()->username . ' just replied to your comment.';
+            $notification->notification = auth()->user()->username . ' replied to your comment.';
             $notification->save();
 
             $user_notification_setting = NotificationSetting::where('user_id', $post_comment->user->id)->first();
@@ -128,7 +128,7 @@ class PostCommentController extends Controller
                 if ($post_comment->user && $post_comment->user->fcm_token) {
                     $this->notificationService->sendNotification(
                         'Comments',
-                        auth()->user()->username . ' just replied to your comment.',
+                        auth()->user()->username . ' replied to your comment.',
                         $post_comment->user->fcm_token,
                         json_encode($getnotification)
                     );
@@ -140,7 +140,7 @@ class PostCommentController extends Controller
             $notification->type            = 'Comments';
             $notification->post_image_id   = $request->post_image_id;
             $notification->comment_id      = $comment->id;
-            $notification->notification = auth()->user()->username . ' just commented on your post.';
+            $notification->notification = auth()->user()->username . ' commented on your post.';
             $notification->save();
 
 
@@ -150,7 +150,7 @@ class PostCommentController extends Controller
                 if ($post->user && $post->user->fcm_token) {
                     $this->notificationService->sendNotification(
                         'Comments',
-                        auth()->user()->username . ' just commented on your post.',
+                        auth()->user()->username . ' commented on your post.',
                         $post->user->fcm_token,
                         json_encode($getnotification)
                     );
@@ -213,11 +213,11 @@ class PostCommentController extends Controller
                         $notification->type         = 'Comments';
                         $notification->post_image_id  = $comment->post_image_id;
                         if ($comment->post_comment_id) {
-                            $notification->notification = auth()->user()->username . ' just liked your reply.';
+                            $notification->notification = auth()->user()->username . ' liked your reply.';
                             $notification->comment_id        = $comment->post_comment_id;
                             $notification->reply_comment_id  = $comment->id;
                         } else {
-                            $notification->notification = auth()->user()->username . ' just liked your comment.';
+                            $notification->notification = auth()->user()->username . ' liked your comment.';
                             $notification->comment_id  = $comment->id;
                         }
                         $notification->save();
@@ -229,14 +229,14 @@ class PostCommentController extends Controller
                                 if ($comment->post_comment_id) {
                                     $this->notificationService->sendNotification(
                                         'Comments',
-                                        auth()->user()->username . ' just liked your reply.',
+                                        auth()->user()->username . ' liked your reply.',
                                         $comment->user->fcm_token,
                                         json_encode($getnotification)
                                     );
                                 } else {
                                     $this->notificationService->sendNotification(
                                         'Comments',
-                                        auth()->user()->username . ' just liked your comment.',
+                                        auth()->user()->username . ' liked your comment.',
                                         $comment->user->fcm_token,
                                         json_encode($getnotification)
                                     );
