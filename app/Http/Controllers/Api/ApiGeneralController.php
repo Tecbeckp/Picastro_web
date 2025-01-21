@@ -52,7 +52,7 @@ use App\Models\SubscriptionHistory;
 use App\Models\SubscriptionPlan;
 use App\Models\UserProfile;
 use App\Models\WeekOfTheImage;
-use DateTime;
+use App\Models\RatingPopup;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 
@@ -643,7 +643,8 @@ class ApiGeneralController extends Controller
         }
 
         $data['comment_character_length'] = 400;
-        $data['rating_info_string'] = "Enter before the end of November and leave a review a random user will have the chance of winning a prize. To be decided but up to the value of £150.";
+        $rating = RatingPopup::latest()->first();
+        $data['rating_info_string'] = $rating->description ?? '';
         $used_trial = User::where('id', $request->user_id)->whereIn('trial_period_status', ['0', '2'])->first();
         $used_subscription = User::where('id', $request->user_id)->where('subscription_id', '4')->first();
         $subscription_plan = SubscriptionPlan::where('status', '1')->orderBy('place', 'asc')->get();
@@ -1248,6 +1249,57 @@ class ApiGeneralController extends Controller
         return redirect()->back()->with('success', 'Updated successfully.');
     }
 
+    public function ratingPopup(Request $request)
+    {
+        if($request->ajax()){
+            $users = User::latest()->get();
+            return DataTables::of($users)->addIndexColumn()
+            ->addColumn('ID', function ($row) {
+                static $rowid = null;
+                static $start = null;
+
+                if ($rowid === null) {
+                    $start = request()->get('start', 0);
+                    $rowid = $start + 1;
+                }
+
+                return $rowid++;
+            })
+            ->addColumn('user', function ($row) {
+                return $row->first_name . ' ' . $row->last_name;
+            })
+            ->addColumn('image', function ($row) {
+                if ($row->userProfile) {
+                    return '<img src="' . $row->userProfile->profile_image . '" alt="" class="avatar-xs rounded-3 me-2 material-shadow" style="border-radius: 50% !important;object-fit: cover;object-position: top;">';
+                } else {
+                    return 'N/A';
+                }
+            })
+            ->addColumn('username', function ($row) {
+                return $row->username ?? 'N/A';
+            })
+            ->rawColumns(['image'])
+            ->make(true);
+        }else{
+            $data = RatingPopup::latest()->first();
+            return view('admin.rating-popup', compact('data'));
+        }
+        
+    }
+
+    public function updateRatingPopup(Request $request)
+    {
+
+        $request->validate([
+            'description' => 'required'
+        ]);
+
+        RatingPopup::updateOrCreate(
+            ['id' => 1],
+            ['description' => $request->description]
+        );
+        return redirect()->back()->with('success', 'Updated successfully.');
+    }
     public function getFollower(Request $request)
     {
         $rules = [
