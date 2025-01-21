@@ -317,21 +317,17 @@ class PostImageController extends Controller
                 // Shuffle the result if needed
                 $mergedPosts = $mergedPosts->shuffle(); // Shuffle ensures randomness without altering uniqueness
             }
-
-            // Combine today's posts with the merged posts
-            $allMergedPosts = array_merge(
-                $todaysPosts ? $todaysPosts : [],
-                $mergedPosts->toArray()
-            );
-
+            
+$finalMergedPosts = $todaysPosts->merge($mergedPosts)
+    ->unique('id')
+    ->values(); 
             // Paginate the result
             $currentPage = request()->get('page', 1); // Get current page or default to 1
             $perPage = 50;
-
-            // Slice and paginate
+            
             $paginatedPosts = new LengthAwarePaginator(
-                array_slice($allMergedPosts, ($currentPage - 1) * $perPage, $perPage),
-                count($allMergedPosts),
+                $finalMergedPosts->forPage($currentPage, $perPage)->values(),
+                $finalMergedPosts->count(),
                 $perPage,
                 $currentPage,
                 ['path' => LengthAwarePaginator::resolveCurrentPath()]
