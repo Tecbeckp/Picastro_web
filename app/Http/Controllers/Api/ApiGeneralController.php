@@ -541,7 +541,6 @@ class ApiGeneralController extends Controller
             return $this->error(["You already unblock this user."]);
         } else {
             BlockTouser::where('user_id', auth()->id())->where('block_user_id', $request->block_user_id)->delete();
-
         }
         }else{
             $data = BlockToUser::where('user_id', auth()->id())->where('block_user_id', $request->block_user_id)->first();

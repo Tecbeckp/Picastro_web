@@ -12,6 +12,7 @@ use App\Models\ObserverLocation;
 use App\Models\FollowerList;
 use App\Models\GalleryImage;
 use App\Models\PostImage;
+use App\Models\PreviousImageOfWeek;
 use App\Models\StarCard;
 use App\Models\StarCardFilter;
 use App\Models\SubscriptionPlan;
@@ -339,6 +340,8 @@ class PostImageController extends Controller
             $trophies = Trophy::select('id', 'name', 'icon')->get();
 
             $paginatedPosts->getCollection()->transform(function ($post) use ($trophies) {
+                $iotw = PreviousImageOfWeek::where('post_id', $post->id)->first();
+                $iotm = VoteImage::where('IOT', '1')->where('post_image_id', $post->id)->first();
                 return [
                     'id'                 => $post->id,
                     'user_id'            => $post->user_id,
@@ -364,6 +367,8 @@ class PostImageController extends Controller
                     'Telescope'          => $post->Telescope,
                     'only_image_and_description' => $post->only_image_and_description,
                     'giveStar'           => $post->giveStar ? true : false,
+                    'iotw'               => $iotw ? true : false,
+                    'iotm'               => $iotm ? true : false,
                     'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
                     'Follow'             => $post->Follow ? true : false,
                     'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
