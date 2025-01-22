@@ -567,7 +567,7 @@ class ApiGeneralController extends Controller
 
     public function getBlockedUser(Request $request){
 
-        $data = BlockToUser::with('blockedUser')->where('user_id', auth()->id());
+        $data = BlockToUser::with('blockedUser.userprofile')->where('user_id', auth()->id());
 
         if ($request->search) {
             $search = $request->search;
