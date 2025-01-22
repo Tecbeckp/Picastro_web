@@ -90,6 +90,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('vote-image', [ApiGeneralController::class, 'voteImage']);
     Route::post('report', [ApiGeneralController::class, 'report']);
     Route::get('block-to-user', [ApiGeneralController::class, 'blockToUser']);
+    Route::get('get-blocked-users', [ApiGeneralController::class, 'getBlockedUser']);
     Route::post('contact-us', [ApiGeneralController::class, 'contactUs']);
     Route::get('test-notification', [ApiGeneralController::class, 'testNotification']);
     Route::get('warning-comment', [ApiGeneralController::class, 'warningComment']);
