@@ -17,7 +17,6 @@ return new class extends Migration
             $table->unsignedBigInteger('block_user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('block_user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->softDeletes();
             $table->timestamps();
         });
     }
