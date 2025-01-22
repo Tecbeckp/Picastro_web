@@ -10,4 +10,8 @@ class BlockToUser extends Model
 {
     use HasFactory, SoftDeletes;
     protected $guarded = [];
+
+    public function blockedUser(){
+        return $this->hasOne(User::class, 'block_user_id', 'id');
+    }
 }

@@ -523,7 +523,6 @@ class ApiGeneralController extends Controller
 
     public function blockToUser(Request $request)
     {
-
         $rules = [
             'block_user_id'    => 'required|numeric|exists:users,id',
         ];
@@ -562,9 +561,32 @@ class ApiGeneralController extends Controller
                 $user->userprofile->decrement('followers');
                 $following->delete();
             }
-
             return $this->success(['User blocked successfully!'], []);
         }
+    }
+
+    public function getBlockedUser(Request $request){
+
+        $data = BlockToUser::with('blockedUser')->where('user_id', auth()->id());
+
+        if ($request->search) {
+            $search = $request->search;
+            $data->whereHas('blockedUser', function ($q) use ($search) {
+                $q->whereAny(['first_name', 'last_name', 'username'], 'LIKE', '%' . $search . '%');
+            });
+        }
+        $data->whereHas('blockedUser', function ($q) {
+            $q->whereNull('deleted_at');
+        });
+        $data = $data->paginate(100);
+
+        $data->getCollection()->transform(function ($user) {
+            $data = $user->blockedUser;
+            return $data;
+        });
+
+        return $this->success(['Get blocked user list Successfully'], $data);
+
     }
 
     public function contactUs(Request $request)
