@@ -12,6 +12,6 @@ class BlockToUser extends Model
     protected $guarded = [];
 
     public function blockedUser(){
-        return $this->hasOne(User::class, 'block_user_id', 'id');
+        return $this->hasOne(User::class, 'id', 'block_user_id');
     }
 }
