@@ -532,37 +532,50 @@ class ApiGeneralController extends Controller
         if ($validator->fails()) {
             return $this->error($validator->errors()->all());
         }
-
-        $data = BlockToUser::where('user_id', auth()->id())->where('block_user_id', $request->block_user_id)->first();
+        if($request->block == 'false'){
+            $data = BlockToUser::where('user_id', auth()->id())->where('block_user_id', $request->block_user_id)->first();
         if ($data) {
-            return $this->error(['You already blocked this user.']);
+            $data->delete();
+            return $this->success(['User unblocked successfully!'], []);
         } elseif ($request->block_user_id == auth()->id()) {
-            return $this->error(["You can't block yourself."]);
+            return $this->error(["You already unblock this user."]);
         } else {
-            $blockToUser = new BlockToUser();
-            $blockToUser->user_id = auth()->id();
-            $blockToUser->block_user_id = $request->block_user_id;
-            $blockToUser->save();
+            BlockTouser::where('user_id', auth()->id())->where('block_user_id', $request->block_user_id)->delete();
 
-            $follower =  FollowerList::where('user_id', $request->block_user_id)->where('follower_id', auth()->id())->first();
-            if ($follower) {
-                $user = User::with('userprofile')->where('id', auth()->id())->whereNot('id', '1')->first();
-                $blockuser = User::with('userprofile')->where('id', $request->block_user_id)->whereNot('id', '1')->first();
-
-                $blockuser->userprofile->decrement('followers');
-                $user->userprofile->decrement('following');
-                $follower->delete();
-            }
-            $following =  FollowerList::where('follower_id', $request->block_user_id)->where('user_id', auth()->id())->first();
-            if ($following) {
-                $blockuser = User::with('userprofile')->where('id', $request->block_user_id)->whereNot('id', '1')->first();
-                $user = User::with('userprofile')->where('id', auth()->id())->whereNot('id', '1')->first();
-                $blockuser->userprofile->decrement('following');
-                $user->userprofile->decrement('followers');
-                $following->delete();
-            }
-            return $this->success(['User blocked successfully!'], []);
         }
+        }else{
+            $data = BlockToUser::where('user_id', auth()->id())->where('block_user_id', $request->block_user_id)->first();
+            if ($data) {
+                return $this->error(['You already blocked this user.']);
+            } elseif ($request->block_user_id == auth()->id()) {
+                return $this->error(["You can't block yourself."]);
+            } else {
+                $blockToUser = new BlockToUser();
+                $blockToUser->user_id = auth()->id();
+                $blockToUser->block_user_id = $request->block_user_id;
+                $blockToUser->save();
+    
+                $follower =  FollowerList::where('user_id', $request->block_user_id)->where('follower_id', auth()->id())->first();
+                if ($follower) {
+                    $user = User::with('userprofile')->where('id', auth()->id())->whereNot('id', '1')->first();
+                    $blockuser = User::with('userprofile')->where('id', $request->block_user_id)->whereNot('id', '1')->first();
+    
+                    $blockuser->userprofile->decrement('followers');
+                    $user->userprofile->decrement('following');
+                    $follower->delete();
+                }
+                $following =  FollowerList::where('follower_id', $request->block_user_id)->where('user_id', auth()->id())->first();
+                if ($following) {
+                    $blockuser = User::with('userprofile')->where('id', $request->block_user_id)->whereNot('id', '1')->first();
+                    $user = User::with('userprofile')->where('id', auth()->id())->whereNot('id', '1')->first();
+                    $blockuser->userprofile->decrement('following');
+                    $user->userprofile->decrement('followers');
+                    $following->delete();
+                }
+                return $this->success(['User blocked successfully!'], []);
+            }
+        }
+        
     }
 
     public function getBlockedUser(Request $request){
