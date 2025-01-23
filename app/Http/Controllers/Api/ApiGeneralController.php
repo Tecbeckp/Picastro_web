@@ -972,7 +972,7 @@ class ApiGeneralController extends Controller
                     'only_image_and_description' => $post->only_image_and_description,
                     'giveStar'           => $post->giveStar ? true : false,
                     'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
-                    'follow'             => $post->Follow ? true : false,
+                    'Follow'             => $post->Follow ? true : false,
                     'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
                     'trophy'             => $trophies,
                     'star_card'           => $post->StarCard,
