@@ -990,7 +990,7 @@ class ApiGeneralController extends Controller
             $userId = explode('/', $dee)[2];
             $user_id = base64_decode($userId);
 
-            $user = User::with('userprofile')->withCount('TotalStar')->where('id', $user_id)->first();
+            $user = User::with('userprofile', 'Following')->withCount('TotalStar')->where('id', $user_id)->first();
             $trophies = Trophy::select('id', 'name', 'icon')->get();
             $vote = [];
             foreach ($trophies as $trophy) {
@@ -1004,6 +1004,7 @@ class ApiGeneralController extends Controller
             $troph = Trophy::select('id', 'name', 'icon')->get();
             $result = [
                 'user' => $user,
+                'follow' => $user->Following ? true : false,
                 'posts' => $posts->count(),
                 'trophies' => $trophies->map(function ($trophy) use ($vote) {
                     return [
