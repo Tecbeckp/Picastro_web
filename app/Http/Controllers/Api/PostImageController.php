@@ -72,6 +72,8 @@ class PostImageController extends Controller
         $posts = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')->where('user_id', auth()->id())->latest()->paginate(10);
         $trophies = Trophy::select('id', 'name', 'icon')->get();
         $posts->getCollection()->transform(function ($post) use ($trophies) {
+            $iotw = PreviousImageOfWeek::where('post_id', $post->id)->first();
+            $iotm = VoteImage::where('IOT', '1')->where('post_image_id', $post->id)->first();
             return [
                 'id'                 => $post->id,
                 'user_id'            => $post->user_id,
@@ -97,6 +99,8 @@ class PostImageController extends Controller
                 'Telescope'          => $post->Telescope,
                 'only_image_and_description' => $post->only_image_and_description,
                 'giveStar'           => $post->giveStar ? true : false,
+                'iotw'               => $iotw ? true : false,
+                'iotm'               => $iotm ? true : false,
                 'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
                 'Follow'             => $post->Follow ? true : false,
                 'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
@@ -446,7 +450,8 @@ class PostImageController extends Controller
                 ->count();
         }
         $posts->transform(function ($post) use ($trophies) {
-
+            $iotw = PreviousImageOfWeek::where('post_id', $post->id)->first();
+            $iotm = VoteImage::where('IOT', '1')->where('post_image_id', $post->id)->first();
             return [
                 'id'                 => $post->id,
                 'user_id'            => $post->user_id,
@@ -472,6 +477,8 @@ class PostImageController extends Controller
                 'Telescope'          => $post->Telescope,
                 'only_image_and_description' => $post->only_image_and_description,
                 'giveStar'           => $post->giveStar ? true : false,
+                'iotw'               => $iotw ? true : false,
+                'iotm'               => $iotm ? true : false,
                 'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
                 'Follow'             => $post->Follow ? true : false,
                 'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
@@ -592,6 +599,8 @@ class PostImageController extends Controller
                 ];
             }),
             'user_post' => $posts->transform(function ($post) use ($troph) {
+                $iotw = PreviousImageOfWeek::where('post_id', $post->id)->first();
+                $iotm = VoteImage::where('IOT', '1')->where('post_image_id', $post->id)->first();
                 return [
                     'id'                 => $post->id,
                     'user_id'            => $post->user_id,
@@ -617,6 +626,8 @@ class PostImageController extends Controller
                     'Telescope'          => $post->Telescope,
                     'only_image_and_description' => $post->only_image_and_description,
                     'giveStar'           => $post->giveStar ? true : false,
+                    'iotw'               => $iotw ? true : false,
+                    'iotm'               => $iotm ? true : false,
                     'totalStar'          => $post->totalStar ? $post->totalStar->count() : 0,
                     'Follow'             => $post->Follow ? true : false,
                     'voted_trophy_id'    => $post->votedTrophy ? $post->votedTrophy->trophy_id : null,
