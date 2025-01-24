@@ -215,9 +215,8 @@ class PostImageController extends Controller
                 $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
                 $relatedUserIds = array_unique(array_merge($following, [$authUserId]));
             } elseif ($request->posts_from_people_you_do_not_follow === 'true') {
-
                 $authUserId = auth()->id();
-                $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
+                $followers = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
                 $relatedUserIds = array_unique(array_merge($followers, [$authUserId]));
             } else {
                 $authUserId = auth()->id();
