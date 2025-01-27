@@ -33,6 +33,10 @@ Route::get('/email', function () {
     return view('email');
 })->name('email');
 
+
+Route::get('user-coupon/{id}', [App\Http\Controllers\Api\PostImageController::class, 'userCopon']);
+
+
 Route::get('profile/{id}', [App\Http\Controllers\Api\PostImageController::class, 'allTestPostImage'])->name('profile');
 Route::get('gallery/{id}', [App\Http\Controllers\Api\PostImageController::class, 'galleryPostImage'])->name('gallery');
 
