@@ -17,7 +17,7 @@
     @endphp
     @if ($results)
         <meta property="og:url" content="https://picastro.co.uk/post/{{$id}}" />
-        <meta property="og:image" content="{{ asset($results->image) }}" />
+        <meta property="og:image" content="{{ asset($results->image[0]) }}" />
         <meta property="og:type" content="Post Image" />
         <meta property="og:title" content="{{ $results->post_image_title ?? $results->catalogue_number }}" />
         <meta property="og:description" content="{{ $results->description }}" />
