@@ -1260,6 +1260,7 @@ class PostImageController extends Controller
     }
 
     public function userCopon($id){
+        \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
         $subscription = \Stripe\Subscription::retrieve($id);
 
         dd($subscription);
