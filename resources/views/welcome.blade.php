@@ -13,11 +13,11 @@
         use Illuminate\Support\Facades\DB;
         $id = request('id');
         $results = DB::table('post_images')->where('id', base64_decode($id))->first();
-
+       
     @endphp
     @if ($results)
         <meta property="og:url" content="https://picastro.co.uk/post/{{$id}}" />
-        <meta property="og:image" content="{{ asset($results->image[0]) }}" />
+        <meta property="og:image" content="{{ asset(json_decode($results->image)[0]) }}" />
         <meta property="og:type" content="Post Image" />
         <meta property="og:title" content="{{ $results->post_image_title ?? $results->catalogue_number }}" />
         <meta property="og:description" content="{{ $results->description }}" />
@@ -57,7 +57,7 @@
                                 <div class="text-center">
                                     <img src="{{ asset('assets/images/picastro.png') }}" alt="" style="width: 50%;">
                                     <h1 class="text-white mb-4 mt-4">Download Picastro App</h1>
-                                    {{-- <h4 class="text-uppercase">Sorry, Page not Found 😭</h4> --}}
+                                    {{-- <h4 class="text-uppercase">Sorry, Page not Found ðŸ˜­</h4> --}}
                                     <p class="text-white mb-4">Download the app today using the links below</p>
                                     <a target="_blank" href="https://apps.apple.com/pk/app/picastro/id6446713728"><img src="{{asset('assets/images/app_store.png')}}" alt="Playstore" class="w-50"></a>
                                     <a target="_blank" href="https://play.google.com/store/search?q=picastro&c=apps&hl=en"><img src="{{asset('assets/images/Google-Play-Store-Logo-PNG-Transparent.png')}}" alt="Playstore" style="width: 49% !important;border-radius: 10px"></a>
@@ -77,6 +77,15 @@
     </div>
 
     @include('includes.script')
+    <script>
+    document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey && event.key === 'u') {
+            event.preventDefault();
+            console.log("Viewing source is disabled!");
+        }
+    });
+</script>
 </body>
 
 </html>
