@@ -137,9 +137,7 @@ class PostImageController extends Controller
                 })
                 ->whereHas('userprofile', function ($q) {
                     $q->where('complete_profile', '1');
-                })
-                ->whereNotIn('id', ['1219', '1215', '1213', '1207', '1185', '1176', '1169', '1133', '1127', '1112', '1111', '1099', '1089', '1025', '1024', '974', '972'])
-                ->whereDoesntHave('blockToUser')
+                })->whereDoesntHave('blockToUser')
                 ->whereDoesntHave('UserToBlock')
                 ->where('is_registration', '1')->latest()->paginate(50);
             $users->getCollection()->transform(function ($user) {
