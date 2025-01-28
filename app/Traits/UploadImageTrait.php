@@ -41,7 +41,7 @@ trait  UploadImageTrait
 
             // Save the processed image to a temporary file
             $tempFilePath = tempnam(sys_get_temp_dir(), 'image') . '.webp';
-            $image->save($tempFilePath, 100);
+            $image->save($tempFilePath, 100, 'webp', ['lossless' => true]);
 
             // Upload the processed image to S3
             Storage::disk('s3')->put($filePath, file_get_contents($tempFilePath));
