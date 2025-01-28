@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 
 trait  UploadImageTrait
 {
-    public function originalImageUpload($file, $destinationFolder, $chatImage = false, $flip_vertically = false, $flip_horizontally = false, $rotation_angle = '0')
+    public function originalImageUpload($file, $destinationFolder, $chatImage = false, $flip_vertically = false, $flip_horizontally = false, $rotation_angle = false)
     {
         if (!$file) {
             return null;
@@ -26,7 +26,9 @@ trait  UploadImageTrait
             // Read the image using Intervention Image
             $image = Image::read($file);
 
-            $image->rotate($rotation_angle); // You can change the degree as needed
+            if($rotation_angle){
+                $image->rotate($rotation_angle); // You can change the degree as needed
+            }
 
             if ($flip_vertically == 'true') {
                 $image->flip('v');
@@ -52,7 +54,7 @@ trait  UploadImageTrait
         }
     }
 
-    public function imageUpload($file, $destinationFolder, $flip_vertically = false, $flip_horizontally = false, $rotation_angle = '0')
+    public function imageUpload($file, $destinationFolder, $flip_vertically = false, $flip_horizontally = false, $rotation_angle = false)
     {
         if (!$file) {
             return null;
@@ -76,8 +78,9 @@ trait  UploadImageTrait
             $constraint->aspectRatio();
         })->save(public_path($destinationFolder . $filename), 90);
 
-        $image->rotate($rotation_angle); // You can change the degree as needed
-
+        if($rotation_angle){
+            $image->rotate($rotation_angle); // You can change the degree as needed
+        }
         if ($flip_vertically == 'true') {
             $image->flip('v');
         }
