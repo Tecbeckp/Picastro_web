@@ -13,11 +13,25 @@
         use Illuminate\Support\Facades\DB;
         $id = request('id');
         $results = DB::table('post_images')->where('id', base64_decode($id))->first();
-       
+        $image = $results->image;
+       if (is_string($image) && json_decode($image) !== null) {
+    // Decode the JSON string
+    $imageArray = json_decode($image, true);
+    
+    // Check if the decoded JSON is an array and has at least one element
+    if (is_array($imageArray) && count($imageArray) > 0) {
+        // Use the first image in the array
+        $imageUrl = asset($imageArray[0]);
+    }
+} else {
+    // If the image is not JSON-encoded, use it directly
+    $imageUrl = asset($image);
+}
+
     @endphp
     @if ($results)
         <meta property="og:url" content="https://picastro.co.uk/post/{{$id}}" />
-        <meta property="og:image" content="{{ asset(json_decode($results->image)[0]) }}" />
+        <meta property="og:image" content="{{ $imageUrl }}" />
         <meta property="og:type" content="Post Image" />
         <meta property="og:title" content="{{ $results->post_image_title ?? $results->catalogue_number }}" />
         <meta property="og:description" content="{{ $results->description }}" />
