@@ -26,7 +26,8 @@ trait  UploadImageTrait
             // Read the image using Intervention Image
             $image = Image::read($file);
 
-            if($rotation_angle){
+            if ($rotation_angle) {
+                $rotation_angle = (float)$rotation_angle;
                 $image->rotate($rotation_angle); // You can change the degree as needed
             }
 
@@ -78,7 +79,8 @@ trait  UploadImageTrait
             $constraint->aspectRatio();
         })->save(public_path($destinationFolder . $filename), 90);
 
-        if($rotation_angle){
+        if ($rotation_angle) {
+            $rotation_angle = (float)$rotation_angle;
             $image->rotate($rotation_angle); // You can change the degree as needed
         }
         if ($flip_vertically == 'true') {
