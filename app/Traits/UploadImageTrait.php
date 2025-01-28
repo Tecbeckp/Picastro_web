@@ -5,7 +5,8 @@ namespace App\Traits;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Laravel\Facades\Image;
 use Illuminate\Support\Facades\Http;
-
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 trait  UploadImageTrait
 {
     public function originalImageUpload($file, $destinationFolder, $chatImage = false, $flip_vertically = false, $flip_horizontally = false, $rotation_angle = false)
@@ -21,37 +22,61 @@ trait  UploadImageTrait
             $fileUrl = $destinationFolder . $filename;
             return $fileUrl;
         } else {
-            $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
-            $filePath = $destinationFolder . time() . '-' . $fileName;
-            // Read the image using Intervention Image
-            $image = Image::read($file);
+            // Get the uploaded image
+            $image = $file;
+
+            $manager = new ImageManager(new Driver());
+            // Load the image using Intervention Image
+            $img = $manager->read($image);
+
 
             if ($rotation_angle) {
                 $rotation_angle = (float)$rotation_angle;
-                $image->rotate($rotation_angle); // You can change the degree as needed
+                $img->rotate($rotation_angle); // You can change the degree as needed
             }
 
             if ($flip_vertically == 'true') {
-                $image->flip('v');
+                $img->flip('v');
             }
 
             if ($flip_horizontally == 'true') {
-                $image->flip('h');
+                $img->flip('h');
             }
 
-            // Save the processed image to a temporary file
-            $tempFilePath = tempnam(sys_get_temp_dir(), 'image') . '.webp';
-            $image->save($tempFilePath, 100, 'webp', ['lossless' => true]);
+            $encodedImage = $img->encode();
 
-            // Upload the processed image to S3
-            Storage::disk('s3')->put($filePath, file_get_contents($tempFilePath));
+            // Generate a unique file name
+            $fileName = $destinationFolder . time() . '.webp';
 
-            // Get the URL of the uploaded image
-            $fileUrl = Storage::disk('s3')->url($filePath);
+            // Save the image to S3
+            Storage::disk('s3')->put($fileName, $encodedImage);
 
-            // Clean up the temporary file
-            unlink($tempFilePath);
-            return $fileUrl;
+            // Get the public URL of the uploaded image
+            $imageUrl = Storage::disk('s3')->url($fileName);
+
+            return $imageUrl;
+
+            // $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
+            // $filePath = $destinationFolder . time() . '-' . $fileName;
+
+            // // Read the image using Intervention Image
+            // $image = Image::read($file);
+
+
+
+            // // Save the processed image to a temporary file
+            // $tempFilePath = tempnam(sys_get_temp_dir(), 'image') . '.webp';
+
+
+            // // Upload the processed image to S3
+            // Storage::disk('s3')->put($filePath, file_get_contents($tempFilePath));
+
+            // // Get the URL of the uploaded image
+            // $fileUrl = Storage::disk('s3')->url($filePath);
+
+            // // Clean up the temporary file
+            // unlink($tempFilePath);
+            // return $fileUrl;
         }
     }
 
