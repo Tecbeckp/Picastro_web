@@ -176,11 +176,6 @@ class PostImageController extends Controller
                 $observer_location = null;
             }
 
-            $authUserId = auth()->id();
-            $followers = FollowerList::where('user_id', $authUserId)->pluck('follower_id')->toArray();
-            $following = FollowerList::where('follower_id', $authUserId)->pluck('user_id')->toArray();
-            $relatedUserIds = array_unique(array_merge($followers, $following, [$authUserId]));
-
             $postsQuery = PostImage::with('user', 'StarCard.StarCardFilter', 'ObjectType', 'Bortle', 'ObserverLocation', 'ApproxLunarPhase', 'Telescope', 'giveStar', 'totalStar', 'Follow', 'votedTrophy')
                 ->whereDoesntHave('blockToUser')
                 ->whereDoesntHave('UserToBlock')
@@ -225,6 +220,12 @@ class PostImageController extends Controller
 
             $postsQuery->whereHas('user', function ($q) {
                 $q->whereNull('deleted_at');
+            });
+            $postsQuery->whereHas('user', function ($query) {
+                $query->where('first_name', 'not like', '%test%')
+                    ->where('last_name', 'not like', '%test%')
+                    ->where('username', 'not like', '%test%')
+                    ->where('email', 'not like', '%test%');
             });
             // Fetch posts related to the user
             if ($request->posts_from_people_you_follow === 'true' && $request->posts_from_people_you_do_not_follow === 'false') {
