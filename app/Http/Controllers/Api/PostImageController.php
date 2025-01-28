@@ -723,18 +723,18 @@ class PostImageController extends Controller
             $originalImages = [];
 
             if ($request->hasFile('image')) {
-                $images[] = $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', false);
-                $originalImages[] = $this->originalImageUpload($request->file('image'), 'images/', false, false);
+                $images[] = $this->imageUpload($request->file('image'), 'assets/uploads/postimage/', $request->flip_vertically_0, $request->flip_horizontally_0, $request->rotation_angle_0);
+                $originalImages[] = $this->originalImageUpload($request->file('image'), 'images/', false, $request->flip_vertically_0, $request->flip_horizontally_0, $request->rotation_angle_0);
             }
 
             if ($request->hasFile('image_2')) {
-                $images[] = $this->imageUpload($request->file('image_2'), 'assets/uploads/postimage/', false);
-                $originalImages[] = $this->originalImageUpload($request->file('image_2'), 'images/', false, false);
+                $images[] = $this->imageUpload($request->file('image_2'), 'assets/uploads/postimage/', $request->flip_vertically_1, $request->flip_horizontally_1, $request->rotation_angle_1);
+                $originalImages[] = $this->originalImageUpload($request->file('image_2'), 'images/', false, $request->flip_vertically_1, $request->flip_horizontally_1, $request->rotation_angle_1);
             }
 
             if ($request->hasFile('image_3')) {
-                $images[] = $this->imageUpload($request->file('image_3'), 'assets/uploads/postimage/', false);
-                $originalImages[] = $this->originalImageUpload($request->file('image_3'), 'images/', false, false);
+                $images[] = $this->imageUpload($request->file('image_3'), 'assets/uploads/postimage/', $request->flip_vertically_2, $request->flip_horizontally_2, $request->rotation_angle_2);
+                $originalImages[] = $this->originalImageUpload($request->file('image_3'), 'images/', false, $request->flip_vertically_2, $request->flip_horizontally_2, $request->rotation_angle_2);
             }
 
             $postImage                        = new PostImage();
@@ -1257,7 +1257,8 @@ class PostImageController extends Controller
         return $this->success(['successfully get Object info list'], $data);
     }
 
-    public function userCopon($id){
+    public function userCopon($id)
+    {
         \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
         $subscription = \Stripe\Subscription::retrieve($id);
 
