@@ -46,7 +46,7 @@ trait  UploadImageTrait
             $encodedImage = $img->encode();
 
             // Generate a unique file name
-            $fileName = $destinationFolder . time() . '.webp';
+            $fileName = $destinationFolder . time() . '.' . $image->getClientOriginalExtension();
 
             // Save the image to S3
             Storage::disk('s3')->put($fileName, $encodedImage);
