@@ -5,11 +5,10 @@ namespace App\Traits;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Laravel\Facades\Image;
 use Illuminate\Support\Facades\Http;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
+
 trait  UploadImageTrait
 {
-    public function originalImageUpload($file, $destinationFolder, $chatImage = false, $flip_vertically = false, $flip_horizontally = false, $rotation_angle = false)
+    public function originalImageUpload($file, $destinationFolder, $chatImage = false, $multiple = false)
     {
         if (!$file) {
             return null;
@@ -21,106 +20,80 @@ trait  UploadImageTrait
             $file->move(public_path($destinationFolder), $filename);
             $fileUrl = $destinationFolder . $filename;
             return $fileUrl;
+        } elseif ($multiple) {
+            $imgs = [];
+            foreach($file as $img){
+            $fileName = pathinfo($img->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
+            $filePath = $destinationFolder . time() . '-'. auth()->id() . $fileName;
+            Storage::disk('s3')->put($filePath, file_get_contents($img));
+            $fileUrl = Storage::disk('s3')->url($filePath);
+            $imgs[] = $fileUrl;
+            }
+            return $imgs;
         } else {
-            // Get the uploaded image
-            $image = $file;
-
-            $manager = new ImageManager(new Driver());
-            // Load the image using Intervention Image
-            $img = $manager->read($image);
-
-
-            if ($rotation_angle) {
-                $rotation_angle = (float)$rotation_angle;
-                $img->rotate($rotation_angle); // You can change the degree as needed
-            }
-
-            if ($flip_vertically == 'true') {
-                $img->flip('v');
-            }
-
-            if ($flip_horizontally == 'true') {
-                $img->flip('h');
-            }
-
-            $encodedImage = $img->encode();
-
-            // Generate a unique file name
-            $fileName = $destinationFolder . time() . '.' . $image->getClientOriginalExtension();
-
-            // Save the image to S3
-            Storage::disk('s3')->put($fileName, $encodedImage);
-
-            // Get the public URL of the uploaded image
-            $imageUrl = Storage::disk('s3')->url($fileName);
-
-            return $imageUrl;
-
-            // $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
-            // $filePath = $destinationFolder . time() . '-' . $fileName;
-
-            // // Read the image using Intervention Image
-            // $image = Image::read($file);
-
-
-
-            // // Save the processed image to a temporary file
-            // $tempFilePath = tempnam(sys_get_temp_dir(), 'image') . '.webp';
-
-
-            // // Upload the processed image to S3
-            // Storage::disk('s3')->put($filePath, file_get_contents($tempFilePath));
-
-            // // Get the URL of the uploaded image
-            // $fileUrl = Storage::disk('s3')->url($filePath);
-
-            // // Clean up the temporary file
-            // unlink($tempFilePath);
-            // return $fileUrl;
+            $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
+            $filePath = $destinationFolder . time() . '-' . $fileName;
+            Storage::disk('s3')->put($filePath, file_get_contents($file));
+            $fileUrl = Storage::disk('s3')->url($filePath);
+            return $fileUrl;
         }
     }
 
-    public function imageUpload($file, $destinationFolder, $flip_vertically = false, $flip_horizontally = false, $rotation_angle = false)
+    public function imageUpload($file, $destinationFolder, $multiple = false)
     {
         if (!$file) {
             return null;
         }
-        $random = rand(1000, 9999);
-        $filename = time() . $random . '.webp';
 
-        // Load the image file using the Intervention Image package
-        $image = Image::read($file);
+        if ($multiple) {
+            $imgs = [];
+            foreach ($file as $img) {
+                $random = rand(1000, 9999);
+                $filename = time() . $random . '-' . auth()->id() . '.webp';
 
-        // Get the original width and height
-        $originalWidth = $image->width();
-        $originalHeight = $image->height();
+                $image = Image::read($img);
 
-        // Calculate 70% of the original width and height
-        $newWidth = round($originalWidth * 0.3);
-        $newHeight = round($originalHeight * 0.3);
+                // Get the original width and height
+                $originalWidth = $image->width();
+                $originalHeight = $image->height();
 
-        // Resize the image to 90% of its original size
-        $image->resize($newWidth, $newHeight, function ($constraint) {
-            $constraint->aspectRatio();
-        })->save(public_path($destinationFolder . $filename), 90);
+                // Calculate 70% of the original width and height
+                $newWidth = round($originalWidth * 0.3);
+                $newHeight = round($originalHeight * 0.3);
 
-        if ($rotation_angle) {
-            $rotation_angle = (float)$rotation_angle;
-            $image->rotate($rotation_angle); // You can change the degree as needed
+                // Resize the image to 90% of its original size
+                $image->resize($newWidth, $newHeight, function ($constraint) {
+                    $constraint->aspectRatio();
+                })->save(public_path($destinationFolder . $filename), 90);
+
+                $file_path = $destinationFolder . $filename;
+
+                $imgs[] = $file_path;
+            }
+            return $imgs;
+        } else {
+            $random = rand(1000, 9999);
+            $filename = time() . $random . '.webp';
+
+            // Load the image file using the Intervention Image package
+            $image = Image::read($file);
+
+            // Get the original width and height
+            $originalWidth = $image->width();
+            $originalHeight = $image->height();
+
+            // Calculate 70% of the original width and height
+            $newWidth = round($originalWidth * 0.3);
+            $newHeight = round($originalHeight * 0.3);
+
+            // Resize the image to 90% of its original size
+            $image->resize($newWidth, $newHeight, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save(public_path($destinationFolder . $filename), 90);
+
+            $file_path = $destinationFolder . $filename;
+            return $file_path;
         }
-        if ($flip_vertically == 'true') {
-            $image->flip('v');
-        }
-
-        if ($flip_horizontally == 'true') {
-            $image->flip('h');
-        }
-
-        // Save the image
-        $image->save(public_path($destinationFolder . $filename), 90);
-
-        $file_path = $destinationFolder . $filename;
-        return $file_path;
     }
 
     function getImageFileSizeFromUrl($url)
