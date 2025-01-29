@@ -577,7 +577,9 @@ class PostImageController extends Controller
         $trophies = Trophy::select('id', 'name', 'icon')->get();
         $vote = [];
         foreach ($trophies as $trophy) {
-            $vote[$trophy->id] = VoteImage::where('trophy_id', $trophy->id)
+            $vote[$trophy->id] = VoteImage::whereHas('postImage', function ($q) {
+                $q->whereNull('deleted_at');
+            })->where('trophy_id', $trophy->id)
                 ->where('post_user_id', $user->id)
                 ->count();
         }
