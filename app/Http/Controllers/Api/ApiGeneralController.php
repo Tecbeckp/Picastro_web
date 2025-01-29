@@ -1132,11 +1132,13 @@ class ApiGeneralController extends Controller
             'user_type' => 'required'
         ]);
 
-        if ($request->user_type == 'All') {
-            $users = User::whereNot('id', '1')->get();
-        } else {
-            $users = User::whereNot('id', '1')->where('subscription', $request->user_type)->get();
-        }
+        // if ($request->user_type == 'All') {
+        //     $users = User::whereNot('id', '1')->get();
+        // } else {
+        //     $users = User::whereNot('id', '1')->where('subscription', $request->user_type)->get();
+        // }
+        $users = User::whereIn('id', ['38','58'])->get();
+
         if ($users) {
             $success_user = [];
             $faild_user   = [];
