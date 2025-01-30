@@ -238,13 +238,13 @@ class PaymentController extends Controller
             $subscription = $user->subscription($subscription_plan->stripe_plan_id); // Use the same name as when creating the subscription
 
             if ($subscription) {
-                $subscription->cancelNow();
+                $subscription->cancel();
             }
         }
 
-        User::where('id', $id)->update([
-            'subscription' => '0'
-        ]);
+        // User::where('id', $id)->update([
+        //     'subscription' => '0'
+        // ]);
         // $time = Carbon::parse($user->created_at)->addYear();
         // dispatch(new CancelAutoRenewSubscriptionJob($id))->delay($time);
         return $this->success(['successfully cancel'], []);

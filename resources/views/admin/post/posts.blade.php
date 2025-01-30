@@ -1,7 +1,7 @@
 <div class="row">
     @foreach ($posts as $post)
         <div class="col-xxl-4 col-sm-6 project-card">
-            <div class="card" style="height: 420px;"> <!-- Set a fixed height for the card -->
+            <div class="card">
                 <div class="card-body p-0">
                     <div class="p-0 bg-secondary-subtle rounded-top">
                         <a href="{{ route('posts.show', encrypt($post->id)) }}" class="text-center">

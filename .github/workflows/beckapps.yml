@@ -17,9 +17,9 @@ jobs:
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@4.3.2
         with:
-          server: picastro.beckapps.co
-          username: danyal@picastro.beckapps.co
-          password: P6zdzy7#++g!
+          server: picastro.beckcircle.com
+          username: danyal@picastro.beckcircle.com
+          password: '?4busMceAETr'
           timeout: 999999
 
   deploy-danyal:
