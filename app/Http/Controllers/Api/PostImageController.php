@@ -443,10 +443,12 @@ class PostImageController extends Controller
         $user = User::with('userprofile')->withCount('TotalStar')->where('id', base64_decode($id, true))->first();
         $trophies = Trophy::select('id', 'name', 'icon')->get();
         $vote = [];
-        foreach ($trophies as $trophy) {
-            $vote[$trophy->id] = VoteImage::where('trophy_id', $trophy->id)
-                ->where('post_user_id', $user->id)
-                ->count();
+        if ($user) {
+            foreach ($trophies as $trophy) {
+                $vote[$trophy->id] = VoteImage::where('trophy_id', $trophy->id)
+                    ->where('post_user_id', $user->id)
+                    ->count();
+            }
         }
         $posts->transform(function ($post) use ($trophies) {
             $iotw = PreviousImageOfWeek::where('post_id', $post->id)->first();
